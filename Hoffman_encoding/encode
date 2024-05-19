@@ -1,4 +1,55 @@
 #!/usr/bin/python3
 
+# Read a wave file '0ab237b7-fb12-4687-afed-8d1e2070d621.wav'
+# convert the wave file to bytes
+# convert the byte array to hex
+# begin hoffman encoding
+
+from scipy.io.wavfile import read, write
+
+def read_file():
+    # Read the text into bytes:
+    with open("data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav", "rb") as wavfile:
+        input_wav = wavfile.read()
+    return input_wav
+
+# def convert_byte_to_hex(input_wav):
+#     input_wav_hex_string = input_wav.hex()
+#     counter = 0
+#     input_wav_hex = []
+#     while (counter+1 < len(input_wav_hex_string)):
+#         input_wav_hex.append(input_wav_hex_string[counter] + input_wav_hex_string[counter+1])
+#     return input_wav_hex
+
+def determine_byte_freq(input_wav):
+    # Determine the frequency of each character occurence:
+    byte_freq_dict = {}
+    for byte in input_wav:
+        try:
+            byte_freq_dict[byte] += 1
+        except KeyError:
+            byte_freq_dict[byte] = 1
+    sorted_byte_freq_dict = dict(sorted(byte_freq_dict.items(), key=lambda x:x[1]))
+    
+    return sorted_byte_freq_dict
+
+# build the node tree
+def build_node_tree(sorted_byte_freq_dict):
+    # Identifying the keys in the sorted byte frequency dictionary
+    # Ordering the keys from highest frequency of occurence to lowest frequency of occurence
+    sorted_byte_freq_dict_key_list = list(sorted_byte_freq_dict)
+    sorted_byte_freq_dict_key_list_high_freq_to_low = sorted_byte_freq_dict_key_list[::-1]
+    # This is a string of numbers sorted from highest frequency to lowest i.e. '244 160... etc':sum of all occurences. 
+    # This is equal to {'00 CA F0 FF 0F':16} in the example. 
+    # Given there is a byte '244' identify this byte in the string '244 160 ... etc'
+    node_1 = sorted_byte_freq_dict_key_list_high_freq_to_low.pop()
+    node_2 = sorted_byte_freq_dict_key_list_high_freq_to_low.pop()
+
 if __name__ == '__main__':
     print('Hoffman Encoding')
+    input_wav = read_file()
+    sorted_byte_freq_dict = determine_byte_freq(input_wav)
+    # build the node tree
+    # assign the sorted_byte_freq_dict bit-representations
+    # write the bit-representation to a file
+    
