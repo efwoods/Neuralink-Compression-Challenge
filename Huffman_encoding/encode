@@ -14,7 +14,7 @@ class Node:
         self.right = right
         self.data = data
         self.freq = freq
-    
+        self.code = ''
 
 def read_file():
     # Read the text into bytes:
