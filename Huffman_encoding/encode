@@ -6,6 +6,15 @@
 # begin Huffman encoding
 
 from scipy.io.wavfile import read, write
+import heapq
+
+class Node:
+    def __init__(self, data, freq, left = None, right = None):
+        self.left = left
+        self.right = right
+        self.data = data
+        self.freq = freq
+    
 
 def read_file():
     # Read the text into bytes:
@@ -13,25 +22,17 @@ def read_file():
         input_wav = wavfile.read()
     return input_wav
 
-# def convert_byte_to_hex(input_wav):
-#     input_wav_hex_string = input_wav.hex()
-#     counter = 0
-#     input_wav_hex = []
-#     while (counter+1 < len(input_wav_hex_string)):
-#         input_wav_hex.append(input_wav_hex_string[counter] + input_wav_hex_string[counter+1])
-#     return input_wav_hex
-
-def determine_byte_freq(input_wav):
-    # Determine the frequency of each character occurence:
-    byte_freq_dict = {}
-    for byte in input_wav:
+def determine_hex_freq(input_wav):
+    input_wav_hex = input_wav.hex()
+    hex_freq_dictionary = {}
+    for digit_position in range(0, len(input_wav.hex()), 2):
+        current_hex_pair = input_wav_hex[digit_position] + input_wav_hex[digit_position + 1]
         try:
-            byte_freq_dict[byte] += 1
+            hex_freq_dictionary[current_hex_pair] += 1
         except KeyError:
-            byte_freq_dict[byte] = 1
-    sorted_byte_freq_dict = dict(sorted(byte_freq_dict.items(), key=lambda x:x[1]))
-    
-    return sorted_byte_freq_dict
+            hex_freq_dictionary[current_hex_pair] = 1
+    sorted_hex_freq_dictionary = dict(sorted(hex_freq_dictionary.items(), key = lambda x:x[1]))
+    return sorted_hex_freq_dictionary
 
 # build the node tree
 def build_node_tree(sorted_byte_freq_dict):
@@ -48,7 +49,7 @@ def build_node_tree(sorted_byte_freq_dict):
 if __name__ == '__main__':
     print('Huffman Encoding')
     input_wav = read_file()
-    sorted_byte_freq_dict = determine_byte_freq(input_wav)
+    sorted_hex_freq_dict = determine_hex_freq(input_wav)
     # build the node tree
     # assign the sorted_byte_freq_dict bit-representations
     # write the bit-representation to a file
