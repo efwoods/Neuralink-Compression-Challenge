@@ -15,6 +15,9 @@ class Node:
         self.data = data
         self.freq = freq
         self.code = ''
+    
+    def __lt__(self, nxt):
+        return self.freq < nxt.freq
 
 def read_file():
     # Read the text into bytes:
@@ -50,6 +53,17 @@ if __name__ == '__main__':
     print('Huffman Encoding')
     input_wav = read_file()
     sorted_hex_freq_dict = determine_hex_freq(input_wav)
+    hex_freq_keys = list(sorted_hex_freq_dict.keys())
+    hex_freq_values = list(sorted_hex_freq_dict.values())
+    
+    # Create a list of nodes
+    nodes = []
+    for item in range(len(hex_freq_keys)):
+        heapq.heappush(nodes, Node(hex_freq_keys[item], hex_freq_values[item]))
+        
+    left = heapq.heappop(nodes)
+    right = heapq.heappop(nodes)
+    
     # build the node tree
     # assign the sorted_byte_freq_dict bit-representations
     # write the bit-representation to a file
