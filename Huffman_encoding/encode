@@ -9,21 +9,38 @@ from scipy.io.wavfile import read, write
 import heapq
 
 class Node:
-    def __init__(self, data, freq, left = None, right = None):
+    def __init__(self, freq, data, left = None, right = None):
+        self.freq = freq
+        self.data = data
         self.left = left
         self.right = right
-        self.data = data
-        self.freq = freq
         self.code = ''
     
     def __lt__(self, nxt):
         return self.freq < nxt.freq
+    
+def createNodeMappingDictionary(node, val = '', nodeMappingDict = {}):
+    newVal = val + str(node.code)
+    # if node is not an edge node, traverse
+    if(node.left):
+        createNodeMappingDictionary(node.left, newVal, nodeMappingDict)
+    if(node.right):
+        createNodeMappingDictionary(node.right, newVal, nodeMappingDict)
+    if(not node.left and not node.right):
+        nodeMappingDict[node.data] = newVal
+        # print(f"{node.data} -> {newVal}")
+    return nodeMappingDict
 
 def read_file():
     # Read the text into bytes:
     with open("data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav", "rb") as wavfile:
         input_wav = wavfile.read()
     return input_wav
+
+def write_file():
+    # Write bits to file
+    with open('output.txt', "wb") as outfile:
+        
 
 def determine_hex_freq(input_wav):
     input_wav_hex = input_wav.hex()
@@ -37,34 +54,35 @@ def determine_hex_freq(input_wav):
     sorted_hex_freq_dictionary = dict(sorted(hex_freq_dictionary.items(), key = lambda x:x[1]))
     return sorted_hex_freq_dictionary
 
-# build the node tree
-def build_node_tree(sorted_byte_freq_dict):
-    # Identifying the keys in the sorted byte frequency dictionary
-    # Ordering the keys from highest frequency of occurence to lowest frequency of occurence
-    sorted_byte_freq_dict_key_list = list(sorted_byte_freq_dict)
-    sorted_byte_freq_dict_key_list_high_freq_to_low = sorted_byte_freq_dict_key_list[::-1]
-    # This is a string of numbers sorted from highest frequency to lowest i.e. '244 160... etc':sum of all occurences. 
-    # This is equal to {'00 CA F0 FF 0F':16} in the example. 
-    # Given there is a byte '244' identify this byte in the string '244 160 ... etc'
-    node_1 = sorted_byte_freq_dict_key_list_high_freq_to_low.pop()
-    node_2 = sorted_byte_freq_dict_key_list_high_freq_to_low.pop()
-
 if __name__ == '__main__':
     print('Huffman Encoding')
     input_wav = read_file()
     sorted_hex_freq_dict = determine_hex_freq(input_wav)
-    hex_freq_keys = list(sorted_hex_freq_dict.keys())
     hex_freq_values = list(sorted_hex_freq_dict.values())
+    hex_freq_keys = list(sorted_hex_freq_dict.keys())
     
     # Create a list of nodes
     nodes = []
     for item in range(len(hex_freq_keys)):
-        heapq.heappush(nodes, Node(hex_freq_keys[item], hex_freq_values[item]))
-        
-    left = heapq.heappop(nodes)
-    right = heapq.heappop(nodes)
+        heapq.heappush(nodes, Node(hex_freq_values[item], hex_freq_keys[item]))
     
-    # build the node tree
-    # assign the sorted_byte_freq_dict bit-representations
-    # write the bit-representation to a file
+    # Build the node tree
+    while len(nodes) > 1:
+        left = heapq.heappop(nodes)
+        right = heapq.heappop(nodes)
+        left.code = 0
+        right.code = 1
+        newNode = Node(left.freq+right.freq, left.data+right.data, left=left, right=right)
+        heapq.heappush(nodes, newNode)
+    nodeMappingDict = createNodeMappingDictionary(nodes[0], val = '', nodeMappingDict = {})    
     
+    # parse the file from hex to a bit string
+    # add dictionary "nodeMappingDict" to the outputfile
+    # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
+    # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
+    # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
+
+# file_path = "output.txt"
+# with open(file_path, "wb") as file:
+#     binary_data = b"\x00"
+#     file.write(binary_data)
