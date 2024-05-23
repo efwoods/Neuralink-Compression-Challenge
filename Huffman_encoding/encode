@@ -37,9 +37,9 @@ def read_file():
         input_wav = wavfile.read()
     return input_wav
 
-def write_file():
-    # Write bits to file
-    with open('output.txt', "wb") as outfile:
+# def write_file():
+#     # Write bits to file
+#     with open('output.txt', "wb") as outfile:
         
 
 def determine_hex_freq(input_wav):
