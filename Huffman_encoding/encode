@@ -35,12 +35,9 @@ def read_file():
     # Read the text into bytes:
     with open("data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav", "rb") as wavfile:
         input_wav = wavfile.read()
+    wavfile.close()
     return input_wav
 
-# def write_file():
-#     # Write bits to file
-#     with open('output.txt', "wb") as outfile:
-        
 
 def determine_hex_freq(input_wav):
     input_wav_hex = input_wav.hex()
@@ -54,6 +51,10 @@ def determine_hex_freq(input_wav):
     sorted_hex_freq_dictionary = dict(sorted(hex_freq_dictionary.items(), key = lambda x:x[1]))
     return sorted_hex_freq_dictionary
 
+# def write_file():
+#     # Write bits to file
+#     with open('output.txt', "wb") as outfile:
+        
 if __name__ == '__main__':
     print('Huffman Encoding')
     input_wav = read_file()
@@ -77,8 +78,30 @@ if __name__ == '__main__':
     nodeMappingDict = createNodeMappingDictionary(nodes[0], val = '', nodeMappingDict = {})    
     
     # parse the file from hex to a bit string
+def convertHexToBit(input_wav, nodeMappingDict):
+    hex_input_wav = input_wav.hex()
+    bitString = ''
+    for index in range(0, len(hex_input_wav), 2):
+        hex_pair = hex_input_wav[index] + hex_input_wav[index + 1]
+        bitString += nodeMappingDict[hex_pair]
+    endZeroPadding = '0'*(8-(len(bitString) % 8))
+    bitString += endZeroPadding
+    return bitString, len(endZeroPadding)
+    
+
     # add dictionary "nodeMappingDict" to the outputfile
-    # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
+
+# Purpose: This function writes the encoded outputfile. 
+# Inputs: 
+# Returns:
+# Notes: The encoding the length of the nodeMappingDictionary keys (the number of keys) followed by the number of bytes to read for the values of thoes keys.    
+# def write_outfile():
+
+import pickle    
+with open('file.txt', 'wb') as file:
+    file.write(pickle.dumps(nodeMappingDict))
+
+    # # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
     # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
     # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
 
