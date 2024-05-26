@@ -2,3 +2,30 @@
 
 if __name__ == '__main__':
     print('Huffman Decoding')
+    
+# retreive the information for decoding
+with open('file.dat', 'rb+') as file:
+    encoded_data = file.read()
+encoded_data
+nodeMappingDictionary = pickle.loads(encoded_data)
+nodeMappingDictionary
+encoded_data[len(encoded_data)-1]
+
+indices_byte_size = encoded_data[len(encoded_data)-1]
+indices_pickle = encoded_data[len(encoded_data)-1 - indices_byte_size:len(encoded_data)-1]
+pickle.loads(indices_pickle)
+    # # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
+    # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
+    # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
+
+# file_path = "output.txt"
+# with open(file_path, "wb") as file:
+#     binary_data = b"\x00"
+#     file.write(binary_data)
+# Attempting decoding below
+key_list = list(nodeMappingDict.keys())
+val_list = list(nodeMappingDict.values())
+position = val_list.index('0000')
+print(key_list[position])
+
+print("One line Code Key value: ", list(nodeMappingDict.keys())[list(nodeMappingDict.values()).index(1110001)])
