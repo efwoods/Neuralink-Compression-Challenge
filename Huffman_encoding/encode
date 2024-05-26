@@ -7,6 +7,7 @@
 
 from scipy.io.wavfile import read, write
 import heapq
+import pickle
 
 class Node:
     def __init__(self, freq, data, left = None, right = None):
@@ -38,7 +39,6 @@ def read_file():
     wavfile.close()
     return input_wav
 
-
 def determine_hex_freq(input_wav):
     input_wav_hex = input_wav.hex()
     hex_freq_dictionary = {}
@@ -51,9 +51,38 @@ def determine_hex_freq(input_wav):
     sorted_hex_freq_dictionary = dict(sorted(hex_freq_dictionary.items(), key = lambda x:x[1]))
     return sorted_hex_freq_dictionary
 
-# def write_file():
-#     # Write bits to file
-#     with open('output.txt', "wb") as outfile:
+    # parse the file from hex to a bit string
+def convertHexToBit(input_wav, nodeMappingDict):
+    hex_input_wav = input_wav.hex()
+    bitString = ''
+    for index in range(0, len(hex_input_wav), 2):
+        hex_pair = hex_input_wav[index] + hex_input_wav[index + 1]
+        bitString += nodeMappingDict[hex_pair]
+    endZeroPadding = '0'*(8-(len(bitString) % 8))
+    bitString += endZeroPadding
+    return bitString, len(endZeroPadding)
+    # add dictionary "nodeMappingDict" to the outputfile
+
+# Purpose: This function writes the encoded outputfile. 
+# Inputs: 
+# Returns:
+# Notes: The encoding is the length of the nodeMappingDictionary keys (the number of keys) followed by the number of bytes to read for the values of thoes keys.
+# def write_outfile():
+
+def write_file():
+    with open('file.txt', 'wb') as file:
+        file.write(pickle.dumps(nodeMappingDict))
+        file.write()
+        file.close()
+
+    # # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
+    # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
+    # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
+
+# file_path = "output.txt"
+# with open(file_path, "wb") as file:
+#     binary_data = b"\x00"
+#     file.write(binary_data)
         
 if __name__ == '__main__':
     print('Huffman Encoding')
@@ -70,42 +99,9 @@ if __name__ == '__main__':
     # Build the node tree
     while len(nodes) > 1:
         left = heapq.heappop(nodes)
-        right = heapq.heappop(nodes)
+        right = heapq.heappop(nodes) 
         left.code = 0
         right.code = 1
         newNode = Node(left.freq+right.freq, left.data+right.data, left=left, right=right)
         heapq.heappush(nodes, newNode)
-    nodeMappingDict = createNodeMappingDictionary(nodes[0], val = '', nodeMappingDict = {})    
-    
-    # parse the file from hex to a bit string
-def convertHexToBit(input_wav, nodeMappingDict):
-    hex_input_wav = input_wav.hex()
-    bitString = ''
-    for index in range(0, len(hex_input_wav), 2):
-        hex_pair = hex_input_wav[index] + hex_input_wav[index + 1]
-        bitString += nodeMappingDict[hex_pair]
-    endZeroPadding = '0'*(8-(len(bitString) % 8))
-    bitString += endZeroPadding
-    return bitString, len(endZeroPadding)
-    
-
-    # add dictionary "nodeMappingDict" to the outputfile
-
-# Purpose: This function writes the encoded outputfile. 
-# Inputs: 
-# Returns:
-# Notes: The encoding the length of the nodeMappingDictionary keys (the number of keys) followed by the number of bytes to read for the values of thoes keys.    
-# def write_outfile():
-
-import pickle    
-with open('file.txt', 'wb') as file:
-    file.write(pickle.dumps(nodeMappingDict))
-
-    # # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
-    # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
-    # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
-
-# file_path = "output.txt"
-# with open(file_path, "wb") as file:
-#     binary_data = b"\x00"
-#     file.write(binary_data)
+    nodeMappingDict = createNodeMappingDictionary(nodes[0], val = '', nodeMappingDict = {})
