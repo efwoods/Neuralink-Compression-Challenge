@@ -16,6 +16,9 @@ indices_byte_size = encoded_data[len(encoded_data)-1]
 indices_pickle = encoded_data[len(encoded_data)-1 - indices_byte_size:len(encoded_data)-1]
 indices_array = pickle.loads(indices_pickle)
 data_to_decode = encoded_data[indices_array[1]:indices_array[2]]
+
+binary = format(data_to_decode[0], 'b')
+
     # # include the length of the bytes to read (so to know to throw the remaing bits if there are padded bits added as below)
     # write the bit string representation to a file using int("00000000", 2) to create an integer representation of each bit
     # if there are not eight values in the bit string, pad the string with zeroes to complete and write the remainder out.
