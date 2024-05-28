@@ -1,7 +1,51 @@
 #!/usr/bin/python3
+import pickle
+import sys
 
-def print_decoder():
-    print('decoder')
+def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
+    bitString = ''
+    for byteIndex in range(0, len(data_to_decode)):
+        bitStringByte = format(data_to_decode[byteIndex], 'b')
+        bitStringByte = '0'*(8-len(bitStringByte)) + bitStringByte
+        bitString += bitStringByte
+    bitString = bitString[:len(bitString) - endZeroPadding]
+    return bitString
 
-if __name__ == '__main__':
-    print_decoder()
+def find_key_by_value_in_node_mapping_dictionary(val_str_to_find, nodeMappingDictionary):
+    try:
+        key_mapped_to_value = list(nodeMappingDictionary.keys())[list(nodeMappingDictionary.values()).index(val_str_to_find)]
+    except ValueError:
+        return None
+    return key_mapped_to_value
+
+if __name__ == '__main__':   
+    compressed_file_path = sys.argv[1]
+    decompressed_file_path = sys.argv[2]
+    
+    # retreive the information for decoding
+    with open(compressed_file_path, 'rb+') as file:
+        encoded_data = file.read()
+    nodeMappingDictionary = pickle.loads(encoded_data)
+    indices_byte_size = encoded_data[len(encoded_data)-1]
+    indices_pickle = encoded_data[len(encoded_data)-1 - indices_byte_size:len(encoded_data)-1]
+    indices_array = pickle.loads(indices_pickle)
+    data_to_decode = encoded_data[indices_array[1]:indices_array[2]]
+    bitString = convert_bytes_to_bitstring(data_to_decode, endZeroPadding = indices_array[-1])
+    
+    hex_value_array = []
+    bitLength = 0
+    while(len(bitString) > 0):
+        key = find_key_by_value_in_node_mapping_dictionary(bitString[:bitLength], nodeMappingDictionary)
+        if key is not None:
+            hex_value_array.append(key)
+            bitString = bitString[bitLength:]
+            bitLength = 0
+        else:
+            bitLength += 1
+    hex_wav_str = ''
+    hex_wav_str = hex_wav_str.join(hex_value_array)
+    decoded_wav_bytes = bytes.fromhex(hex_wav_str)
+
+    with open(decompressed_file_path, "wb+") as f:
+        f.write(decoded_wav_bytes)
+        f.close()
