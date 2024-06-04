@@ -103,37 +103,48 @@ def convertHexToBit(input_wav, nodeMappingDict):
     bitString += endZeroPadding
     return bitString, len(endZeroPadding)
 
-# Purpose: This function writes the encoded outputfile. 
-# Inputs: 
-#   nodeMappingDict: This is the dictionary which maps each hexadecimal 
-#                    representation of the bytes of the input wave file 
-#                    to a string of bits whose length is depended on 
-#                    frequency of the hexadecimal pair.
-#   bitString: This is the string of bits that is interpreted from the 
-#              original input wave file and parsed using the 
-#              nodeMappingDict.
-#   endZeroPadding: This is the number of zeroes that are padded to the 
-#                   end of the bitString to create a full set of bytes 
-#                   to be written to the output data file.
-# Returns: No return. Outputs a file.dat which is the compressed version 
-#          of the original wav file.
-# Notes: The encoding is the pickled nodeMappingDictionary, the encoded 
-#        data as bytes, the indices of the start and end of each data 
-#        portion as mentioned here, and the size in bytes of the 
-#        indices. The last index of the indices array contains the value 
-#        of the number of zeros that the encoded data is padded with. 
-#        This is because the last index would be the length of the 
-#        encoded data file, but this information can be interpreted 
-#        otherwise. To decode this file, read the last byte of the file, 
-#        use this information to calculate the position of the pickled 
-#        indices array, deserialize this section of the file, then use 
-#        the indices and the knowledge of the order of the storage of 
-#        this information to deserialize and read the bytes. Finally, 
-#        convert the encoded bytes into the original format using the 
-#        node mapping dictionary to write the hex representation of the 
-#        encoded information.
 def write_file(compressed_file_path, nodeMappingDict, bitString, 
                endZeroPadding):
+    """This function writes the encoded outputfile. 
+
+    Args:
+        compressed_file_path (str): This is the path to which to write 
+                                    the compressed file. 
+        nodeMappingDict (dict): This is the dictionary which maps each
+                                  hexadecimal representation of the 
+                                  bytes of the input wave file to a 
+                                  string of bits whose length is 
+                                  depended on frequency of the 
+                                  hexadecimal pair.
+        bitString (str): This is the string of bits that is 
+                            interpreted from the original input wave 
+                            file and parsed using the nodeMappingDict.
+        endZeroPadding (str): This is the number of zeroes that are 
+                                 padded to the end of the bitString to 
+                                 create a full set of bytes to be 
+                                 written to the output data file.
+    Returns: 
+        No value is returned from this function. This function outputs a
+        file named after the compressed file path which is the 
+        compressed version of the original wav file.
+
+    Notes:
+        The encoding is the pickled nodeMappingDictionary, the encoded 
+        data as bytes, the indices of the start and end of each data 
+        portion as mentioned here, and the size in bytes of the 
+        indices. The last index of the indices array contains the value 
+        of the number of zeros that the encoded data is padded with. 
+        This is because the last index would be the length of the 
+        encoded data file, but this information can be interpreted 
+        otherwise. To decode this file, read the last byte of the file, 
+        use this information to calculate the position of the pickled 
+        indices array, deserialize this section of the file, then use 
+        the indices and the knowledge of the order of the storage of 
+        this information to deserialize and read the bytes. Finally, 
+        convert the encoded bytes into the original format using the 
+        node mapping dictionary to write the hex representation of the 
+        encoded information.
+    """
     with open(compressed_file_path, 'wb+') as file:
         num_bytes = 1
         byteorder = 'big'
