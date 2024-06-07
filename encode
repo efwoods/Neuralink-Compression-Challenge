@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-from scipy.io.wavfile import read, write
 import heapq
 import pickle
 import sys
@@ -162,8 +161,9 @@ def write_file(compressed_file_path, nodeMappingDict, bitString,
         bytes_indices = file.write(pickle.dumps(indices))
         file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
 
-def main(file: str = None, compressed_file_path: str = None):
-    """Main method to drive the encoding operation
+def huffman_encoding(file: str = None, compressed_file_path: str = None):
+    """Main method to drive the encoding operation implementing huffman
+    encoding.
 
     Args:
         file (str): This is the name of the file to be compressed. The
@@ -219,4 +219,4 @@ def main(file: str = None, compressed_file_path: str = None):
             bitString, endZeroPadding)
 
 if __name__ == '__main__':
-    main()
+    huffman_encoding()

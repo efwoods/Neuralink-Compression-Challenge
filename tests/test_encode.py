@@ -46,12 +46,12 @@ class TestEncode(unittest.TestCase):
         input_wav = encode.read_file(self.file)
         self.assertEqual(type(input_wav), bytes)
 
-    def test03_main(self):
-        """This is a test of the main method in the encode module
+    def test03_huffman_encoding(self):
+        """This is a test of all of the huffman encoding algorithm
         """
 
         logging.info("test_all")
-        encode.main(self.file, self.compressed_file_path)
+        encode.huffman_encoding(self.file, self.compressed_file_path)
 
 if __name__ == '__main__':
     unittest.main()

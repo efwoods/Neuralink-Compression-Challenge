@@ -44,9 +44,24 @@ def find_key_by_value_in_node_mapping_dictionary(val_str_to_find,
         return None
     return key_mapped_to_value
 
-if __name__ == '__main__':   
-    compressed_file_path = sys.argv[1]
-    decompressed_file_path = sys.argv[2]
+def huffman_decoding(compressed_file_path: str = None,
+                     decompressed_file_path: str = None):
+    """The main driving method that will decode a huffman encoded file.
+
+    Args:
+        compressed_file_path (str, optional): The path of the compressed
+                                              file to decompress.
+                                              Defaults to None.
+        decompressed_file_path (str, optional): The path of the output
+                                                decompressed file.
+                                                Defaults to None.
+    """
+
+    if compressed_file_path == None:
+        compressed_file_path = sys.argv[1]
+    
+    if decompressed_file_path == None:
+        decompressed_file_path = sys.argv[2]
     
     # Retrieve the encoded file for decoding and parse the file.
     with open(compressed_file_path, 'rb+') as file:
@@ -78,3 +93,6 @@ if __name__ == '__main__':
     with open(decompressed_file_path, "wb+") as f:
         f.write(decoded_wav_bytes)
         f.close()
+
+if __name__ == '__main__':   
+    huffman_decoding()
