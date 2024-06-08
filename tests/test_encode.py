@@ -5,6 +5,8 @@ from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
 import logging
 
+import wave
+
 # Log all messages from all logging levels
 logging.basicConfig(level = logging.DEBUG)
 
@@ -52,6 +54,26 @@ class TestEncode(unittest.TestCase):
 
         logging.info("test_all")
         encode.huffman_encoding(self.file, self.compressed_file_path)
+
+    def test04_read_wave_information(self):
+        """This is a test that the information of the wave file is read.
+        """
+
+        input_wav = wave.open(self.file, 'rb')
+        logging.info("input_wav type: {}".format(type(input_wav)))
+        logging.info("Channels: {}".format(input_wav.getnchannels()))
+        logging.info("Sample width {} Bytes".format(input_wav.getsampwidth()))
+        logging.info("Frequency: {}".format(input_wav.getframerate(), "kHz"))
+        logging.info("Number of frames: {}".format(input_wav.getnframes()))
+        logging.info("Audio length: {:.2f} seconds".format(input_wav.getnframes() / 
+                                               input_wav.getframerate()))
+        pred_num_bytes = input_wav.getnframes() * input_wav.getnchannels() \
+            * input_wav.getsampwidth()
+
+        sample_bytes = input_wav.readframes(input_wav.getnframes())
+        self.assertEqual(pred_num_bytes, len(sample_bytes))
+        logging.info(f"pred_num_bytes: {pred_num_bytes}")
+        logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
 if __name__ == '__main__':
     unittest.main()
