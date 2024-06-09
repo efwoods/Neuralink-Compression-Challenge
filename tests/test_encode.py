@@ -79,9 +79,5 @@ class TestEncode(unittest.TestCase):
         """This tests the process of using linear predictive coding.
         """
 
-        # Imports
-        import numpy as np
-        
-
 if __name__ == '__main__':
     unittest.main()
