@@ -7,6 +7,8 @@ import logging
 
 import wave
 
+import scipy.signal
+
 # Log all messages from all logging levels
 logging.basicConfig(level = logging.DEBUG)
 
@@ -78,6 +80,22 @@ class TestEncode(unittest.TestCase):
     def test05_linear_predictive_coding(self):
         """This tests the process of using linear predictive coding.
         """
+
+        # Imports
+        import librosa
+        import scipy
+        import numpy as np
+
+        input_wav = encode.read_file(self.file)
+
+        lpc_order = 10
+        a = librosa.lpc(input_wav, lpc_order)
+        print(a)
+        s_hat = scipy.signal.lfilter([0] + -1*a[1:], [1], input_wav)
+        s_err = input_wav[1:] - s_hat[:-1]
+
+        logging.info(s_hat)
+        logging.info(s_err)
 
 if __name__ == '__main__':
     unittest.main()
