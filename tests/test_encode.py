@@ -75,5 +75,13 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
+    def test05_linear_predictive_coding(self):
+        """This tests the process of using linear predictive coding.
+        """
+
+        # Imports
+        import numpy as np
+        
+
 if __name__ == '__main__':
     unittest.main()

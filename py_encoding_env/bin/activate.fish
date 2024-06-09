@@ -33,7 +33,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Volumes/T7/Github/Neuralink_compression/py_encoding_env"
+set -gx VIRTUAL_ENV "/Volumes/T7/Github/Neuralink-Compression-Challenge/py_encoding_env"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

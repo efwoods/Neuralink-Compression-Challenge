@@ -1,4 +1,4 @@
-#!/Volumes/T7/Github/Neuralink_compression/py_encoding_env/bin/python3.12
+#!/Volumes/T7/Github/Neuralink-Compression-Challenge/py_encoding_env/bin/python3.12
 # -*- coding: utf-8 -*-
 import re
 import sys
