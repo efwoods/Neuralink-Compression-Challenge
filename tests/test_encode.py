@@ -84,18 +84,18 @@ class TestEncode(unittest.TestCase):
         # Imports
         import librosa
         import scipy
-        import numpy as np
+        # import numpy as np
 
-        input_wav = encode.read_file(self.file)
+        input_wav = librosa.read(input_wav)
 
         lpc_order = 10
-        a = librosa.lpc(input_wav, lpc_order)
-        print(a)
-        s_hat = scipy.signal.lfilter([0] + -1*a[1:], [1], input_wav)
-        s_err = input_wav[1:] - s_hat[:-1]
+        coefficients_of_the_predicted_audio_wave = librosa.lpc(y=input_wav, order=lpc_order)
+        print(coefficients_of_the_predicted_audio_wave)
+        predicted_wav = scipy.signal.lfilter([0] + -1*coefficients_of_the_predicted_audio_wave[1:], [1], input_wav)
+        error_of_predicted_wav = input_wav[1:] - predicted_wav[:-1]
 
-        logging.info(s_hat)
-        logging.info(s_err)
+        logging.info(predicted_wav)
+        logging.info(error_of_predicted_wav)
 
 if __name__ == '__main__':
     unittest.main()
