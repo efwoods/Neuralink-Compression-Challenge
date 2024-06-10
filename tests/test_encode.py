@@ -77,25 +77,5 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
-    def test05_linear_predictive_coding(self):
-        """This tests the process of using linear predictive coding.
-        """
-
-        # Imports
-        import librosa
-        import scipy
-        # import numpy as np
-
-        input_wav = librosa.read(input_wav)
-
-        lpc_order = 10
-        coefficients_of_the_predicted_audio_wave = librosa.lpc(y=input_wav, order=lpc_order)
-        print(coefficients_of_the_predicted_audio_wave)
-        predicted_wav = scipy.signal.lfilter([0] + -1*coefficients_of_the_predicted_audio_wave[1:], [1], input_wav)
-        error_of_predicted_wav = input_wav[1:] - predicted_wav[:-1]
-
-        logging.info(predicted_wav)
-        logging.info(error_of_predicted_wav)
-
 if __name__ == '__main__':
     unittest.main()
