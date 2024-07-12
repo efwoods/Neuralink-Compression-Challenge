@@ -21,4 +21,3 @@ Your submission will be scored on the compression ratio it achieves on a differe
 Bonus points for optimizing latency and power efficiency
 
 Submit with source code and build script. Should at least build on Linux.
-
