@@ -7,8 +7,6 @@ import logging
 
 import wave
 
-import scipy.signal
-
 # Log all messages from all logging levels
 logging.basicConfig(level = logging.DEBUG)
 
