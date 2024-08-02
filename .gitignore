@@ -4,6 +4,7 @@ data.zip
 */data.zip
 */.DS_Store
 .DS_Store
+./analysis/Kaggle_Datasets
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
