@@ -5,12 +5,13 @@ import pickle
 import sys
 from scipy.io import wavfile
 
-# Purpose: The Node class is used to sort the freqencies of the 
-#          hexadecimal values into a binary tree. The binary tree is 
-#          then used to identify a binary mapping that uniquely 
-#          represents each hexadecimal byte-pair. This is the atomic 
-#          unit of the Huffman encoding technique.
 class Node:
+    """Purpose: The Node class is used to sort the freqencies of the 
+        hexadecimal values into a binary tree. The binary tree is 
+        then used to identify a binary mapping that uniquely 
+        represents each hexadecimal byte-pair. This is the atomic 
+        unit of the Huffman encoding technique.
+    """
     def __init__(self, freq, data, left = None, right = None):
         self.freq = freq
         self.data = data
@@ -21,19 +22,26 @@ class Node:
     def __lt__(self, nxt):
         return self.freq < nxt.freq
 
-# Purpose: Creates a mapping of unique binary strings to unique bytes of
-#          pairs of hexidecimal values found within the input wave file.
-# Inputs: 
-#   node: This is a node of class Node. It is used to build the binary 
-#         tree.
-#   val: This is the huffman code that is being built into the unique 
-#        representation of the hexadecimal pair.
-#   nodeMappingDict: This is the dictionary that contains the mapping of
-#                    hexadecimal values to unique binary string 
-#                    representations.
-# Returns: This function returns the bytes of the wave file that was 
-#          read.
 def createNodeMappingDictionary(node, val = '', nodeMappingDict = {}):
+    """Creates a mapping of unique binary strings to unique bytes of
+           pairs of hexidecimal values found within the input wave file.
+
+    Args:
+        node (Node): This is a node of class Node. It is used to build
+                     the binary tree.
+        val (str, optional): This is the huffman code that is being 
+                             built into the unique representation of the
+                             hexadecimal pair. Defaults to ''.
+        nodeMappingDict (dict, optional): This is the dictionary that
+                                          contains the mapping of
+                                          hexadecimal values to unique
+                                          binary string representations.
+                                          Defaults to {}.
+
+    Returns:
+        bytes: This function returns the bytes of the wave file that was
+               read.
+    """
     newVal = val + str(node.code)
     # if node is not an edge node, traverse
     if(node.left):
@@ -45,27 +53,36 @@ def createNodeMappingDictionary(node, val = '', nodeMappingDict = {}):
         # print(f"{node.data} -> {newVal}")
     return nodeMappingDict
 
-# Purpose: This function reads a file into memory.
-# Inputs: 
-#   filePath: This is the path of the file to be read into memory.
-# Returns: This function returns the bytes of the wave file that was 
-#          read.
 def read_file(filePath):
+    """This function reads a file into memory.
+
+    Args:
+        filePath (str): This is the path of the file to be read into
+                        memory.
+
+    Returns:
+        bytes: This function returns the bytes of the wave file that 
+                was read.
+    """
     with open(filePath, "rb") as wavfile:
         input_wav = wavfile.read()
     wavfile.close()
     return input_wav
 
-# Purpose: This function determines how frequent a hexadecimal pair of 
-#          values occurs within a string of bytes.
-# Inputs: 
-#   input_wav: This is the string of bytes of the wav file that was read
-#              into memory.
-# Returns: 
-#   sorted_hex_freq_dictionary: This function returns a dictionary of 
-#                               hexpairs which are mapped to frequency 
-#                               of occurence in the input wave file.
 def determine_hex_freq(input_wav):
+    """This function determines how frequent a hexadecimal pair of 
+        values occurs within a string of bytes.
+
+    Args:
+        input_wav (bytes): This is the string of bytes of the wav file
+                           that was read into memory.
+
+    Returns:
+        sorted_hex_freq_dictionary: This function returns a dictionary 
+                                    of hexpairs which are mapped to
+                                    frequency of occurence in the input
+                                    wave file.
+    """
     input_wav_hex = input_wav.hex()
     hex_freq_dictionary = {}
     for digit_position in range(0, len(input_wav.hex()), 2):
@@ -79,21 +96,26 @@ def determine_hex_freq(input_wav):
                                              key = lambda x:x[1]))
     return sorted_hex_freq_dictionary
 
-# Purpose: This function uses a dictionary of node mappings to convert 
-#          the hexadecimal representation of the of the input wave file 
-#          to a string of bits. This representation is a compressed form
-#          of the hexadecimal representation of the input wave file.
-# Inputs: 
-#   input_wav: This is the path of the file to be read into memory.
-#   nodeMappingDict: This is the dictionary mapping bits to the 
-#                    hexadecimal representation of the input wav file.
-# Returns: 
-#   bitString: This is the string of bits that will be written to the 
-#              output file.
-#   len(endZeroPadding): This is the number of zeroes that have been 
-#                        padded onto the end of the bit string to make a
-#                        complete set of bytes.
 def convertHexToBit(input_wav, nodeMappingDict):
+    """This function uses a dictionary of node mappings to convert 
+          the hexadecimal representation of the of the input wave file 
+          to a string of bits. This representation is a compressed form
+          of the hexadecimal representation of the input wave file.
+
+    Args:
+        input_wav (bytes): This is the path of the file to be read into 
+                           memory.
+        nodeMappingDict (dict): This is the dictionary mapping bits to
+                                the hexadecimal representation of the
+                                input wav file.
+
+    Returns:
+        bitString: This is the string of bits that will be written to
+                   the output file.
+        lenEndZeroPadding: This is the number of zeroes that have been
+                             padded onto the end of the bit string to
+                             make a complete set of bytes.
+    """
     hex_input_wav = input_wav.hex()
     bitString = ''
     for index in range(0, len(hex_input_wav), 2):
@@ -101,7 +123,8 @@ def convertHexToBit(input_wav, nodeMappingDict):
         bitString += nodeMappingDict[hex_pair]
     endZeroPadding = '0'*(8-(len(bitString) % 8))
     bitString += endZeroPadding
-    return bitString, len(endZeroPadding)
+    lenEndZeroPadding = len(endZeroPadding)
+    return bitString, lenEndZeroPadding
 
 def write_file(compressed_file_path, nodeMappingDict, bitString, 
                endZeroPadding):
@@ -161,6 +184,27 @@ def write_file(compressed_file_path, nodeMappingDict, bitString,
         indices.append(endZeroPadding)
         bytes_indices = file.write(pickle.dumps(indices))
         file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
+
+def preprocess_to_frequency_domain(raw_signal_data, sample_rate):
+    """This method converts the signal from a raw signal to a
+    preprocessed signal in the frequency domain. It will detrend the
+    signal before returning the fast fourier transform of the detrended
+    signal for further processing. The detrended signal is returned as 
+    well. This function serves as an intermediate preprocessing first
+    step.
+
+    Args:
+        raw_signal_data (numpy.ndarray): This is the raw signal in numpy
+                                         array format.
+        sample_rate (int): This is the rate at which the data was
+                           sampled.
+
+    Returns:
+        numpy.ndarray: This is the detrended signal in the time domain.
+        numpy.ndarray: This is the transformed signal in the frequency
+                       domain.
+        
+    """
 
 def huffman_encoding(file: str = None, compressed_file_path: str = None):
     """Main method to drive the encoding operation implementing huffman
