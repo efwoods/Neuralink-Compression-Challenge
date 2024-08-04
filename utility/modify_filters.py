@@ -5,11 +5,10 @@ raw data."""
 import sys
 import os
 
-
-
-def main(*args, **kwargs):
+def main(sample_rate, input_wave_bytes, percentage):
     """This is the main driver of the module.
     """
+    
 
 if __name__ == '__main__':
     main()

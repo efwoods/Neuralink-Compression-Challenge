@@ -4,11 +4,19 @@ import unittest
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
 import logging
-
 import wave
+import sys
+import os
+import librosa
+
 
 # Log all messages from all logging levels
 logging.basicConfig(level = logging.DEBUG)
+
+sys.path.insert(0,
+                os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
+
+from utility import modify_filters
 
 # Import encode
 spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
@@ -65,7 +73,7 @@ class TestEncode(unittest.TestCase):
         logging.info("Sample width {} Bytes".format(input_wav.getsampwidth()))
         logging.info("Frequency: {}".format(input_wav.getframerate(), "kHz"))
         logging.info("Number of frames: {}".format(input_wav.getnframes()))
-        logging.info("Audio length: {:.2f} seconds".format(input_wav.getnframes() / 
+        logging.info("Audio length: {:.2f} seconds".format(input_wav.getnframes() /
                                                input_wav.getframerate()))
         pred_num_bytes = input_wav.getnframes() * input_wav.getnchannels() \
             * input_wav.getsampwidth()
@@ -74,6 +82,12 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(pred_num_bytes, len(sample_bytes))
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
+
+    def test05_filter_modification_of_signal(self):
+        """This is a test that the filters of the signal can be modified.
+        """
+        sample_rate, input_wav = librosa.read(self.file)
+        modify_filters.main()
 
 if __name__ == '__main__':
     unittest.main()

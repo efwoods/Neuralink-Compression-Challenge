@@ -3,6 +3,7 @@
 import heapq
 import pickle
 import sys
+from scipy.io import wavfile
 
 # Purpose: The Node class is used to sort the freqencies of the 
 #          hexadecimal values into a binary tree. The binary tree is 
@@ -186,8 +187,9 @@ def huffman_encoding(file: str = None, compressed_file_path: str = None):
     print("file: {}".format(file))
     print("compressed_file_path: {}".format(compressed_file_path))
 
-    input_wav = read_file(file)
-    sorted_hex_freq_dict = determine_hex_freq(input_wav)
+    sample_rate, input_wav = wavfile.read(file)
+    input_wav_bytes = input_wav.tobytes()
+    sorted_hex_freq_dict = determine_hex_freq(input_wav_bytes)
     hex_freq_values = list(sorted_hex_freq_dict.values())
     hex_freq_keys = list(sorted_hex_freq_dict.keys())
 
@@ -211,7 +213,7 @@ def huffman_encoding(file: str = None, compressed_file_path: str = None):
 
     # The hexadecimal representation of the bytes of the input wave file
     # is converted to a string of bits to write
-    bitString, endZeroPadding = convertHexToBit(input_wav, 
+    bitString, endZeroPadding = convertHexToBit(input_wav_bytes, 
                                                 nodeMappingDict)
 
     # The bits are written by using single bytes of integers
