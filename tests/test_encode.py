@@ -7,8 +7,11 @@ import logging
 import wave
 import sys
 import os
-import librosa
 
+###
+import librosa
+import scipy.signal
+import numpy as np
 
 # Log all messages from all logging levels
 logging.basicConfig(level = logging.DEBUG)
@@ -86,8 +89,16 @@ class TestEncode(unittest.TestCase):
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified.
         """
-        sample_rate, input_wav = librosa.read(self.file)
-        modify_filters.main()
+        input_wav, sample_rate = librosa.load(self.file)
+        detrend_input_wav = scipy.signal.detrend(input_wav)
+        FFT = np.fft.fft(detrend_input_wav)
+        freq_bins = np.arange(start = 0, stop = (sample_rate / 2),
+                              step = (sample_rate / len(FFT)))
+        percentage = 0.1
+
+        filtered_FFT = modify_filters.main(FFT, freq_bins, percentage)
+        self.assertEqual(type(filtered_FFT), np.ndarray)
+        self.assertIsNotNone(filtered_FFT)
 
 if __name__ == '__main__':
     unittest.main()
