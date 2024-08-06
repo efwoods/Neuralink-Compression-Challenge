@@ -4,6 +4,7 @@ import heapq
 import pickle
 import sys
 from scipy.io import wavfile
+import numpy as np
 
 class Node:
     """Purpose: The Node class is used to sort the freqencies of the 
@@ -18,7 +19,7 @@ class Node:
         self.left = left
         self.right = right
         self.code = ''
-    
+
     def __lt__(self, nxt):
         return self.freq < nxt.freq
 
@@ -65,9 +66,9 @@ def read_file(filePath):
                 was read.
     """
     with open(filePath, "rb") as wavfile:
-        input_wav = wavfile.read()
+        input_wav_object = wavfile.read()
     wavfile.close()
-    return input_wav
+    return input_wav_object
 
 def determine_hex_freq(input_wav):
     """This function determines how frequent a hexadecimal pair of 
@@ -184,6 +185,25 @@ def write_file(compressed_file_path, nodeMappingDict, bitString,
         indices.append(endZeroPadding)
         bytes_indices = file.write(pickle.dumps(indices))
         file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
+
+def retrieve_array_from_wave_obj(wav_obj):
+    """This method will return the array of amplitudes of the waveform
+    of the input wave object.
+
+    Args:
+        wav_obj (wave.Wave_read): This is a wave object that
+                                        contains methods used to extract
+                                        information about the wav audio
+                                        file.
+    Returns: 
+        wave_array (numpy.ndarray): This is a the array of 
+                                          amplitude values of the
+                                          wav audio file.
+    """
+    n_samples = wav_obj.getnframes()
+    wav_bytes = wav_obj.readframes(n_samples)
+    wav_array = np.frombuffer(wav_bytes, dtype=np.int16)
+    return wav_array
 
 def preprocess_to_frequency_domain(raw_signal_data, sample_rate):
     """This method converts the signal from a raw signal to a

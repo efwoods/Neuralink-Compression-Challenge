@@ -89,8 +89,12 @@ class TestEncode(unittest.TestCase):
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified.
         """
-        input_wav, sample_rate = librosa.load(self.file)
-        detrend_input_wav = scipy.signal.detrend(input_wav)
+
+        wav_object = encode.read_file(self.file)
+        signal_array = encode.retrieve_array_from_wave_obj(wav_object)
+        sample_rate = wav_object.getframerate()
+
+        detrend_input_wav = scipy.signal.detrend(signal_array)
         FFT = np.fft.fft(detrend_input_wav)
         freq_bins = np.arange(start = 0, stop = (sample_rate / 2),
                               step = (sample_rate / len(FFT)))
