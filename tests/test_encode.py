@@ -4,13 +4,10 @@ import unittest
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
 import logging
+from scipy.io import wavfile
 import wave
 import sys
 import os
-
-###
-import librosa
-import scipy.signal
 import numpy as np
 
 # Log all messages from all logging levels
@@ -19,7 +16,7 @@ logging.basicConfig(level = logging.DEBUG)
 sys.path.insert(0,
                 os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 
-from utility import modify_filters
+from utility import signal_process
 
 # Import encode
 spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
@@ -76,8 +73,8 @@ class TestEncode(unittest.TestCase):
         logging.info("Sample width {} Bytes".format(input_wav.getsampwidth()))
         logging.info("Frequency: {}".format(input_wav.getframerate(), "kHz"))
         logging.info("Number of frames: {}".format(input_wav.getnframes()))
-        logging.info("Audio length: {:.2f} seconds".format(input_wav.getnframes() /
-                                               input_wav.getframerate()))
+        logging.info("Audio length: {:.2f} seconds".format(
+                            input_wav.getnframes() / input_wav.getframerate()))
         pred_num_bytes = input_wav.getnframes() * input_wav.getnchannels() \
             * input_wav.getsampwidth()
 
@@ -90,19 +87,14 @@ class TestEncode(unittest.TestCase):
         """This is a test that the filters of the signal can be modified.
         """
 
-        wav_object = encode.read_file(self.file)
-        signal_array = encode.retrieve_array_from_wave_obj(wav_object)
-        sample_rate = wav_object.getframerate()
-
-        detrend_input_wav = scipy.signal.detrend(signal_array)
-        FFT = np.fft.fft(detrend_input_wav)
-        freq_bins = np.arange(start = 0, stop = (sample_rate / 2),
-                              step = (sample_rate / len(FFT)))
+        sample_rate, raw_signal_array = wavfile.read(self.file)
+        fft, freq_bins = signal_process.preprocess_to_frequency_domain(
+            raw_signal_array, sample_rate)
         percentage = 0.1
 
-        filtered_FFT = modify_filters.main(FFT, freq_bins, percentage)
-        self.assertEqual(type(filtered_FFT), np.ndarray)
-        self.assertIsNotNone(filtered_FFT)
+        filtered_fft = signal_process.modify_filters(fft, freq_bins, percentage)
+        self.assertEqual(type(filtered_fft), np.ndarray)
+        self.assertIsNotNone(filtered_fft)
 
 if __name__ == '__main__':
     unittest.main()

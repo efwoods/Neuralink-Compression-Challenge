@@ -3,8 +3,8 @@
 import heapq
 import pickle
 import sys
+
 from scipy.io import wavfile
-import numpy as np
 
 class Node:
     """Purpose: The Node class is used to sort the freqencies of the 
@@ -65,9 +65,9 @@ def read_file(filePath):
         bytes: This function returns the bytes of the wave file that 
                 was read.
     """
-    with open(filePath, "rb") as wavfile:
-        input_wav_object = wavfile.read()
-    wavfile.close()
+    with open(filePath, "rb") as fp:
+        input_wav_object = fp.read()
+    fp.close()
     return input_wav_object
 
 def determine_hex_freq(input_wav):
@@ -185,46 +185,6 @@ def write_file(compressed_file_path, nodeMappingDict, bitString,
         indices.append(endZeroPadding)
         bytes_indices = file.write(pickle.dumps(indices))
         file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
-
-def retrieve_array_from_wave_obj(wav_obj):
-    """This method will return the array of amplitudes of the waveform
-    of the input wave object.
-
-    Args:
-        wav_obj (wave.Wave_read): This is a wave object that
-                                        contains methods used to extract
-                                        information about the wav audio
-                                        file.
-    Returns: 
-        wave_array (numpy.ndarray): This is a the array of 
-                                          amplitude values of the
-                                          wav audio file.
-    """
-    n_samples = wav_obj.getnframes()
-    wav_bytes = wav_obj.readframes(n_samples)
-    wav_array = np.frombuffer(wav_bytes, dtype=np.int16)
-    return wav_array
-
-def preprocess_to_frequency_domain(raw_signal_data, sample_rate):
-    """This method converts the signal from a raw signal to a
-    preprocessed signal in the frequency domain. It will detrend the
-    signal before returning the fast fourier transform of the detrended
-    signal for further processing. The detrended signal is returned as 
-    well. This function serves as an intermediate preprocessing first
-    step.
-
-    Args:
-        raw_signal_data (numpy.ndarray): This is the raw signal in numpy
-                                         array format.
-        sample_rate (int): This is the rate at which the data was
-                           sampled.
-
-    Returns:
-        numpy.ndarray: This is the detrended signal in the time domain.
-        numpy.ndarray: This is the transformed signal in the frequency
-                       domain.
-        
-    """
 
 def huffman_encoding(file: str = None, compressed_file_path: str = None):
     """Main method to drive the encoding operation implementing huffman
