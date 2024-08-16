@@ -53,7 +53,7 @@ def preprocess_to_frequency_domain(raw_signal_array, sample_rate):
     Returns:
         fft (numpy.ndarray): This is the transformed signal in the
                              frequency domain.
-        freq_bins (np.ndarray): This is the bins of frequencies
+        freq_bins (numpy.ndarray): This is the bins of frequencies
                                 pertaining to the fast fourier
                                 transform.
     """
@@ -160,7 +160,7 @@ def estimate_noise_floor(amplitude_array, window_size=10):
                                      average.
 
     Return:
-        noise_floor_estimate (np.ndarray): This is the estimate of the
+        noise_floor_estimate (numpy.ndarray): This is the estimate of the
                                            noise floor.
     """
     if len(amplitude_array) == 0:
@@ -187,21 +187,22 @@ def estimate_noise_floor(amplitude_array, window_size=10):
         return noise_floor_estimate
 
 
-def detect_neural_spikes(t, neural_data):
+def detect_neural_spikes(neural_data):
     """This function detects spikes in real-time.
-    It returns an array of spikes at specific times and amplitudes with
-    zeroed out noise.
+    It returns an array of indices of spike locations.
 
     Args:
-        t (array): This is the array of values that indicate the time of
-                   each point in the neural_data array.
         neural_data (array): This is the array of amplitudes for each
                              point of time of the neural data.
 
     Returns:
-        (list): This is the array inclusive of amplitudes of spikes at
-                each specific point in the initial time array. Non-spike
-                points have been replaced with amplitudes of zero value.
+        spike_train_time_index_list (list): This is the array inclusive
+                                            of amplitudes of spikes at
+                                            each specific point in the
+                                            initial time array.
+                                            Non-spike points have been
+                                            replaced with amplitudes of
+                                            zero value.
     """
     noise_floor_window = 5
     initial_first_point_of_spike_detected = False
@@ -209,7 +210,7 @@ def detect_neural_spikes(t, neural_data):
     third_point_of_spike_detected = False
     spike_train_time_index_list = []
 
-    for current_time_index, time in enumerate(t):
+    for current_time_index, amplitude in enumerate(neural_data):
         # Estimate the noise floor
         if current_time_index < noise_floor_window:
             current_noise_floor_estimate_list = estimate_noise_floor(
@@ -422,3 +423,73 @@ def preprocess_signal(raw_neural_signal, sample_rate):
 
     filtered_data_bandpass = lfilter(numerator, denominator, preprocessed_data)
     return filtered_data_bandpass
+
+
+def decode_data(encoded_data):
+    """This function will decode the encoded file. It will convert the
+    encoded format into an array of values containing only the
+    amplitudes of the neural spike activity and zero-values in lieu of
+    noise.
+
+    Args:
+        encoded_data (deque): This is the encoded data. It is a list
+        where the first index is the sample rate, & the second index is
+        the number of samples. The subsequent pair of indices contain
+        the starting time of the first spike amplitude and the array of
+        the amplitude values of the spike. This pattern follows for each
+        detected spike in the original data.
+
+    Returns:
+        amplitude_array (ndarray): This is the array of spike amplitudes
+                                   detected in the original signal. The
+                                   noise of the signal has been
+                                   nullified.
+        sample_rate (int): This is the rate of the sample.
+    """
+
+    # Extract Metadata
+    sample_rate = encoded_data.popleft()
+    number_of_samples = encoded_data.popleft()
+
+    # Construct the Time Array
+    time_endpoint = number_of_samples / sample_rate
+    time_array = np.arange(start=0, stop=time_endpoint, step=(1 / sample_rate))
+
+    # Create the Amplitude Array
+    amplitude_array = np.zeros(len(time_array))
+    while len(encoded_data) > 0:
+        amplitude_start_time = encoded_data.popleft()
+        spike_amplitudes = encoded_data.popleft()
+        for amplitude_index, amplitude in enumerate(spike_amplitudes):
+            amplitude_array[
+                np.where(time_array == amplitude_start_time)[0][0] + amplitude_index
+            ] = amplitude
+    return sample_rate, amplitude_array
+
+
+def calculate_time_array(sample_rate: int, neural_data: np.ndarray):
+    """This function creates the array of time values corresponding to
+    the sample values in the raw_neural_data.
+
+    Args:
+        sample_rate (int): This is the rate the sample was taken.
+        raw_neural_data (numpy.ndarray): This is the array of amplitudes.
+
+    Returns:
+        time_array_of_neural_data (numpy.ndarray): This is the array of
+                                                   values where each
+                                                   index corresponds to
+                                                   the time width of the
+                                                   frequency of the
+                                                   sampling rate. The
+                                                   frequency of the
+                                                   sampling rate is
+                                                   calculated as one
+                                                   divided by the
+                                                   sampling rate.
+    """
+    time_array_length = len(neural_data) / sample_rate
+    time_array_of_neural_data = np.arange(
+        start=0, stop=time_array_length, step=(1 / sample_rate)
+    )
+    return time_array_of_neural_data

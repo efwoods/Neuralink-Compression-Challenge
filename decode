@@ -3,49 +3,54 @@
 import pickle
 import sys
 
+
 # Purpose: This function converts bytes into a string of bits.
-# Inputs: 
+# Inputs:
 #   data_to_decode: This is the string of bytes that will be converted
-#                   into bits. 
-#   endZeroPadding: This is the number of zeroes that were padded into 
-#                   the final byte. They will be removed so the 
+#                   into bits.
+#   endZeroPadding: This is the number of zeroes that were padded into
+#                   the final byte. They will be removed so the
 #                   resultant bit string can be properly decompressed.
-# Returns: 
+# Returns:
 #   bitString: This is the string of bits that will need to be parsed
-#              into hexadecimal pairs that represent the bytes of the 
+#              into hexadecimal pairs that represent the bytes of the
 #              decompressed wave file.
 def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
-    bitString = ''
+    bitString = ""
     for byteIndex in range(0, len(data_to_decode)):
-        bitStringByte = format(data_to_decode[byteIndex], 'b')
-        bitStringByte = '0'*(8-len(bitStringByte)) + bitStringByte
+        bitStringByte = format(data_to_decode[byteIndex], "b")
+        bitStringByte = "0" * (8 - len(bitStringByte)) + bitStringByte
         bitString += bitStringByte
-    bitString = bitString[:len(bitString) - endZeroPadding]
+    bitString = bitString[: len(bitString) - endZeroPadding]
     return bitString
 
-# Purpose: This function allows the searching of the 
+
+# Purpose: This function allows the searching of the
 #          nodeMappingDictionary for a key given a value.
-# Inputs: 
+# Inputs:
 #   val_str_to_find: This is expected to be a string of bits.
-#   nodeMappingDictionary: This is the dictionary that maps hexadecimal 
-#                          values as keys in the dictionary to uniquely 
+#   nodeMappingDictionary: This is the dictionary that maps hexadecimal
+#                          values as keys in the dictionary to uniquely
 #                          identifying strings of bits as values.
-# Returns: This function returns the hexadecimal pair found as a key in 
+# Returns: This function returns the hexadecimal pair found as a key in
 #          the nodeMappingDictionary given a string of bit values.
-#          If the given string of bits is not found in the dictionary, 
+#          If the given string of bits is not found in the dictionary,
 #          the return value is 'None'.
-def find_key_by_value_in_node_mapping_dictionary(val_str_to_find, 
-                                                 nodeMappingDictionary):
+def find_key_by_value_in_node_mapping_dictionary(
+    val_str_to_find, nodeMappingDictionary
+):
     try:
-        key_mapped_to_value = \
-            list(nodeMappingDictionary.keys())[list(
-                nodeMappingDictionary.values()).index(val_str_to_find)]
+        key_mapped_to_value = list(nodeMappingDictionary.keys())[
+            list(nodeMappingDictionary.values()).index(val_str_to_find)
+        ]
     except ValueError:
         return None
     return key_mapped_to_value
 
-def huffman_decoding(compressed_file_path: str = None,
-                     decompressed_file_path: str = None):
+
+def huffman_decoding(
+    compressed_file_path: str = None, decompressed_file_path: str = None
+):
     """The main driving method that will decode a huffman encoded file.
 
     Args:
@@ -59,34 +64,36 @@ def huffman_decoding(compressed_file_path: str = None,
 
     if compressed_file_path == None:
         compressed_file_path = sys.argv[1]
-    
+
     if decompressed_file_path == None:
         decompressed_file_path = sys.argv[2]
-    
+
     # Retrieve the encoded file for decoding and parse the file.
-    with open(compressed_file_path, 'rb+') as file:
+    with open(compressed_file_path, "rb+") as file:
         encoded_data = file.read()
     nodeMappingDictionary = pickle.loads(encoded_data)
-    indices_byte_size = encoded_data[len(encoded_data)-1]
-    indices_pickle = encoded_data[len(encoded_data)-1 - \
-        indices_byte_size:len(encoded_data)-1]
+    indices_byte_size = encoded_data[len(encoded_data) - 1]
+    indices_pickle = encoded_data[
+        len(encoded_data) - 1 - indices_byte_size : len(encoded_data) - 1
+    ]
     indices_array = pickle.loads(indices_pickle)
-    data_to_decode = encoded_data[indices_array[1]:indices_array[2]]
+    data_to_decode = encoded_data[indices_array[1] : indices_array[2]]
     bitString = convert_bytes_to_bitstring(data_to_decode, indices_array[-1])
-    
+
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
-    while(len(bitString) > 0):
+    while len(bitString) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
-            bitString[:bitLength], nodeMappingDictionary)
+            bitString[:bitLength], nodeMappingDictionary
+        )
         if key is not None:
             hex_value_array.append(key)
             bitString = bitString[bitLength:]
             bitLength = 0
         else:
             bitLength += 1
-    hex_wav_str = ''
+    hex_wav_str = ""
     hex_wav_str = hex_wav_str.join(hex_value_array)
     decoded_wav_bytes = bytes.fromhex(hex_wav_str)
 
@@ -94,5 +101,6 @@ def huffman_decoding(compressed_file_path: str = None,
         f.write(decoded_wav_bytes)
         f.close()
 
-if __name__ == '__main__':   
+
+if __name__ == "__main__":
     huffman_decoding()
