@@ -363,21 +363,26 @@ def create_encoded_data(
                                  the dataset.
 
     Returns:
-        (list): This is the encoded data. This encoded data has the
-                sample rate, the number of samples, the initial starting
-                time of the first amplitude, and the information of the
-                amplitudes of the detected eeg spikes. This pattern of
-                the initial starting time of the first amplitude,
-                represented as a float, followed by the array of
-                amplitude values at each sample is repeated for each
-                detected spike. It is implied that the samples are
-                equidistant depending upon thesampling frequency as
-                calculated from the inverse of thesample rate, that the
-                length oftime of the entire datais inferred from the
-                number of samplesdivided by thesample rate, and all
-                amplitudes at samples notexplicitlydefined are to be
-                considered noise and are therefore setto zero to
-                reduce size while retaining information.
+        encoded_data (list): This is the encoded data. This encoded data
+                             has the sample rate, the number of samples,
+                             the initial starting time of the first
+                             amplitude, and the information of the
+                             amplitudes of the detected eeg spikes.
+                             This pattern of the initial starting time
+                             of the first amplitude, represented as a
+                             float, followed by the array of amplitude
+                             values at each sample is repeated for each
+                             detected spike. It is implied that the
+                             samples are equidistant depending upon
+                             the sampling frequency as calculated from
+                             the inverse of the sample rate, that the
+                             length of time of the entire data is
+                             inferred from the number of samples divided
+                             by the sample rate, and all amplitudes at
+                             samples not explicitly defined are to be
+                             considered noise and are therefore set to
+                             zero to reduce size while retaining
+                             information.
     """
     encoded_data = []
     encoded_data.append(sample_rate)
@@ -387,7 +392,7 @@ def create_encoded_data(
             time_array_of_neural_data[spike_train_time_index_list[spike_train_index][0]]
         )
         encoded_data.append(neural_data[spike_train_time_index_list[spike_train_index]])
-        encoded_data = deque(encoded_data)
+
     return encoded_data
 
 
@@ -398,19 +403,19 @@ def preprocess_signal(raw_neural_signal, sample_rate):
 
     Args:
         raw_neural_signal (ndarray): This is the array of amplitudes of
-        a raw signal from the neuralink. This signal needs to be
-        detrended and filtered to later extract the spike information
-        contained within the signal.
+                                     a raw signal from the neuralink.
+                                     This signal needs to be detrended
+                                     and filtered to later extract the
+                                     spike information contained within
+                                     the signal.
 
     Returns:
         filtered_data_bandpass (ndarray): This is the array of the
-        amplitude of the detrended, and band-pass filtered signal.
+                                          amplitude of the detrended,
+                                          and band-pass filtered signal.
     """
     # Detrending the signal
-    detrended_neural_data = scipy.signal.detrend(raw_neural_signal)
-
-    # Normalize the signal between -1 and 1
-    preprocessed_data = detrended_neural_data / detrended_neural_data.max()
+    detrended_neural_data = np.int16(scipy.signal.detrend(raw_neural_signal))
 
     # Band-pass Filter
     nyq = sample_rate // 2
@@ -421,7 +426,9 @@ def preprocess_signal(raw_neural_signal, sample_rate):
     order = 4
     numerator, denominator = butter(order, [low, high], btype="band")
 
-    filtered_data_bandpass = lfilter(numerator, denominator, preprocessed_data)
+    filtered_data_bandpass = np.int16(
+        lfilter(numerator, denominator, detrended_neural_data)
+    )
     return filtered_data_bandpass
 
 
@@ -448,6 +455,7 @@ def decode_data(encoded_data):
     """
 
     # Extract Metadata
+    encoded_data = deque(encoded_data)
     sample_rate = encoded_data.popleft()
     number_of_samples = encoded_data.popleft()
 
@@ -456,7 +464,7 @@ def decode_data(encoded_data):
     time_array = np.arange(start=0, stop=time_endpoint, step=(1 / sample_rate))
 
     # Create the Amplitude Array
-    amplitude_array = np.zeros(len(time_array))
+    amplitude_array = np.int16(np.zeros(len(time_array)))
     while len(encoded_data) > 0:
         amplitude_start_time = encoded_data.popleft()
         spike_amplitudes = encoded_data.popleft()

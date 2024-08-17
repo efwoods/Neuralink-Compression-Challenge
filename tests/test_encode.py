@@ -64,9 +64,9 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(compressed_file_path), str)
 
     def test03_huffman_encoding_pickling(self):
-        """This is a test of all of the huffman encoding algorithm"""
+        """This is a full test of the huffman encoding algorithm"""
 
-        logging.info("test_huffman_encoding_of_pickled_object_format")
+        logging.info("Testing huffman encoding of pickled object format")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -131,6 +131,7 @@ class TestEncode(unittest.TestCase):
         """This is a test that the huffman encoding properly functions independently."""
 
         logging.info("Testing input of wavfile into huffman_encode function.")
+        logging.info("Results: File Size: 128 KB in 0.078s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -141,6 +142,9 @@ class TestEncode(unittest.TestCase):
     def test07_huffman_encoding_of_decoded_encoded_data(self):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
+
+        logging.info("Testing using spike detection.")
+        logging.info("Results: File Size: 132 KB in 3.962s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -166,6 +170,31 @@ class TestEncode(unittest.TestCase):
         encode.huffman_encoding(
             compressed_file_path=self.compressed_file_path, input_wave=amplitude_array
         )
+
+    def test08_writing_encoded_spikes_only(self):
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.file, self.compressed_file_path
+        )
+        filtered_data_bandpass = signal_process.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+        time_array_of_neural_data = signal_process.calculate_time_array(
+            sample_rate=sample_rate, neural_data=filtered_data_bandpass
+        )
+        spike_train_time_index_list = signal_process.detect_neural_spikes(
+            filtered_data_bandpass
+        )
+        encoded_data = signal_process.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+            time_array_of_neural_data=time_array_of_neural_data,
+        )
+        # This results in a file size of 272 KB in 2.951s
+        with open(compressed_file_path, "wb+") as file:
+            file.write(pickle.dumps(encoded_data))
+            file.close()
 
 
 if __name__ == "__main__":
