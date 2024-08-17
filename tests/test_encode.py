@@ -172,6 +172,10 @@ class TestEncode(unittest.TestCase):
         )
 
     def test08_writing_encoded_spikes_only(self):
+        logging.info(
+            "Testing File Size and Algorithmic Speed using the encoded information only"
+        )
+        logging.info("Results: File Size: 272 KB in 2.951s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -191,7 +195,7 @@ class TestEncode(unittest.TestCase):
             neural_data=filtered_data_bandpass,
             time_array_of_neural_data=time_array_of_neural_data,
         )
-        # This results in a file size of 272 KB in 2.951s
+
         with open(compressed_file_path, "wb+") as file:
             file.write(pickle.dumps(encoded_data))
             file.close()

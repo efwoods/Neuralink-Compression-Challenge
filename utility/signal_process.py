@@ -365,12 +365,12 @@ def create_encoded_data(
     Returns:
         encoded_data (list): This is the encoded data. This encoded data
                              has the sample rate, the number of samples,
-                             the initial starting time of the first
+                             the initial start time index of the first
                              amplitude, and the information of the
                              amplitudes of the detected eeg spikes.
-                             This pattern of the initial starting time
-                             of the first amplitude, represented as a
-                             float, followed by the array of amplitude
+                             This pattern of the initial time index
+                             of the first amplitude, represented as an
+                             int, followed by the array of amplitude
                              values at each sample is repeated for each
                              detected spike. It is implied that the
                              samples are equidistant depending upon
@@ -382,15 +382,18 @@ def create_encoded_data(
                              samples not explicitly defined are to be
                              considered noise and are therefore set to
                              zero to reduce size while retaining
-                             information.
+                             information. The time of each amplitude is
+                             calculated as the division of the starting
+                             time index plus the current position of
+                             each amplitude by the current posigion in
+                             the zero-based amplitude array by the
+                             sample rate.
     """
     encoded_data = []
     encoded_data.append(sample_rate)
     encoded_data.append(number_of_samples)
     for spike_train_index in range(0, len(spike_train_time_index_list)):
-        encoded_data.append(
-            time_array_of_neural_data[spike_train_time_index_list[spike_train_index][0]]
-        )
+        encoded_data.append(np.int16(spike_train_time_index_list[spike_train_index][0]))
         encoded_data.append(neural_data[spike_train_time_index_list[spike_train_index]])
 
     return encoded_data
@@ -466,12 +469,10 @@ def decode_data(encoded_data):
     # Create the Amplitude Array
     amplitude_array = np.int16(np.zeros(len(time_array)))
     while len(encoded_data) > 0:
-        amplitude_start_time = encoded_data.popleft()
+        amplitude_start_time_index = encoded_data.popleft()
         spike_amplitudes = encoded_data.popleft()
         for amplitude_index, amplitude in enumerate(spike_amplitudes):
-            amplitude_array[
-                np.where(time_array == amplitude_start_time)[0][0] + amplitude_index
-            ] = amplitude
+            amplitude_array[amplitude_start_time_index + amplitude_index] = amplitude
     return sample_rate, amplitude_array
 
 
