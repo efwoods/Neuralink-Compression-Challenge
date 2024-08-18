@@ -345,7 +345,6 @@ def create_encoded_data(
     number_of_samples,
     spike_train_time_index_list,
     neural_data,
-    time_array_of_neural_data,
 ):
     """This function creates an encoded version of the initial data.
 
