@@ -160,18 +160,20 @@ def estimate_noise_floor(amplitude_array, window_size=10):
                                      average.
 
     Return:
-        noise_floor_estimate (numpy.ndarray): This is the estimate of the
+        noise_floor_estimate (np.ndarray): This is the estimate of the
                                            noise floor.
     """
     if len(amplitude_array) == 0:
         raise ValueError("Length of amplitude array must be greater than 0")
     elif len(amplitude_array) == 1:
-        noise_floor_estimate = np.array(np.sqrt(np.abs(amplitude_array) ** 2))
+        noise_floor_estimate = np.array(
+            [np.sqrt(np.abs(np.float64(amplitude_array[0])) ** 2)]
+        )
         return noise_floor_estimate
     else:
         if len(amplitude_array) < window_size:
             window_size = len(amplitude_array)
-        power_of_filtered_data = np.abs(amplitude_array) ** 2
+        power_of_filtered_data = np.abs(np.float64(amplitude_array) ** 2)
 
         rolling_median_array = []
         for index in range(0, len(power_of_filtered_data), 1):
