@@ -10,6 +10,7 @@ import sys
 import os
 import numpy as np
 import pickle
+import time
 
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
@@ -76,8 +77,8 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list = signal_process.detect_neural_spikes(
-            filtered_data_bandpass
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = signal_process.create_encoded_data(
             sample_rate=sample_rate,
@@ -154,8 +155,8 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list = signal_process.detect_neural_spikes(
-            filtered_data_bandpass
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = signal_process.create_encoded_data(
             sample_rate=sample_rate,
@@ -182,8 +183,8 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list = signal_process.detect_neural_spikes(
-            filtered_data_bandpass
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = signal_process.create_encoded_data(
             sample_rate=sample_rate,
@@ -196,18 +197,20 @@ class TestEncode(unittest.TestCase):
             file.write(pickle.dumps(encoded_data))
             file.close()
 
+    @unittest.skip("Test single spike detection only")
     def test09_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
         )
+        total_start_time = time.time_ns()
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list = signal_process.detect_neural_spikes(
-            filtered_data_bandpass
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = signal_process.create_encoded_data(
             sample_rate=sample_rate,
@@ -221,6 +224,54 @@ class TestEncode(unittest.TestCase):
 
         encode.huffman_encoding(
             input_data=encoded_data_byte_string,
+            compressed_file_path=self.compressed_file_path,
+        )
+        total_stop_time = time.time_ns()
+
+        signal_process.print_size_of_file_compression(
+            file_path=self.file,
+            compressed_file_path=self.compressed_file_path,
+        )
+
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=total_start_time, stop_time=total_stop_time
+        )
+
+    def test10_detect_single_neural_spikes(self):
+        logging.info("This function tests the ability to detect single neural spikes.")
+        total_start_time = time.time_ns()
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.file, self.compressed_file_path
+        )
+        filtered_data_bandpass = signal_process.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+
+        # Spike Train Time Index List Should Contain A Single Spike
+        spike_train_time_index_list, truncated_neural_data = (
+            signal_process.detect_neural_spikes(
+                neural_data=filtered_data_bandpass, single_spike_detection=True
+            )
+        )
+        encoded_data = signal_process.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=truncated_neural_data,
+        )
+        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+            encoded_data
+        )
+        encode.huffman_encoding(
+            input_data=encoded_data_byte_string,
+            compressed_file_path=self.compressed_file_path,
+        )
+        total_stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=total_start_time, stop_time=total_stop_time
+        )
+        signal_process.print_size_of_file_compression(
+            file_path=self.file,
             compressed_file_path=self.compressed_file_path,
         )
 

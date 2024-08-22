@@ -9,6 +9,8 @@ from glob import glob
 from scipy.signal import lfilter, butter
 from collections import deque
 import sys
+import os
+import time
 
 
 def modify_filters(fft, freq_bins, percentage):
@@ -189,13 +191,25 @@ def estimate_noise_floor(amplitude_array, window_size=10):
         return noise_floor_estimate
 
 
-def detect_neural_spikes(neural_data):
-    """This function detects spikes in real-time.
-    It returns an array of indices of spike locations.
+def detect_neural_spikes(neural_data, single_spike_detection=False):
+    """This function detects a single neural spike in real-time and
+    truncates the remaining neural data array if a flag is passed. This
+    allows for a single spike to be compressed and sent as a file under
+    time and file size constraints. It returns an array of indices of
+    spike locations containing only an individual spike. This preserves
+    the format for use with other functions but will inherently reduce
+    the time to file and size of each file to meet the requirements of
+    the problem statement. If the flag is not sent to the function, the
+    the entire neural data is searched for spikes before the function is
+    returned.
 
     Args:
         neural_data (array): This is the array of amplitudes for each
                              point of time of the neural data.
+        single_spike_detection (bool): This is a boolean flag which will
+                                       modify the function to detect
+                                       single neural spikes and truncate
+                                       the remaining neural data array.
 
     Returns:
         spike_train_time_index_list (list): This is the array inclusive
@@ -205,6 +219,11 @@ def detect_neural_spikes(neural_data):
                                             Non-spike points have been
                                             replaced with amplitudes of
                                             zero value.
+        neural_data (array): This is the array of neural data. If
+                             single_spike_detection is set to True, then
+                             the neural data array has been truncated to
+                             remove values up to the final point
+                             detected on the spike.
     """
     noise_floor_window = 5
     initial_first_point_of_spike_detected = False
@@ -331,13 +350,17 @@ def detect_neural_spikes(neural_data):
                 )
                 spike_train_time_index_list.append(spike_time_index_list)
 
-                initial_first_point_of_spike_detected = False
-                second_point_of_spike_detected = False
-                third_point_of_spike_detected = False
+                if single_spike_detection == True:
+                    neural_data = neural_data[current_time_index:]
+                    break
+                else:
+                    initial_first_point_of_spike_detected = False
+                    second_point_of_spike_detected = False
+                    third_point_of_spike_detected = False
         else:
             raise ValueError("Error in Spike Detection State")
 
-    return spike_train_time_index_list
+    return spike_train_time_index_list, neural_data
 
 
 def create_encoded_data(
@@ -394,15 +417,23 @@ def create_encoded_data(
     encoded_data = []
     encoded_data.append(np.int32(sample_rate))
     encoded_data.append(np.int32(number_of_samples))
+    # if len(spike_train_time_index_list) == 1:
+    #     # Time index of the first spike point
+    #     encoded_data.append(np.int32(spike_train_time_index_list[0]))
+
+    #     # The number of points in the detected spike to decode the byte string.
+    #     encoded_data.append(np.int32(len(spike_train_time_index_list)))
+
+    #     # The amplitude array of points in the spike.
+    #     encoded_data.append(neural_data[spike_train_time_index_list])
+
     for spike_train_index in range(0, len(spike_train_time_index_list)):
         # Time index of the first spike point
         encoded_data.append(np.int32(spike_train_time_index_list[spike_train_index][0]))
-
         # The number of points in the detected spike to decode the byte string.
         encoded_data.append(
             np.int32(len(neural_data[spike_train_time_index_list[spike_train_index]]))
         )
-
         # The amplitude array of points in the spike.
         encoded_data.append(neural_data[spike_train_time_index_list[spike_train_index]])
 
@@ -586,8 +617,40 @@ def convert_byte_string_to_encoded_data(encoded_data_byte_string: str):
     return encoded_data
 
 
-# create function to print the size of the compressed file and the
-#   percent of compression.
+def print_size_of_file_compression(file_path: str, compressed_file_path: str):
+    """This function prints the file size, the compressed file size, and
+    the percent the file has been compressed.
 
-# Create function to profile the time each function takes to complete
-#   processing.
+    Args:
+        file_path (str): This is the path of the original file.
+        compressed_file_path (str): This is the path of the compressed file.
+    """
+    file_size = os.path.getsize(file_path)
+    compressed_file_size = os.path.getsize(compressed_file_path)
+    percent_of_compression = (1 - (compressed_file_size / file_size)) * 100
+    file_size_requirement = file_size // 200
+    percent_of_file_size_relative_to_file_size_requirement = (
+        compressed_file_size / file_size_requirement
+    ) * 100
+    print(f"Original File Size: {file_size}")
+    print(f"Compressed File Size: {compressed_file_size}")
+    print(f"Percent of Compression: {percent_of_compression:.2f}%")
+    print(
+        f"Percent of Compressed File Size Relative to Required File Size:{percent_of_file_size_relative_to_file_size_requirement:.3f}%"
+    )
+
+
+def print_time_each_function_takes_to_complete_processing(
+    start_time: int, stop_time: int
+):
+    """This function prints the time delta between the start time and the stop time.
+
+    Args:
+        start_time (int): This is the integer representation of the start time in nanoseconds.
+        stop_time (int): This is the integer representation of teh stop time in nanoseconds.
+    """
+    time_Δ = stop_time - start_time
+    print(f"Time Δ Nanoseconds: {(time_Δ)}")
+    print(f"Time Δ Microseconds: {(time_Δ / 1e3)}")
+    print(f"Time Δ Milliseconds: {(time_Δ / 1e6)}")
+    print(f"Time Δ Seconds: {(time_Δ / 1e9)}")
