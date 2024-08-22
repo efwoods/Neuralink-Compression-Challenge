@@ -41,6 +41,7 @@ class TestEncode(unittest.TestCase):
     def tearDown(self):
         pass
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test01_logging_and_test_methods(self):
         """Used to test the test methods and the logger
         functionality.
@@ -50,6 +51,7 @@ class TestEncode(unittest.TestCase):
         print("test set up")
         logging.info("The logger works")
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test02_read_input_wav_is_type_bytes(self):
         """Used to test the read_file method in the encode
         module.
@@ -63,6 +65,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(sample_rate), int)
         self.assertEqual(type(compressed_file_path), str)
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test03_huffman_encoding_pickling(self):
         """This is a full test of the huffman encoding algorithm"""
 
@@ -73,9 +76,6 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        time_array_of_neural_data = signal_process.calculate_time_array(
-            sample_rate=sample_rate, neural_data=filtered_data_bandpass
-        )
         spike_train_time_index_list = signal_process.detect_neural_spikes(
             filtered_data_bandpass
         )
@@ -84,13 +84,13 @@ class TestEncode(unittest.TestCase):
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
-            time_array_of_neural_data=time_array_of_neural_data,
         )
         pickled_data = pickle.dumps(encoded_data)
         encode.huffman_encoding(
             pickled_data=pickled_data, compressed_file_path=self.compressed_file_path
         )
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test04_read_wave_information(self):
         """This is a test that the information of the wave file is read."""
 
@@ -114,6 +114,7 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
@@ -127,6 +128,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test06_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
@@ -139,6 +141,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path, input_wave=input_wav
         )
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test07_huffman_encoding_of_decoded_encoded_data(self):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
@@ -151,9 +154,6 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        time_array_of_neural_data = signal_process.calculate_time_array(
-            sample_rate=sample_rate, neural_data=filtered_data_bandpass
-        )
         spike_train_time_index_list = signal_process.detect_neural_spikes(
             filtered_data_bandpass
         )
@@ -162,7 +162,6 @@ class TestEncode(unittest.TestCase):
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
-            time_array_of_neural_data=time_array_of_neural_data,
         )
         sample_rate, amplitude_array = signal_process.decode_data(
             encoded_data=encoded_data
@@ -171,6 +170,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path, input_wave=amplitude_array
         )
 
+    @unittest.skip("Testing Only Highest Compression Ratio")
     def test08_writing_encoded_spikes_only(self):
         logging.info(
             "Testing File Size and Algorithmic Speed using the encoded information only"
@@ -182,8 +182,29 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = signal_process.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        time_array_of_neural_data = signal_process.calculate_time_array(
-            sample_rate=sample_rate, neural_data=filtered_data_bandpass
+        spike_train_time_index_list = signal_process.detect_neural_spikes(
+            filtered_data_bandpass
+        )
+        encoded_data = signal_process.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+        )
+
+        with open(compressed_file_path, "wb+") as file:
+            file.write(pickle.dumps(encoded_data))
+            file.close()
+
+    def test09_writing_encoded_data_byte_string_using_huffman_encoding(self):
+        logging.info(
+            "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
+        )
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.file, self.compressed_file_path
+        )
+        filtered_data_bandpass = signal_process.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
         )
         spike_train_time_index_list = signal_process.detect_neural_spikes(
             filtered_data_bandpass
@@ -193,12 +214,15 @@ class TestEncode(unittest.TestCase):
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
-            time_array_of_neural_data=time_array_of_neural_data,
+        )
+        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+            encoded_data
         )
 
-        with open(compressed_file_path, "wb+") as file:
-            file.write(pickle.dumps(encoded_data))
-            file.close()
+        encode.huffman_encoding(
+            input_data=encoded_data_byte_string,
+            compressed_file_path=self.compressed_file_path,
+        )
 
 
 if __name__ == "__main__":

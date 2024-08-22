@@ -149,7 +149,7 @@ def identify_potential_initial_spikes(amplitude_array, return_local_maximum=True
 
 def estimate_noise_floor(amplitude_array, window_size=10):
     """This function will estimate the noise floor. The amplitude array
-    must be at least of length of the window size or a single value.
+    must be at least the length of the window size or a single value.
 
     Args:
         amplitude_array (numpy.ndarray): Array of amplitudes with which
@@ -371,30 +371,39 @@ def create_encoded_data(
                              amplitudes of the detected eeg spikes.
                              This pattern of the initial time index
                              of the first amplitude, represented as an
-                             int, followed by the array of amplitude
-                             values at each sample is repeated for each
-                             detected spike. It is implied that the
-                             samples are equidistant depending upon
-                             the sampling frequency as calculated from
-                             the inverse of the sample rate, that the
-                             length of time of the entire data is
-                             inferred from the number of samples divided
-                             by the sample rate, and all amplitudes at
-                             samples not explicitly defined are to be
-                             considered noise and are therefore set to
-                             zero to reduce size while retaining
-                             information. The time of each amplitude is
-                             calculated as the division of the starting
-                             time index plus the current position of
-                             each amplitude by the current posigion in
-                             the zero-based amplitude array by the
-                             sample rate.
+                             int, followed by the number of points in
+                             the detected spike, followed by the array
+                             of amplitude values at each sample is
+                             repeated for each detected spike. It is
+                             implied that the samples are equidistant
+                             depending upon the sampling frequency as
+                             calculated from the inverse of the sample
+                             rate, that the length of time of the entire
+                             data is inferred from the number of samples
+                             divided by the sample rate, and all
+                             amplitudes at samples not explicitly
+                             defined are to be considered noise and are
+                             therefore set to zero to reduce size while
+                             retaining information. The time of each
+                             amplitude is calculated as the division of
+                             the starting time index plus the current
+                             position of each amplitude by the current
+                             position in the zero-based amplitude array
+                             by the sample rate.
     """
     encoded_data = []
-    encoded_data.append(sample_rate)
-    encoded_data.append(number_of_samples)
+    encoded_data.append(np.int32(sample_rate))
+    encoded_data.append(np.int32(number_of_samples))
     for spike_train_index in range(0, len(spike_train_time_index_list)):
-        encoded_data.append(np.int16(spike_train_time_index_list[spike_train_index][0]))
+        # Time index of the first spike point
+        encoded_data.append(np.int32(spike_train_time_index_list[spike_train_index][0]))
+
+        # The number of points in the detected spike to decode the byte string.
+        encoded_data.append(
+            np.int32(len(neural_data[spike_train_time_index_list[spike_train_index]]))
+        )
+
+        # The amplitude array of points in the spike.
         encoded_data.append(neural_data[spike_train_time_index_list[spike_train_index]])
 
     return encoded_data
@@ -471,6 +480,7 @@ def decode_data(encoded_data):
     amplitude_array = np.int16(np.zeros(len(time_array)))
     while len(encoded_data) > 0:
         amplitude_start_time_index = encoded_data.popleft()
+        number_of_spike_points = encoded_data.popleft()
         spike_amplitudes = encoded_data.popleft()
         for amplitude_index, amplitude in enumerate(spike_amplitudes):
             amplitude_array[amplitude_start_time_index + amplitude_index] = amplitude
@@ -503,3 +513,81 @@ def calculate_time_array(sample_rate: int, neural_data: np.ndarray):
         start=0, stop=time_array_length, step=(1 / sample_rate)
     )
     return time_array_of_neural_data
+
+
+def convert_encoded_data_to_byte_string(encoded_data: list):
+    """This converts the encoded data to the a string of bytes.
+
+    Args:
+        encoded_data (list): This is the array of values to be converted
+                             into a string of bytes.
+
+    Returns:
+        encoded_data_byte_string (str): This is the string of bytes that
+                                        represent the encoded data.
+    """
+    byte_string = encoded_data[0].tobytes()
+    for data in encoded_data[1:]:
+        byte_string += data.tobytes()
+
+    return byte_string
+
+
+def convert_byte_string_to_encoded_data(encoded_data_byte_string: str):
+    """This converts the string of bytes to the encoded data
+    representation of the input wav so that it may be decoded and
+    assembled into an array of amplitudes.
+
+    Args:
+        encoded_data_byte_string (str): This is the string of bytes that
+                                        represent the encoded data.
+    Returns:
+        encoded_data (list): This is the list of integers which contain
+                             the spike information of the dissassembled
+                             amplitude array.
+    """
+    encoded_data = []
+
+    # Sample Rate:
+    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32))
+    encoded_data_byte_string = encoded_data_byte_string[4:]
+
+    # Number of Samples:
+    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32))
+    encoded_data_byte_string = encoded_data_byte_string[4:]
+
+    while len(encoded_data_byte_string) > 0:
+        # Time index of first spike point:
+        encoded_data.append(
+            np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32)
+        )
+        encoded_data_byte_string = encoded_data_byte_string[4:]
+
+        # Number of points in the following spike amplitude array:
+        number_of_points_in_the_spike_amplitude_array = np.frombuffer(
+            encoded_data_byte_string[0:4], dtype=np.int32
+        )
+        encoded_data.append(number_of_points_in_the_spike_amplitude_array)
+        encoded_data_byte_string = encoded_data_byte_string[4:]
+
+        # Array of spike amplitudes:
+        encoded_data.append(
+            np.frombuffer(
+                encoded_data_byte_string[
+                    0 : 2 * number_of_points_in_the_spike_amplitude_array
+                ],
+                dtype=np.int16,
+            )
+        )
+        encoded_data_byte_string = encoded_data_byte_string[
+            2 * number_of_points_in_the_spike_amplitude_array :
+        ]
+
+    return encoded_data
+
+
+# create function to print the size of the compressed file and the
+#   percent of compression.
+
+# Create function to profile the time each function takes to complete
+#   processing.

@@ -182,12 +182,11 @@ def write_file(compressed_file_path, nodeMappingDict, bitString, endZeroPadding)
 
 
 def huffman_encoding(
+    input_data: np.ndarray,
     compressed_file_path: str = None,
-    input_wave: np.ndarray = None,
-    pickled_data: bytes = None,
 ):
     """Main method to drive the encoding operation implementing huffman
-    encoding. Either the input_wave or the pickled_data formats are
+    encoding. Either the input_data or the pickled_data formats are
     required as data to encode.
 
     Args:
@@ -196,34 +195,18 @@ def huffman_encoding(
                                               of the output compressed
                                               file.
                                               Defaults to None.
-        input_wave (np.ndarray, optional): This is the input wave file
+        input_data (np.ndarray, optional): This is the input wave file
                                            as a numpy array. If this
                                            input is given, the data will
                                            be converted to bytes.
-                                           Defaults to None.
-        pickled_data (bytes, optional): This is a pickled object to be
-                                        encoded. It is presumed that
-                                        this object is representative of
-                                        an audio waveform which has been
-                                        encoded using the following
-                                        specified format: [sample_rate,
-                                        number_of_samples,
-                                        initial_time_of_amplitude,
-                                        [...amplitude array...],
-                                        second_time_of_amplitude,
-                                        [...amplitude array...], ...].
-                                        Defaults to None.
     """
 
     if compressed_file_path == None:
         compressed_file_path = sys.argv[2]
 
-    try:
-        input_wav_bytes = input_wave.tobytes()
-    except:
-        input_wav_bytes = pickled_data
-
-    sorted_hex_freq_dict = determine_hex_freq(input_wav_bytes)
+    sorted_hex_freq_dict = determine_hex_freq(
+        input_data if type(input_data) == bytes else input_data.tobytes()
+    )
     hex_freq_values = list(sorted_hex_freq_dict.values())
     hex_freq_keys = list(sorted_hex_freq_dict.keys())
 
@@ -246,7 +229,10 @@ def huffman_encoding(
 
     # The hexadecimal representation of the bytes of the input wave file
     # is converted to a string of bits to write
-    bitString, endZeroPadding = convertHexToBit(input_wav_bytes, nodeMappingDict)
+    bitString, endZeroPadding = convertHexToBit(
+        input_data if type(input_data) == bytes else input_data.tobytes(),
+        nodeMappingDict,
+    )
 
     # The bits are written by using single bytes of integers
     write_file(compressed_file_path, nodeMappingDict, bitString, endZeroPadding)
@@ -301,9 +287,6 @@ def main():
     filtered_data_bandpass = signal_process.preprocess_signal(
         raw_neural_signal=input_wav, sample_rate=sample_rate
     )
-    time_array_of_neural_data = signal_process.calculate_time_array(
-        sample_rate=sample_rate, neural_data=filtered_data_bandpass
-    )
     spike_train_time_index_list = signal_process.detect_neural_spikes(
         filtered_data_bandpass
     )
@@ -312,11 +295,14 @@ def main():
         number_of_samples=len(filtered_data_bandpass),
         spike_train_time_index_list=spike_train_time_index_list,
         neural_data=filtered_data_bandpass,
-        time_array_of_neural_data=time_array_of_neural_data,
     )
-    pickled_data = pickle.dumps(encoded_data)
+
+    encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data
+    )
+
     huffman_encoding(
-        pickled_data=pickled_data, compressed_file_path=compressed_file_path
+        input_data=encoded_data_byte_string, compressed_file_path=compressed_file_path
     )
 
 

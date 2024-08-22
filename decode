@@ -4,18 +4,22 @@ import pickle
 import sys
 
 
-# Purpose: This function converts bytes into a string of bits.
-# Inputs:
-#   data_to_decode: This is the string of bytes that will be converted
-#                   into bits.
-#   endZeroPadding: This is the number of zeroes that were padded into
-#                   the final byte. They will be removed so the
-#                   resultant bit string can be properly decompressed.
-# Returns:
-#   bitString: This is the string of bits that will need to be parsed
-#              into hexadecimal pairs that represent the bytes of the
-#              decompressed wave file.
 def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
+    """This function converts bytes into a string of bits.
+
+    Args:
+        data_to_decode (str): This is the string of bytes that will be
+                              converted into bits.
+        endZeroPadding (int): This is the number of zeroes that were
+                              padded into the final byte. They will be
+                              removed so the resultant bit string can be
+                              properly decompressed.
+
+    Returns:
+        bitString (str): This is the string of bits that will need to be
+                         parsed into hexadecimal pairs that represent
+                         the bytes of the decompressed wave file.
+    """
     bitString = ""
     for byteIndex in range(0, len(data_to_decode)):
         bitStringByte = format(data_to_decode[byteIndex], "b")
@@ -25,20 +29,28 @@ def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
     return bitString
 
 
-# Purpose: This function allows the searching of the
-#          nodeMappingDictionary for a key given a value.
-# Inputs:
-#   val_str_to_find: This is expected to be a string of bits.
-#   nodeMappingDictionary: This is the dictionary that maps hexadecimal
-#                          values as keys in the dictionary to uniquely
-#                          identifying strings of bits as values.
-# Returns: This function returns the hexadecimal pair found as a key in
-#          the nodeMappingDictionary given a string of bit values.
-#          If the given string of bits is not found in the dictionary,
-#          the return value is 'None'.
 def find_key_by_value_in_node_mapping_dictionary(
     val_str_to_find, nodeMappingDictionary
 ):
+    """This function allows the searching of the nodeMappingDictionary
+    for a key given a value.
+
+    Args:
+        val_str_to_find (str): This is expected to be a string of bits.
+        nodeMappingDictionary (dict): This is the dictionary that maps
+                                      hexadecimal values as keys in the
+                                      dictionary to uniquely identifying
+                                      strings of bits as values.
+
+    Returns:
+        key_mapped_to_value (list): This function returns the
+                                    hexadecimal pair found as a key in
+                                    the nodeMappingDictionary given a
+                                    string of bit values. If the given
+                                    string of bits is not found in the
+                                    dictionary, the return value is
+                                    'None'.
+    """
     try:
         key_mapped_to_value = list(nodeMappingDictionary.keys())[
             list(nodeMappingDictionary.values()).index(val_str_to_find)
