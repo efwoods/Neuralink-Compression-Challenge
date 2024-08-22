@@ -417,16 +417,6 @@ def create_encoded_data(
     encoded_data = []
     encoded_data.append(np.int32(sample_rate))
     encoded_data.append(np.int32(number_of_samples))
-    # if len(spike_train_time_index_list) == 1:
-    #     # Time index of the first spike point
-    #     encoded_data.append(np.int32(spike_train_time_index_list[0]))
-
-    #     # The number of points in the detected spike to decode the byte string.
-    #     encoded_data.append(np.int32(len(spike_train_time_index_list)))
-
-    #     # The amplitude array of points in the spike.
-    #     encoded_data.append(neural_data[spike_train_time_index_list])
-
     for spike_train_index in range(0, len(spike_train_time_index_list)):
         # Time index of the first spike point
         encoded_data.append(np.int32(spike_train_time_index_list[spike_train_index][0]))
@@ -580,24 +570,24 @@ def convert_byte_string_to_encoded_data(encoded_data_byte_string: str):
     encoded_data = []
 
     # Sample Rate:
-    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32))
+    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32)[0])
     encoded_data_byte_string = encoded_data_byte_string[4:]
 
     # Number of Samples:
-    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32))
+    encoded_data.append(np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32)[0])
     encoded_data_byte_string = encoded_data_byte_string[4:]
 
     while len(encoded_data_byte_string) > 0:
         # Time index of first spike point:
         encoded_data.append(
-            np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32)
+            np.frombuffer(encoded_data_byte_string[0:4], dtype=np.int32)[0]
         )
         encoded_data_byte_string = encoded_data_byte_string[4:]
 
         # Number of points in the following spike amplitude array:
         number_of_points_in_the_spike_amplitude_array = np.frombuffer(
             encoded_data_byte_string[0:4], dtype=np.int32
-        )
+        )[0]
         encoded_data.append(number_of_points_in_the_spike_amplitude_array)
         encoded_data_byte_string = encoded_data_byte_string[4:]
 
