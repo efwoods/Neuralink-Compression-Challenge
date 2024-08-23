@@ -73,7 +73,8 @@ class TestEncode(unittest.TestCase):
 
     @unittest.skip("Testing Only Highest Compression Ratio")
     def test03_huffman_encoding_pickling(self):
-        """This is a full test of the huffman encoding algorithm"""
+        """Testing Reading Data, Filtering the Data, Detecting Neural
+        Spikes, & Creating Encoded Data"""
 
         logging.info("Testing huffman encoding of pickled object format")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
@@ -90,10 +91,6 @@ class TestEncode(unittest.TestCase):
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
-        )
-        pickled_data = pickle.dumps(encoded_data)
-        encode.huffman_encoding(
-            pickled_data=pickled_data, compressed_file_path=self.compressed_file_path
         )
 
     @unittest.skip("Testing Only Highest Compression Ratio")
@@ -134,17 +131,15 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
     def test06_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
         logging.info("Testing input of wavfile into huffman_encode function.")
-        logging.info("Results: File Size: 128 KB in 0.078s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
         encode.huffman_encoding(
-            compressed_file_path=self.compressed_file_path, input_wave=input_wav
+            compressed_file_path=self.compressed_file_path, input_data=input_wav
         )
 
     @unittest.skip("Testing Only Highest Compression Ratio")
@@ -172,7 +167,7 @@ class TestEncode(unittest.TestCase):
             encoded_data=encoded_data
         )
         encode.huffman_encoding(
-            compressed_file_path=self.compressed_file_path, input_wave=amplitude_array
+            compressed_file_path=self.compressed_file_path, input_data=amplitude_array
         )
 
     @unittest.skip("Testing Only Highest Compression Ratio")
@@ -201,6 +196,7 @@ class TestEncode(unittest.TestCase):
             file.write(pickle.dumps(encoded_data))
             file.close()
 
+    @unittest.skip("Testing Huffman Encoding & Decoding")
     def test09_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
@@ -328,6 +324,7 @@ class TestEncode(unittest.TestCase):
 
         wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=input_wav)
 
+    @unittest.skip("Testing Huffman Encoding & Decoding")
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."

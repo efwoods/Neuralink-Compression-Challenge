@@ -79,6 +79,9 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
+    def test04(self):
+        logging.info("Testing Huffman Encoding and Huffman Decoding functions.")
+
 
 if __name__ == "__main__":
     unittest.main()
