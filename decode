@@ -3,6 +3,7 @@
 import pickle
 import sys
 import os
+from scipy.io import wavfile
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from utility import signal_process
@@ -108,9 +109,7 @@ def huffman_decoding(huffman_encoded_data: str):
     return decoded_wav_bytes
 
 
-def read_huffman_encoded_file(
-    compressed_file_path: str = None, decompressed_file_path: str = None
-):
+def read_encoded_file(compressed_file_path: str = None):
     """The main driving method that will decode a huffman encoded file.
 
     Args:
@@ -129,10 +128,11 @@ def read_huffman_encoded_file(
     return huffman_encoded_data
 
 
-def write_decoded_wav(decoded_wav, decompressed_file_path: str = None):
-    """_summary_
+def write_decoded_wav(sample_rate, decoded_wav, decompressed_file_path: str = None):
+    """This function writes the decoded bytes to a wav file.
 
     Args:
+        sample_rate (int): This is the rate the audio was sampled.
         decoded_wav (array): This is the array of amplitudes to be
                              written to a file.
         decompressed_file_path (str, optional): The path of the output
@@ -143,14 +143,12 @@ def write_decoded_wav(decoded_wav, decompressed_file_path: str = None):
     if decompressed_file_path == None:
         decompressed_file_path = sys.argv[2]
 
-    with open(decompressed_file_path, "wb+") as fp:
-        fp.write(decoded_wav.tobytes())
-        fp.close()
+    wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=decoded_wav)
 
 
 if __name__ == "__main__":
-    huffman_encoded_data = read_huffman_encoded_file()
+    huffman_encoded_data = read_encoded_file()
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
     encoded_data = signal_process.convert_byte_string_to_encoded_data(decoded_wav_bytes)
     sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
-    write_decoded_wav(decoded_wav=amplitude_array)
+    write_decoded_wav(sample_rate=sample_rate, decoded_wav=amplitude_array)

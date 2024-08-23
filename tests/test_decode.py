@@ -28,10 +28,10 @@ class TestDecode(unittest.TestCase):
 
     def setUp(self):
         self.compressed_file_path = (
-            "data/0ab237b7-fb12-4687-afed-8d1e2070d6" "21.wav.brainwire"
+            "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.brainwire"
         )
         self.decompressed_file_path = (
-            "data/0ab237b7-fb12-4687-afed-8d1e2070" "d621.wav.copy"
+            "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.copy"
         )
 
     def tearDown(self) -> None:
@@ -39,16 +39,18 @@ class TestDecode(unittest.TestCase):
 
     @unittest.skip("Testing Huffman Decoding then Decoding Encoded Representation")
     def test01_huffman_decoding(self):
-        decode.huffman_decoding(self.compressed_file_path, self.decompressed_file_path)
+        huffman_encoded_data = decode.read_encoded_file(
+            compressed_file_path=self.compressed_file_path,
+        )
+        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array."
         )
 
-        huffman_encoded_data = decode.read_huffman_encoded_file(
+        huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
-            decompressed_file_path=self.decompressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = signal_process.convert_byte_string_to_encoded_data(
@@ -56,6 +58,23 @@ class TestDecode(unittest.TestCase):
         )
         sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
         decode.write_decoded_wav(
+            sample_rate=sample_rate,
+            decoded_wav=amplitude_array,
+            decompressed_file_path=self.decompressed_file_path,
+        )
+
+    @unittest.skip("Testing Huffman Encoded Format")
+    def test03_decoding_encoded_byte_string(self):
+        logging.info("This is a test to decode the encoded data byte string.")
+        encoded_data_byte_string = decode.read_encoded_file(
+            compressed_file_path=self.compressed_file_path,
+        )
+        encoded_data = signal_process.convert_byte_string_to_encoded_data(
+            encoded_data_byte_string=encoded_data_byte_string
+        )
+        sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+        decode.write_decoded_wav(
+            sample_rate,
             decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
         )

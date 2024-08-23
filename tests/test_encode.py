@@ -24,6 +24,11 @@ spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
 encode = module_from_spec(spec)
 spec.loader.exec_module(encode)
 
+# Import decode
+spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
+decode = module_from_spec(spec)
+spec.loader.exec_module(decode)
+
 
 class TestEncode(unittest.TestCase):
     """This class is used to run test cases for the encode module.
@@ -148,7 +153,6 @@ class TestEncode(unittest.TestCase):
         information where the noise has been zero-valued everywhere else."""
 
         logging.info("Testing using spike detection.")
-        logging.info("Results: File Size: 132 KB in 3.962s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -275,7 +279,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    @unittest.skip("Testing Fastest Code")
+    @unittest.skip("Testing Encoding & Decoding Functionality")
     def test11_writing_encoded_data_byte_string_(self):
         logging.info(
             "Testing Efficiency of Writing String of Bytes that Contain Only Detected Spike Information."
@@ -309,6 +313,61 @@ class TestEncode(unittest.TestCase):
         signal_process.print_size_of_file_compression(
             file_path=self.file,
             compressed_file_path=self.compressed_file_path,
+        )
+
+    @unittest.skip("Testing Compression Highest Compression Ratio")
+    def test12_testing_writing_input_wav(self):
+        logging.info(
+            "This is a test to ensure the input wav is written to the output file and is functional."
+        )
+        decompressed_file_path = "data/_0ab237b7-fb12-4687-afed-8d1e2070d621.wav"
+
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.file, self.compressed_file_path
+        )
+
+        wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=input_wav)
+
+    def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
+        logging.info(
+            "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
+        )
+        file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
+        compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
+
+        total_start_time = time.time_ns()
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            file, compressed_file_path
+        )
+        filtered_data_bandpass = signal_process.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
+        )
+        encoded_data = signal_process.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+        )
+        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+            encoded_data
+        )
+
+        encode.huffman_encoding(
+            input_data=encoded_data_byte_string,
+            compressed_file_path=self.compressed_file_path,
+        )
+        total_stop_time = time.time_ns()
+
+        signal_process.print_size_of_file_compression(
+            file_path=self.file,
+            compressed_file_path=self.compressed_file_path,
+        )
+
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=total_start_time, stop_time=total_stop_time
         )
 
 
