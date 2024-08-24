@@ -141,6 +141,9 @@ class TestEncode(unittest.TestCase):
         encode.huffman_encoding(
             compressed_file_path=self.compressed_file_path, input_data=input_wav
         )
+        signal_process.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
+        )
 
     @unittest.skip("Testing Only Highest Compression Ratio")
     def test07_huffman_encoding_of_decoded_encoded_data(self):
