@@ -33,6 +33,9 @@ class TestDecode(unittest.TestCase):
         self.decompressed_file_path = (
             "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.copy"
         )
+        # The sample rate is implicitly a known value when exclusively
+        # performing huffman compression.
+        self.sample_rate = 19531
 
     def tearDown(self) -> None:
         pass
@@ -79,8 +82,19 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    def test04(self):
+    def test04_huffman_decode_operates(self):
         logging.info("Testing Huffman Encoding and Huffman Decoding functions.")
+        huffman_encoded_string = decode.read_encoded_file(
+            compressed_file_path=self.compressed_file_path
+        )
+        decoded_wav_bytes = decode.huffman_decoding(
+            huffman_encoded_data=huffman_encoded_string
+        )
+        decode.write_decoded_wav(
+            sample_rate=self.sample_rate,
+            decoded_wav=decoded_wav_bytes,
+            decompressed_file_path=self.decompressed_file_path,
+        )
 
 
 if __name__ == "__main__":

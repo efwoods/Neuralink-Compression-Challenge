@@ -135,6 +135,9 @@ class TestEncode(unittest.TestCase):
         """This is a test that the huffman encoding properly functions independently."""
 
         logging.info("Testing input of wavfile into huffman_encode function.")
+        logging.info(
+            "The sample rate is implied using this method to be a known value of 19531."
+        )
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -175,7 +178,6 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "Testing File Size and Algorithmic Speed using the encoded information only"
         )
-        logging.info("Results: File Size: 272 KB in 2.951s")
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )

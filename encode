@@ -186,8 +186,7 @@ def huffman_encoding(
     compressed_file_path: str = None,
 ):
     """Main method to drive the encoding operation implementing huffman
-    encoding. Either the input_data or the pickled_data formats are
-    required as data to encode.
+    encoding.
 
     Args:
         compressed_file_path (str, optional): This is the string of the
