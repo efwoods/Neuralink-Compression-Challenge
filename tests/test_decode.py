@@ -7,6 +7,7 @@ import logging
 import sys
 import os
 import numpy as np
+import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from utility import signal_process
@@ -73,14 +74,19 @@ class TestDecode(unittest.TestCase):
     def test03_decoding_encoded_byte_string(self):
         logging.info("This is a test to decode the encoded data byte string.")
         # Test 06 of Huffman Encoding
+        encoding_start_time = time.time_ns()
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
         encode.huffman_encoding(
             input_data=input_wav, compressed_file_path=self.compressed_file_path
         )
+        encoding_stop_time = time.time_ns()
         signal_process.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
+        )
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=encoding_stop_time
         )
 
         # Decoding Below
