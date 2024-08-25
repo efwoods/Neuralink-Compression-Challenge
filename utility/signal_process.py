@@ -631,16 +631,25 @@ def print_size_of_file_compression(file_path: str, compressed_file_path: str):
 
 
 def print_time_each_function_takes_to_complete_processing(
-    start_time: int, stop_time: int
+    start_time: int, stop_time: int, executed_line: str = None
 ):
     """This function prints the time delta between the start time and the stop time.
 
     Args:
         start_time (int): This is the integer representation of the start time in nanoseconds.
         stop_time (int): This is the integer representation of teh stop time in nanoseconds.
+        executed_line (str, optional): This is the line of code that was executed. Defaults to None.
     """
     time_Δ = stop_time - start_time
+    if executed_line != None:
+        executed_line_str = "Executed Line: "
+        executed_line_str += executed_line
+        executed_line_str += "..."
+        print(f"\n{executed_line_str}")
+    else:
+        print(f"\n")
     print(f"Time Δ Nanoseconds: {(time_Δ)}")
     print(f"Time Δ Microseconds: {(time_Δ / 1e3)}")
     print(f"Time Δ Milliseconds: {(time_Δ / 1e6)}")
     print(f"Time Δ Seconds: {(time_Δ / 1e9)}")
+    print(f"\n")

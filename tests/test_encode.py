@@ -43,6 +43,10 @@ class TestEncode(unittest.TestCase):
         self.compressed_file_path = (
             "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.brainwire"
         )
+        self.debug_file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
+        self.debug_compressed_file_path = (
+            "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
+        )
 
     def tearDown(self):
         pass
@@ -131,6 +135,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
+    @unittest.skip("Testing Main Only")
     def test06_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
@@ -199,34 +204,80 @@ class TestEncode(unittest.TestCase):
             file.write(pickle.dumps(encoded_data))
             file.close()
 
-    @unittest.skip("Testing Huffman Encoding & Decoding")
-    def test09_writing_encoded_data_byte_string_using_huffman_encoding(self):
+    def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
-            "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
+            "This is the Main Function: Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
         )
         total_start_time = time.time_ns()
+        start_time = time.time_ns()
         sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
+            self.debug_file, self.debug_compressed_file_path
         )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="encode.read_file(",
+        )
+
+        start_time = time.time_ns()
         filtered_data_bandpass = signal_process.preprocess_signal(
-            raw_neural_signal=input_wav, sample_rate=sample_rate
+            raw_neural_signal=input_wav,
+            sample_rate=sample_rate,
         )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="signal_process.preprocess_signal(",
+        )
+
+        start_time = time.time_ns()
         spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="signal_process.detect_neural_spikes(",
+        )
+
+        start_time = time.time_ns()
         encoded_data = signal_process.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="signal_process.create_encoded_data(",
+        )
+
+        start_time = time.time_ns()
         encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
             encoded_data
         )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="signal_process.convert_encoded_data_to_byte_string(",
+        )
 
+        start_time = time.time_ns()
         encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.compressed_file_path,
+        )
+        stop_time = time.time_ns()
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line="encode.huffman_encoding(",
         )
         total_stop_time = time.time_ns()
 
@@ -236,7 +287,9 @@ class TestEncode(unittest.TestCase):
         )
 
         signal_process.print_time_each_function_takes_to_complete_processing(
-            start_time=total_start_time, stop_time=total_stop_time
+            start_time=total_start_time,
+            stop_time=total_stop_time,
+            executed_line="Total Compression Time",
         )
 
     @unittest.skip("skipping test")
