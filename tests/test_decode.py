@@ -6,6 +6,8 @@ from importlib.machinery import SourceFileLoader
 import logging
 import sys
 import os
+import numpy as np
+import time
 
 sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
 from utility import signal_process
@@ -18,6 +20,10 @@ spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
 decode = module_from_spec(spec)
 spec.loader.exec_module(decode)
 
+spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
+encode = module_from_spec(spec)
+spec.loader.exec_module(encode)
+
 
 class TestDecode(unittest.TestCase):
     """This class contains test cases for the decode module.
@@ -27,6 +33,7 @@ class TestDecode(unittest.TestCase):
     """
 
     def setUp(self):
+        self.file = "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav"
         self.compressed_file_path = (
             "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.brainwire"
         )
@@ -47,6 +54,7 @@ class TestDecode(unittest.TestCase):
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
+    @unittest.skip("Testing Huffman Encoded Format Only")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array."
@@ -66,18 +74,33 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    @unittest.skip("Testing Huffman Encoded Format")
     def test03_decoding_encoded_byte_string(self):
         logging.info("This is a test to decode the encoded data byte string.")
+        # Test 06 of Huffman Encoding
+        encoding_start_time = time.time_ns()
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.file, self.compressed_file_path
+        )
+        encode.huffman_encoding(
+            input_data=input_wav, compressed_file_path=self.compressed_file_path
+        )
+        encoding_stop_time = time.time_ns()
+        signal_process.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
+        )
+        signal_process.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=encoding_stop_time
+        )
+
+        # Decoding Below
         encoded_data_byte_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        encoded_data = signal_process.convert_byte_string_to_encoded_data(
-            encoded_data_byte_string=encoded_data_byte_string
-        )
-        sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+        decoded_wav_bytes = decode.huffman_decoding(encoded_data_byte_string)
+
+        amplitude_array = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
         decode.write_decoded_wav(
-            sample_rate,
+            sample_rate=19531,
             decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
         )
