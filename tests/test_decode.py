@@ -40,6 +40,13 @@ class TestDecode(unittest.TestCase):
         self.decompressed_file_path = (
             "data/0ab237b7-fb12-4687-afed-8d1e2070d621.wav.copy"
         )
+        self.debug_file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
+        self.debug_compressed_file_path = (
+            "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
+        )
+        self.debug_decompressed_file_path = (
+            "data/0052503c-2849-4f41-ab51-db382103690c.wav.copy"
+        )
         # The sample rate is implicitly a known value when exclusively
         # performing huffman compression.
         self.sample_rate = 19531
@@ -57,7 +64,9 @@ class TestDecode(unittest.TestCase):
     @unittest.skip("Testing Huffman Encoded Format Only")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
-            "This is a test to decode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array."
+            "This is a test to decode the huffman encoded byte string,"
+            + " convert the byte string into the encoded format, and"
+            + " reconstruct the amplitude array."
         )
 
         huffman_encoded_data = decode.read_encoded_file(
@@ -75,8 +84,10 @@ class TestDecode(unittest.TestCase):
         )
 
     def test03_decoding_encoded_byte_string(self):
-        logging.info("This is a test to decode the encoded data byte string.")
-        # Test 06 of Huffman Encoding
+        logging.info(
+            "This test encodes a file using huffman encoding and decodes using huffman encoding."
+        )
+        # Test 06 from test_encode.py of Huffman Encoding
         encoding_start_time = time.time_ns()
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
@@ -106,7 +117,7 @@ class TestDecode(unittest.TestCase):
         )
 
     def test04_huffman_decode_operates(self):
-        logging.info("Testing Huffman Encoding and Huffman Decoding functions.")
+        logging.info("Testing Huffman Decoding exclusively.")
         huffman_encoded_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path
         )
@@ -116,6 +127,53 @@ class TestDecode(unittest.TestCase):
         decode.write_decoded_wav(
             sample_rate=self.sample_rate,
             decoded_wav=decoded_wav_bytes,
+            decompressed_file_path=self.decompressed_file_path,
+        )
+
+    @unittest.skip("Testing Huffman Encoded Format Only")
+    def test05_encode_data_implement_huffman_encoding_and_decode(self):
+        logging.info(
+            "This is a test to encode the huffman encoded byte string,"
+            + " convert the byte string into the encoded format, and"
+            + " reconstruct the amplitude array."
+        )
+        # Spike Detection & Huffman Encoding
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            self.debug_file, self.debug_compressed_file_path
+        )
+        filtered_data_bandpass = signal_process.preprocess_signal(
+            raw_neural_signal=input_wav,
+            sample_rate=sample_rate,
+        )
+        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
+        )
+        encoded_data = signal_process.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+        )
+        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+            encoded_data
+        )
+        encode.huffman_encoding(
+            input_data=encoded_data_byte_string,
+            compressed_file_path=self.compressed_file_path,
+        )
+
+        # Decoding
+        huffman_encoded_data = decode.read_encoded_file(
+            compressed_file_path=self.compressed_file_path,
+        )
+        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+        encoded_data = signal_process.convert_byte_string_to_encoded_data(
+            encoded_data_byte_string=decoded_wav_bytes
+        )
+        sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+        decode.write_decoded_wav(
+            sample_rate=sample_rate,
+            decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
         )
 
