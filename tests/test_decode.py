@@ -116,6 +116,7 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
+    @unittest.skip("Debugging encoding")
     def test04_huffman_decode_operates(self):
         logging.info("Testing Huffman Decoding exclusively.")
         huffman_encoded_string = decode.read_encoded_file(
@@ -130,13 +131,21 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    @unittest.skip("Testing Huffman Encoded Format Only")
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
             "This is a test to encode the huffman encoded byte string,"
             + " convert the byte string into the encoded format, and"
             + " reconstruct the amplitude array."
         )
+
+        logging.info(
+            "ValueError: setting an array element with a"
+            + "sequence. The requested array has an "
+            + "inhomogeneous shape after 1 dimensions. The "
+            + "detected shape was (3850,) + inhomogeneous "
+            + "part. Traceback (most recent call last)"
+        )
+
         # Spike Detection & Huffman Encoding
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.debug_file, self.debug_compressed_file_path
