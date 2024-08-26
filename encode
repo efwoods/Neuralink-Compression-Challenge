@@ -277,8 +277,21 @@ def read_file(file: str = None, compressed_file_path: str = None):
     return sample_rate, input_wav, compressed_file_path
 
 
-def main():
-    """This is the main driver of the code."""
+def create_huffman_encoded_file():
+    """This driver function will read the data before huffman encoding
+    the data and writing the resulting string of bytes to a file."""
+
+    sample_rate, input_wav, compressed_file_path = read_file()
+    huffman_encoding(input_data=input_wav, compressed_file_path=compressed_file_path)
+
+
+def implement_spike_detection_module_and_huffman_encode_file():
+    """This driver function will read data, preprocess the data, detect neural
+    spikes, create an object containing only the detected spikes,
+    convert this object to a string of bytes, huffman encode those
+    bytes, and write the huffman encoded representation of the bytes to
+    a file."""
+
     # Read Data
     sample_rate, input_wav, compressed_file_path = read_file()
 
@@ -300,9 +313,13 @@ def main():
         encoded_data
     )
 
-    huffman_encoding(
-        input_data=encoded_data_byte_string, compressed_file_path=compressed_file_path
-    )
+    huffman_encoding(input_data=input_wav, compressed_file_path=compressed_file_path)
+
+
+def main():
+    """This is the main driver of the code."""
+    # create_huffman_encoded_file()
+    implement_spike_detection_module_and_huffman_encode_file()
 
 
 if __name__ == "__main__":

@@ -417,15 +417,13 @@ def create_encoded_data(
     encoded_data = []
     encoded_data.append(np.int32(sample_rate))
     encoded_data.append(np.int32(number_of_samples))
-    for spike_train_index in range(0, len(spike_train_time_index_list)):
+    for spike_train_index, spike_train_value in enumerate(spike_train_time_index_list):
         # Time index of the first spike point
-        encoded_data.append(np.int32(spike_train_time_index_list[spike_train_index][0]))
+        encoded_data.append(np.int32(spike_train_value[0]))
         # The number of points in the detected spike to decode the byte string.
-        encoded_data.append(
-            np.int32(len(neural_data[spike_train_time_index_list[spike_train_index]]))
-        )
+        encoded_data.append(np.int32(len(neural_data[spike_train_value])))
         # The amplitude array of points in the spike.
-        encoded_data.append(neural_data[spike_train_time_index_list[spike_train_index]])
+        encoded_data.append(neural_data[spike_train_value])
 
     return encoded_data
 
