@@ -54,14 +54,14 @@ class TestDecode(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    @unittest.skip("Testing Huffman Decoding then Decoding Encoded Representation")
+    @unittest.skip("Debugging using test05")
     def test01_huffman_decoding(self):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
-    @unittest.skip("Testing Huffman Encoded Format Only")
+    @unittest.skip("Debugging using test05")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string,"
@@ -83,6 +83,7 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
+    @unittest.skip("Debugging using test05")
     def test03_decoding_encoded_byte_string(self):
         logging.info(
             "This test encodes a file using huffman encoding and decodes using huffman encoding."
@@ -116,7 +117,7 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    @unittest.skip("Debugging encoding")
+    @unittest.skip("Debugging using test05")
     def test04_huffman_decode_operates(self):
         logging.info("Testing Huffman Decoding exclusively.")
         huffman_encoded_string = decode.read_encoded_file(
@@ -168,12 +169,12 @@ class TestDecode(unittest.TestCase):
         )
         encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
+            compressed_file_path=self.debug_compressed_file_path,
         )
 
         # Decoding
         huffman_encoded_data = decode.read_encoded_file(
-            compressed_file_path=self.compressed_file_path,
+            compressed_file_path=self.debug_compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = signal_process.convert_byte_string_to_encoded_data(
@@ -183,7 +184,7 @@ class TestDecode(unittest.TestCase):
         decode.write_decoded_wav(
             sample_rate=sample_rate,
             decoded_wav=amplitude_array,
-            decompressed_file_path=self.decompressed_file_path,
+            decompressed_file_path=self.debug_decompressed_file_path,
         )
 
 
