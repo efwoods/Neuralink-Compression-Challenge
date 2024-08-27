@@ -6,9 +6,7 @@ import sys
 import os
 from scipy.io import wavfile
 import numpy as np
-
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-from utility import signal_process
+from signal_processing_utilities import process_signal
 
 
 class Node:
@@ -296,20 +294,20 @@ def implement_spike_detection_module_and_huffman_encode_file():
     sample_rate, input_wav, compressed_file_path = read_file()
 
     # Preprocess Data & Detect Spikes
-    filtered_data_bandpass = signal_process.preprocess_signal(
+    filtered_data_bandpass = process_signal.preprocess_signal(
         raw_neural_signal=input_wav, sample_rate=sample_rate
     )
-    spike_train_time_index_list = signal_process.detect_neural_spikes(
+    spike_train_time_index_list = process_signal.detect_neural_spikes(
         filtered_data_bandpass
     )
-    encoded_data = signal_process.create_encoded_data(
+    encoded_data = process_signal.create_encoded_data(
         sample_rate=sample_rate,
         number_of_samples=len(filtered_data_bandpass),
         spike_train_time_index_list=spike_train_time_index_list,
         neural_data=filtered_data_bandpass,
     )
 
-    encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+    encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
         encoded_data
     )
 

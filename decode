@@ -6,8 +6,7 @@ import os
 from scipy.io import wavfile
 import numpy as np
 
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-from utility import signal_process
+from signal_processing_utilities import process_signal
 
 
 def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
@@ -168,8 +167,8 @@ def process_spike_detection_huffman_encoded_data():
 
     huffman_encoded_data = read_encoded_file()
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
-    encoded_data = signal_process.convert_byte_string_to_encoded_data(decoded_wav_bytes)
-    sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+    encoded_data = process_signal.convert_byte_string_to_encoded_data(decoded_wav_bytes)
+    sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
     write_decoded_wav(
         sample_rate=sample_rate,
         decoded_wav=amplitude_array,

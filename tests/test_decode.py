@@ -56,6 +56,7 @@ class TestDecode(unittest.TestCase):
 
     @unittest.skip("Debugging using test05")
     def test01_huffman_decoding(self):
+        logging.info("This is a test of decoding a huffman encoded file exclusively")
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
