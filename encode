@@ -275,6 +275,16 @@ def read_file(file: str = None, compressed_file_path: str = None):
     return sample_rate, input_wav, compressed_file_path
 
 
+def perform_run_length_encoding(data_b: bytes):
+    """This function accepts data in the form of bytes and performs run
+    length encoding on the data.
+
+    Args:
+        data_b (bytes): This is data in the form of bytes that will be
+                        compressed using run length encoding.
+    """
+
+
 def create_huffman_encoded_file():
     """This driver function will read the data before huffman encoding
     the data and writing the resulting string of bytes to a file."""
