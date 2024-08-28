@@ -417,6 +417,7 @@ def create_encoded_data(
     encoded_data = []
     encoded_data.append(np.int32(sample_rate))
     encoded_data.append(np.int32(number_of_samples))
+    neural_spike_l = []
     for spike_train_index, spike_train_value in enumerate(spike_train_time_index_list):
         # Time index of the first spike point
         encoded_data.append(np.int32(spike_train_value[0]))
@@ -424,8 +425,9 @@ def create_encoded_data(
         encoded_data.append(np.int32(len(neural_data[spike_train_value])))
         # The amplitude array of points in the spike.
         encoded_data.append(neural_data[spike_train_value])
+        neural_spike_l.append(neural_data[spike_train_value])
 
-    return encoded_data
+    return encoded_data, neural_spike_l
 
 
 def preprocess_signal(raw_neural_signal, sample_rate):
