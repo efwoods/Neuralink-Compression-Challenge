@@ -617,7 +617,7 @@ def print_size_of_file_compression(file_path: str, compressed_file_path: str):
     """
     file_size = os.path.getsize(file_path)
     compressed_file_size = os.path.getsize(compressed_file_path)
-    percent_of_compression = (1 - (compressed_file_size / file_size)) * 100
+    percent_of_compression = (compressed_file_size / file_size) * 100
     file_size_requirement = file_size // 200
     percent_of_file_size_relative_to_file_size_requirement = (
         compressed_file_size / file_size_requirement
