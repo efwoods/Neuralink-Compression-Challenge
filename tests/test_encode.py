@@ -6,8 +6,6 @@ from importlib.machinery import SourceFileLoader
 import logging
 from scipy.io import wavfile
 import wave
-import sys
-import os
 import numpy as np
 import pickle
 import time

@@ -4,8 +4,6 @@ import unittest
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
 import logging
-import sys
-import os
 import numpy as np
 import time
 from signal_processing_utilities import process_signal
