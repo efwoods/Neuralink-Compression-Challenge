@@ -636,9 +636,12 @@ def print_time_each_function_takes_to_complete_processing(
     """This function prints the time delta between the start time and the stop time.
 
     Args:
-        start_time (int): This is the integer representation of the start time in nanoseconds.
-        stop_time (int): This is the integer representation of teh stop time in nanoseconds.
-        executed_line (str, optional): This is the line of code that was executed. Defaults to None.
+        start_time (int): This is the integer representation of the
+                          start time in nanoseconds.
+        stop_time (int): This is the integer representation of the stop
+                         time in nanoseconds.
+        executed_line (str, optional): This is the line of code that was
+                                       executed. Defaults to None.
     """
     time_Δ = stop_time - start_time
     if executed_line != None:
