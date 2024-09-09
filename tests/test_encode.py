@@ -14,7 +14,6 @@ from signal_processing_utilities import process_signal
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
-
 # Import encode
 spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
 encode = module_from_spec(spec)
