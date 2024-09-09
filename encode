@@ -3,7 +3,6 @@
 import heapq
 import pickle
 import sys
-import os
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
