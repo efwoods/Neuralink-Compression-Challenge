@@ -191,39 +191,21 @@ def estimate_noise_floor(amplitude_array, window_size=10):
         return noise_floor_estimate
 
 
-def detect_neural_spikes(neural_data, single_spike_detection=False):
-    """This function detects a single neural spike in real-time and
-    truncates the remaining neural data array if a flag is passed. This
-    allows for a single spike to be compressed and sent as a file under
-    time and file size constraints. It returns an array of indices of
-    spike locations containing only an individual spike. This preserves
-    the format for use with other functions but will inherently reduce
-    the time to file and size of each file to meet the requirements of
-    the problem statement. If the flag is not sent to the function, the
-    the entire neural data is searched for spikes before the function is
-    returned.
+def detect_neural_spikes(t, neural_data):
+    """This function detects spikes in real-time.
+    It returns an array of spikes at specific times and amplitudes with
+    zeroed out noise.
 
     Args:
+        t (array): This is the array of values that indicate the time of
+                   each point in the neural_data array.
         neural_data (array): This is the array of amplitudes for each
                              point of time of the neural data.
-        single_spike_detection (bool): This is a boolean flag which will
-                                       modify the function to detect
-                                       single neural spikes and truncate
-                                       the remaining neural data array.
 
     Returns:
-        spike_train_time_index_list (list): This is the array inclusive
-                                            of amplitudes of spikes at
-                                            each specific point in the
-                                            initial time array.
-                                            Non-spike points have been
-                                            replaced with amplitudes of
-                                            zero value.
-        neural_data (array): This is the array of neural data. If
-                             single_spike_detection is set to True, then
-                             the neural data array has been truncated to
-                             remove values up to the final point
-                             detected on the spike.
+        (list): This is the array inclusive of amplitudes of spikes at
+                each specific point in the initial time array. Non-spike
+                points have been replaced with amplitudes of zero value.
     """
     noise_floor_window = 5
     initial_first_point_of_spike_detected = False
@@ -231,7 +213,7 @@ def detect_neural_spikes(neural_data, single_spike_detection=False):
     third_point_of_spike_detected = False
     spike_train_time_index_list = []
 
-    for current_time_index, amplitude in enumerate(neural_data):
+    for current_time_index, time in enumerate(t):
         # Estimate the noise floor
         if current_time_index < noise_floor_window:
             current_noise_floor_estimate_list = estimate_noise_floor(
@@ -320,7 +302,9 @@ def detect_neural_spikes(neural_data, single_spike_detection=False):
                 if neural_data[current_time_index] > current_noise_floor_estimate:
                     # Third Point Found
                     spike_time_index_list_second_to_third_points = np.arange(
-                        spike_time_index_second_point, current_time_index + 1, step=1
+                        spike_time_index_second_point,
+                        current_time_index,
+                        step=1,
                     )
                     third_point_of_spike_detected = True
                     time_index_of_most_recent_third_spike = current_time_index
@@ -338,7 +322,8 @@ def detect_neural_spikes(neural_data, single_spike_detection=False):
                 time_index_of_most_recent_fourth_spike_point = current_time_index
                 spike_time_index_list_third_to_fourth_points = np.arange(
                     time_index_of_most_recent_third_spike,
-                    time_index_of_most_recent_fourth_spike_point + 1,
+                    time_index_of_most_recent_fourth_spike_point
+                    + 1,  # include the fourth detected point
                     step=1,
                 )
                 spike_time_index_list = np.concatenate(
@@ -350,17 +335,13 @@ def detect_neural_spikes(neural_data, single_spike_detection=False):
                 )
                 spike_train_time_index_list.append(spike_time_index_list)
 
-                if single_spike_detection == True:
-                    neural_data = neural_data[current_time_index:]
-                    break
-                else:
-                    initial_first_point_of_spike_detected = False
-                    second_point_of_spike_detected = False
-                    third_point_of_spike_detected = False
+                initial_first_point_of_spike_detected = False
+                second_point_of_spike_detected = False
+                third_point_of_spike_detected = False
         else:
             raise ValueError("Error in Spike Detection State")
 
-    return spike_train_time_index_list, neural_data
+    return spike_train_time_index_list
 
 
 def create_encoded_data(
