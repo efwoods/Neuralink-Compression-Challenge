@@ -398,7 +398,6 @@ def create_encoded_data(
     encoded_data = []
     encoded_data.append(np.int32(sample_rate))
     encoded_data.append(np.int32(number_of_samples))
-    neural_spike_l = []
     for spike_train_index, spike_train_value in enumerate(spike_train_time_index_list):
         # Time index of the first spike point
         encoded_data.append(np.int32(spike_train_value[0]))
@@ -406,9 +405,8 @@ def create_encoded_data(
         encoded_data.append(np.int32(len(neural_data[spike_train_value])))
         # The amplitude array of points in the spike.
         encoded_data.append(neural_data[spike_train_value])
-        neural_spike_l.append(neural_data[spike_train_value])
 
-    return encoded_data, neural_spike_l
+    return encoded_data
 
 
 def preprocess_signal(raw_neural_signal, sample_rate):
@@ -598,7 +596,7 @@ def print_size_of_file_compression(file_path: str, compressed_file_path: str):
     """
     file_size = os.path.getsize(file_path)
     compressed_file_size = os.path.getsize(compressed_file_path)
-    percent_of_compression = (compressed_file_size / file_size) * 100
+    percent_of_compression = (1 - (compressed_file_size / file_size)) * 100
     file_size_requirement = file_size // 200
     percent_of_file_size_relative_to_file_size_requirement = (
         compressed_file_size / file_size_requirement
@@ -617,12 +615,9 @@ def print_time_each_function_takes_to_complete_processing(
     """This function prints the time delta between the start time and the stop time.
 
     Args:
-        start_time (int): This is the integer representation of the
-                          start time in nanoseconds.
-        stop_time (int): This is the integer representation of the stop
-                         time in nanoseconds.
-        executed_line (str, optional): This is the line of code that was
-                                       executed. Defaults to None.
+        start_time (int): This is the integer representation of the start time in nanoseconds.
+        stop_time (int): This is the integer representation of teh stop time in nanoseconds.
+        executed_line (str, optional): This is the line of code that was executed. Defaults to None.
     """
     time_Δ = stop_time - start_time
     if executed_line != None:
