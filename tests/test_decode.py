@@ -4,13 +4,10 @@ import unittest
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
 import logging
-import sys
-import os
 import numpy as np
 import time
+from signal_processing_utilities import process_signal
 
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-from utility import signal_process
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
@@ -74,10 +71,10 @@ class TestDecode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
-        encoded_data = signal_process.convert_byte_string_to_encoded_data(
+        encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
-        sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+        sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
         decode.write_decoded_wav(
             sample_rate=sample_rate,
             decoded_wav=amplitude_array,
@@ -98,10 +95,10 @@ class TestDecode(unittest.TestCase):
             input_data=input_wav, compressed_file_path=self.compressed_file_path
         )
         encoding_stop_time = time.time_ns()
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=encoding_start_time, stop_time=encoding_stop_time
         )
 
@@ -152,20 +149,20 @@ class TestDecode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.debug_file, self.debug_compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
-        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
         encode.huffman_encoding(
@@ -178,10 +175,10 @@ class TestDecode(unittest.TestCase):
             compressed_file_path=self.debug_compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
-        encoded_data = signal_process.convert_byte_string_to_encoded_data(
+        encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
-        sample_rate, amplitude_array = signal_process.decode_data(encoded_data)
+        sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
         decode.write_decoded_wav(
             sample_rate=sample_rate,
             decoded_wav=amplitude_array,
