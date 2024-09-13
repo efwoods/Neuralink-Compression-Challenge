@@ -6,18 +6,13 @@ from importlib.machinery import SourceFileLoader
 import logging
 from scipy.io import wavfile
 import wave
-import sys
-import os
 import numpy as np
 import pickle
 import time
+from signal_processing_utilities import process_signal
 
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
-
-sys.path.insert(0, os.path.join(os.path.abspath(os.path.dirname(__file__)), ".."))
-
-from utility import signal_process
 
 # Import encode
 spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
@@ -84,13 +79,13 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
@@ -126,12 +121,12 @@ class TestEncode(unittest.TestCase):
         """This is a test that the filters of the signal can be modified."""
 
         sample_rate, raw_signal_array = wavfile.read(self.file)
-        fft, freq_bins = signal_process.preprocess_to_frequency_domain(
+        fft, freq_bins = process_signal.preprocess_to_frequency_domain(
             raw_signal_array, sample_rate
         )
         percentage = 0.1
 
-        filtered_fft = signal_process.modify_filters(fft, freq_bins, percentage)
+        filtered_fft = process_signal.modify_filters(fft, freq_bins, percentage)
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
@@ -149,7 +144,7 @@ class TestEncode(unittest.TestCase):
         encode.huffman_encoding(
             compressed_file_path=self.compressed_file_path, input_data=input_wav
         )
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
@@ -162,19 +157,19 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
-        sample_rate, amplitude_array = signal_process.decode_data(
+        sample_rate, amplitude_array = process_signal.decode_data(
             encoded_data=encoded_data
         )
         encode.huffman_encoding(
@@ -189,13 +184,13 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
@@ -216,58 +211,58 @@ class TestEncode(unittest.TestCase):
             self.debug_file, self.debug_compressed_file_path
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
             executed_line="encode.read_file(",
         )
 
         start_time = time.time_ns()
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
-            executed_line="signal_process.preprocess_signal(",
+            executed_line="process_signal.preprocess_signal(",
         )
 
         start_time = time.time_ns()
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
-            executed_line="signal_process.detect_neural_spikes(",
+            executed_line="process_signal.detect_neural_spikes(",
         )
 
         start_time = time.time_ns()
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
-            executed_line="signal_process.create_encoded_data(",
+            executed_line="process_signal.create_encoded_data(",
         )
 
         start_time = time.time_ns()
-        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
-            executed_line="signal_process.convert_encoded_data_to_byte_string(",
+            executed_line="process_signal.convert_encoded_data_to_byte_string(",
         )
 
         start_time = time.time_ns()
@@ -276,19 +271,19 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
         stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
             executed_line="encode.huffman_encoding(",
         )
         total_stop_time = time.time_ns()
 
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file,
             compressed_file_path=self.compressed_file_path,
         )
 
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=total_start_time,
             stop_time=total_stop_time,
             executed_line="Total Compression Time",
@@ -301,23 +296,23 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
 
         # Spike Train Time Index List Should Contain A Single Spike
         spike_train_time_index_list, truncated_neural_data = (
-            signal_process.detect_neural_spikes(
+            process_signal.detect_neural_spikes(
                 neural_data=filtered_data_bandpass, single_spike_detection=True
             )
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=truncated_neural_data,
         )
-        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
         encode.huffman_encoding(
@@ -325,10 +320,10 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
         total_stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=total_start_time, stop_time=total_stop_time
         )
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file,
             compressed_file_path=self.compressed_file_path,
         )
@@ -342,29 +337,29 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
-        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
         with open(self.compressed_file_path, "wb+") as fp:
             fp.write(encoded_data_byte_string)
             fp.close()
         total_stop_time = time.time_ns()
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=total_start_time, stop_time=total_stop_time
         )
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file,
             compressed_file_path=self.compressed_file_path,
         )
@@ -394,19 +389,19 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             file, compressed_file_path
         )
-        filtered_data_bandpass = signal_process.preprocess_signal(
+        filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = signal_process.detect_neural_spikes(
+        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
-        encoded_data = signal_process.create_encoded_data(
+        encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
             neural_data=filtered_data_bandpass,
         )
-        encoded_data_byte_string = signal_process.convert_encoded_data_to_byte_string(
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
 
@@ -416,12 +411,12 @@ class TestEncode(unittest.TestCase):
         )
         total_stop_time = time.time_ns()
 
-        signal_process.print_size_of_file_compression(
+        process_signal.print_size_of_file_compression(
             file_path=self.file,
             compressed_file_path=self.compressed_file_path,
         )
 
-        signal_process.print_time_each_function_takes_to_complete_processing(
+        process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=total_start_time, stop_time=total_stop_time
         )
 
