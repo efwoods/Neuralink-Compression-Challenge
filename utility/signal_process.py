@@ -191,17 +191,21 @@ def estimate_noise_floor(amplitude_array, window_size=10):
         return noise_floor_estimate
 
 
-def detect_neural_spikes(t, neural_data):
+def detect_neural_spikes(neural_data, single_spike_detection=False):
     """This function detects spikes in real-time.
     It returns an array of spikes at specific times and amplitudes with
     zeroed out noise.
 
     Args:
-        t (array): This is the array of values that indicate the time of
-                   each point in the neural_data array.
         neural_data (array): This is the array of amplitudes for each
                              point of time of the neural data.
-
+        single_spike_detection (bool): This is a boolean flag that
+                                       indicates whether a single spike
+                                       is to be returned. This will
+                                       truncate the neural data to
+                                       reflect only these detected
+                                       amplitudes that correspond with
+                                       the single detected spike.
     Returns:
         (list): This is the array inclusive of amplitudes of spikes at
                 each specific point in the initial time array. Non-spike
@@ -213,7 +217,7 @@ def detect_neural_spikes(t, neural_data):
     third_point_of_spike_detected = False
     spike_train_time_index_list = []
 
-    for current_time_index, time in enumerate(t):
+    for current_time_index, value in enumerate(neural_data):
         # Estimate the noise floor
         if current_time_index < noise_floor_window:
             current_noise_floor_estimate_list = estimate_noise_floor(
@@ -338,10 +342,14 @@ def detect_neural_spikes(t, neural_data):
                 initial_first_point_of_spike_detected = False
                 second_point_of_spike_detected = False
                 third_point_of_spike_detected = False
+                if single_spike_detection == True:
+                    break
         else:
             raise ValueError("Error in Spike Detection State")
-
-    return spike_train_time_index_list
+    if len(spike_time_index_list) > 0:
+        return spike_train_time_index_list
+    else:
+        raise ValueError("No Detected Spikes")
 
 
 def create_encoded_data(

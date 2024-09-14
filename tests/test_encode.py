@@ -25,6 +25,29 @@ decode = module_from_spec(spec)
 spec.loader.exec_module(decode)
 
 
+# Helper Functions
+def print_differences_in_array(x_df, verbose=False):
+    """This function will print differences between values in a given
+       array.
+
+    Args:
+        x_df (numpy.ndarray): This is the numpy array of which to print
+                              differences.
+    """
+    count = 0
+    duplicate_list = []
+    for index in range(0, len(x_df)):
+        if index == 0:
+            continue
+        difference = x_df[index] - x_df[index - 1]
+        if difference == 0:
+            if verbose:
+                print(f"difference: {difference}\nindex: {index}")
+            duplicate_list.append(index)
+            count += 1
+    return count, duplicate_list
+
+
 class TestEncode(unittest.TestCase):
     """This class is used to run test cases for the encode module.
 
@@ -289,7 +312,6 @@ class TestEncode(unittest.TestCase):
             executed_line="Total Compression Time",
         )
 
-    @unittest.skip("skipping test")
     def test10_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")
         total_start_time = time.time_ns()
@@ -300,17 +322,18 @@ class TestEncode(unittest.TestCase):
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
 
-        # Spike Train Time Index List Should Contain A Single Spike
-        spike_train_time_index_list, truncated_neural_data = (
-            process_signal.detect_neural_spikes(
-                neural_data=filtered_data_bandpass, single_spike_detection=True
-            )
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=True
         )
+
+        # Spike Train Time Index List Should Contain A Single Spike
+        self.assertEqual(len(spike_train_time_index_list), 1)
+
         encoded_data = process_signal.create_encoded_data(
             sample_rate=sample_rate,
             number_of_samples=len(filtered_data_bandpass),
             spike_train_time_index_list=spike_train_time_index_list,
-            neural_data=truncated_neural_data,
+            neural_data=filtered_data_bandpass,
         )
         encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
@@ -419,6 +442,38 @@ class TestEncode(unittest.TestCase):
         process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=total_start_time, stop_time=total_stop_time
         )
+
+    def test14_writing_encoded_data_byte_string_using_huffman_encoding(self):
+        logging.info(
+            "Testing that there are no duplicates in the spike_train_time_index_list"
+        )
+        file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
+        compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
+
+        total_start_time = time.time_ns()
+        sample_rate, input_wav, compressed_file_path = encode.read_file(
+            file, compressed_file_path
+        )
+
+        filtered_data_bandpass = process_signal.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
+            neural_data=filtered_data_bandpass, single_spike_detection=False
+        )
+
+        # Test to Detect Duplicates
+        count = 0
+        duplicate_list = []
+        for index in range(0, len(spike_train_time_index_list)):
+            current_count, current_duplicate_list = print_differences_in_array(
+                spike_train_time_index_list[index]
+            )
+            count += current_count
+            duplicate_list.append(current_duplicate_list)
+        duplicate_list = np.array(duplicate_list)
+        # If duplicate_list.shape[1] is 0, there are no duplicates:
+        self.assertEqual(duplicate_list.shape[1], 0)
 
 
 if __name__ == "__main__":

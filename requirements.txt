@@ -5,3 +5,4 @@ matplotlib
 librosa
 IPython
 pandas
+signal-processing-utilities>=0.1.5
