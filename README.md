@@ -5,7 +5,7 @@ https://content.neuralink.com/compression-challenge/README.html
 
 content.neuralink.com/compression-challenge/data.zip is one hour of raw electrode recordings from a Neuralink implant.
 
-This Neuralink is implanted in the motor cortex of a non-human primate, and recordings were made while playing a video game, like this.
+This Neuralink is implanted in the motor cortex of a non-human primate, and recordings were made while playing a video game, [like this](https://www.youtube.com/watch?v=rsCul1sp4hQ).
 
 Compression is essential: N1 implant generates ~200Mbps of eletrode data (1024 electrodes @ 20kHz, 10b resolution) and can transmit ~1Mbps wirelessly.
 So > 200x compression is needed.
