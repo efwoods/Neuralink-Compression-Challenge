@@ -1,5 +1,4 @@
-# Neuralink_compression
-https://content.neuralink.com/compression-challenge/README.html
+# [Neuralink_compression](https://content.neuralink.com/compression-challenge/README.html)
 
 ## Neuralink Compression Challenge
 
