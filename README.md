@@ -2,7 +2,7 @@
 
 ## Summary
 
-content.neuralink.com/compression-challenge/data.zip is one hour of raw electrode recordings from a Neuralink implant.
+[content.neuralink.com/compression-challenge/data.zip](https://content.neuralink.com/compression-challenge/data.zip) is one hour of raw electrode recordings from a Neuralink implant.
 
 This Neuralink is implanted in the motor cortex of a non-human primate, and recordings were made while playing a video game, [like this](https://www.youtube.com/watch?v=rsCul1sp4hQ).
 
