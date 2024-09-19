@@ -1,6 +1,6 @@
-# [Neuralink_compression](https://content.neuralink.com/compression-challenge/README.html)
+# [Neuralink_Compression Chellenge](https://content.neuralink.com/compression-challenge/README.html)
 
-## Neuralink Compression Challenge
+## Summary
 
 content.neuralink.com/compression-challenge/data.zip is one hour of raw electrode recordings from a Neuralink implant.
 
