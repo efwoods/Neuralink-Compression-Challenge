@@ -6,7 +6,6 @@ import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
-from collections import OrderedDict
 
 
 class Node:
@@ -78,7 +77,8 @@ def determine_hex_freq(input_wav):
     hex_freq_dictionary = {}
     for digit_position in range(0, len(input_wav.hex()), 2):
         current_hex_pair = (
-            input_wav_hex[digit_position] + input_wav_hex[digit_position + 1]
+            input_wav_hex[digit_position] 
+            + input_wav_hex[digit_position + 1]
         )
         try:
             hex_freq_dictionary[current_hex_pair] += 1
@@ -121,7 +121,10 @@ def convertHexToBit(input_wav, nodeMappingDict):
     return bitString, lenEndZeroPadding
 
 
-def write_file(compressed_file_path, nodeMappingDict, bitString, endZeroPadding):
+def write_file(compressed_file_path, 
+               nodeMappingDict, 
+               bitString, 
+               endZeroPadding):
     """This function writes the encoded outputfile.
 
     Args:
