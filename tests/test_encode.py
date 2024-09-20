@@ -69,7 +69,7 @@ class TestEncode(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test01_logging_and_test_methods(self):
         """Used to test the test methods and the logger
         functionality.
@@ -79,7 +79,7 @@ class TestEncode(unittest.TestCase):
         print("test set up")
         logging.info("The logger works")
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test02_read_input_wav_is_type_bytes(self):
         """Used to test the read_file method in the encode
         module.
@@ -93,7 +93,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(sample_rate), int)
         self.assertEqual(type(compressed_file_path), str)
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test03_huffman_encoding_pickling(self):
         """Testing Reading Data, Filtering the Data, Detecting Neural
         Spikes, & Creating Encoded Data"""
@@ -105,7 +105,7 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -115,7 +115,7 @@ class TestEncode(unittest.TestCase):
             neural_data=filtered_data_bandpass,
         )
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test04_read_wave_information(self):
         """This is a test that the information of the wave file is read."""
 
@@ -139,7 +139,7 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
@@ -153,7 +153,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
-    @unittest.skip("Testing Main Only")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test06_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
@@ -171,7 +171,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test07_huffman_encoding_of_decoded_encoded_data(self):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
@@ -183,7 +183,7 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -199,7 +199,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path, input_data=amplitude_array
         )
 
-    @unittest.skip("Testing Only Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test08_writing_encoded_spikes_only(self):
         logging.info(
             "Testing File Size and Algorithmic Speed using the encoded information only"
@@ -210,7 +210,7 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -223,6 +223,10 @@ class TestEncode(unittest.TestCase):
         with open(compressed_file_path, "wb+") as file:
             file.write(pickle.dumps(encoded_data))
             file.close()
+
+        pickle_encoded_data_file_size = process_signal.print_file_size(
+            file_path=compressed_file_path
+        )
 
     def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
@@ -253,7 +257,7 @@ class TestEncode(unittest.TestCase):
         )
 
         start_time = time.time_ns()
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         stop_time = time.time_ns()
@@ -311,7 +315,12 @@ class TestEncode(unittest.TestCase):
             stop_time=total_stop_time,
             executed_line="Total Compression Time",
         )
+        huffman_encoded_data_file_size = process_signal.print_file_size(
+            file_path=self.compressed_file_path
+        )
+        print("breakpoint")
 
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test10_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")
         total_start_time = time.time_ns()
@@ -351,7 +360,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    @unittest.skip("Testing Encoding & Decoding Functionality")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test11_writing_encoded_data_byte_string_(self):
         logging.info(
             "Testing Efficiency of Writing String of Bytes that Contain Only Detected Spike Information."
@@ -363,7 +372,7 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -387,7 +396,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    @unittest.skip("Testing Compression Highest Compression Ratio")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test12_testing_writing_input_wav(self):
         logging.info(
             "This is a test to ensure the input wav is written to the output file and is functional."
@@ -400,7 +409,7 @@ class TestEncode(unittest.TestCase):
 
         wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=input_wav)
 
-    @unittest.skip("Testing Huffman Encoding & Decoding")
+    @unittest.skip("Testing Write File Size & Write Methods only")
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
@@ -415,7 +424,7 @@ class TestEncode(unittest.TestCase):
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -443,7 +452,10 @@ class TestEncode(unittest.TestCase):
             start_time=total_start_time, stop_time=total_stop_time
         )
 
-    def test14_writing_encoded_data_byte_string_using_huffman_encoding(self):
+    @unittest.skip("Testing Write File Size & Write Methods only")
+    def test14_test_that_duplicates_do_not_exist_in_the_spike_train_time_index_list(
+        self,
+    ):
         logging.info(
             "Testing that there are no duplicates in the spike_train_time_index_list"
         )

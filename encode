@@ -77,8 +77,7 @@ def determine_hex_freq(input_wav):
     hex_freq_dictionary = {}
     for digit_position in range(0, len(input_wav.hex()), 2):
         current_hex_pair = (
-            input_wav_hex[digit_position] 
-            + input_wav_hex[digit_position + 1]
+            input_wav_hex[digit_position] + input_wav_hex[digit_position + 1]
         )
         try:
             hex_freq_dictionary[current_hex_pair] += 1
@@ -121,10 +120,13 @@ def convertHexToBit(input_wav, nodeMappingDict):
     return bitString, lenEndZeroPadding
 
 
-def write_file(compressed_file_path, 
-               nodeMappingDict, 
-               bitString, 
-               endZeroPadding):
+def write_file(
+    compressed_file_path,
+    nodeMappingDict,
+    bitString,
+    endZeroPadding,
+    use_pickle_file_format=False,
+):
     """This function writes the encoded outputfile.
 
     Args:
@@ -143,6 +145,14 @@ def write_file(compressed_file_path,
                                  padded to the end of the bitString to
                                  create a full set of bytes to be
                                  written to the output data file.
+        use_pickle_file_format (bool, optional): This is an indicator
+                                                 which will use
+                                                 pickling on set to
+                                                 'True'.
+                                                 Otherwise, manual
+                                                 writing of bytes will
+                                                 be implemented.
+                                                 Defaults to 'False'.
     Returns:
         No value is returned from this function. This function outputs a
         file named after the compressed file path which is the
@@ -170,7 +180,13 @@ def write_file(compressed_file_path,
         byteorder = "big"
         indices = []
         indices.append(file.tell())
-        file.write(pickle.dumps(nodeMappingDict))
+        if use_pickle_file_format:
+            file.write(pickle.dumps(nodeMappingDict))
+        else:
+            node_mapping_dict_list = list(nodeMappingDict.items())
+            for index in range(0, len(node_mapping_dict_list)):
+                file.write(bytes(node_mapping_dict_list[index][0], encoding="utf-8"))
+                file.write(bytes(node_mapping_dict_list[index][1], encoding="utf-8"))
         indices.append(file.tell())
         for index in range(0, len(bitString), 8):
             byte_to_write = bitString[index : index + 8]
@@ -178,8 +194,22 @@ def write_file(compressed_file_path,
             file.write(int_of_byte_to_write.to_bytes(num_bytes, byteorder))
         indices.append(file.tell())
         indices.append(endZeroPadding)
-        bytes_indices = file.write(pickle.dumps(indices))
-        file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
+        if use_pickle_file_format:
+            bytes_indices = file.write(pickle.dumps(indices))
+
+            # This indicates the number of bytes that were written to the
+            # file with respect to the size in bytes of the number of
+            # indices.
+            file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
+        else:
+            bytes_indices_list = [
+                file.write(index.to_bytes(4, "big")) for index in indices
+            ]
+            bytes_indices_size = sum(bytes_indices_list)
+
+            # The line of code below is presuming the
+            # "bytes_indices_size" is < 256
+            file.write(bytes_indices_size.to_bytes(1, byteorder=byteorder))
 
 
 def huffman_encoding(
@@ -235,7 +265,13 @@ def huffman_encoding(
     )
 
     # The bits are written by using single bytes of integers
-    write_file(compressed_file_path, nodeMappingDict, bitString, endZeroPadding)
+    write_file(
+        compressed_file_path,
+        nodeMappingDict,
+        bitString,
+        endZeroPadding,
+        use_pickle_file_format=False,
+    )
 
 
 def read_file(file: str = None, compressed_file_path: str = None):
