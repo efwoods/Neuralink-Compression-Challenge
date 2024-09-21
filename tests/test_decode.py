@@ -8,7 +8,6 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 
-
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
@@ -91,10 +90,19 @@ class TestDecode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=input_wav, compressed_file_path=self.compressed_file_path
         )
+
+        byte_string = encode.create_byte_string(
+            node_mapping_dict, bit_string, end_zero_padding
+        )
+        process_signal.write_file_bytes(
+            file_path=compressed_file_path, data_bytes=byte_string
+        )
+
         encoding_stop_time = time.time_ns()
+
         process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
@@ -165,10 +173,15 @@ class TestDecode(unittest.TestCase):
         encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
-        byte_string = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.debug_compressed_file_path,
         )
+
+        byte_string = encode.create_byte_string(
+            node_mapping_dict, bit_string, end_zero_padding
+        )
+
         process_signal.write_file_bytes(
             file_path=self.debug_compressed_file_path, data_bytes=byte_string
         )

@@ -158,8 +158,12 @@ class TestEncode(unittest.TestCase):
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
-        byte_string = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             compressed_file_path=self.compressed_file_path, input_data=input_wav
+        )
+
+        byte_string = encode.create_encoded_data(
+            node_mapping_dict, bit_string, end_zero_padding
         )
 
         process_signal.write_file_bytes(
@@ -193,9 +197,14 @@ class TestEncode(unittest.TestCase):
         sample_rate, amplitude_array = process_signal.decode_data(
             encoded_data=encoded_data
         )
-        byte_string = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             compressed_file_path=self.compressed_file_path, input_data=amplitude_array
         )
+
+        byte_string = encode.create_encoded_data(
+            node_mapping_dict, bit_string, end_zero_padding
+        )
+
         process_signal.write_file_bytes(
             file_path=self.compressed_file_path, data_bytes=byte_string
         )
@@ -293,9 +302,13 @@ class TestEncode(unittest.TestCase):
         )
 
         start_time = time.time_ns()
-        byte_string = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.compressed_file_path,
+        )
+
+        byte_string = encode.create_encoded_data(
+            node_mapping_dict, bit_string, end_zero_padding
         )
         stop_time = time.time_ns()
         process_signal.print_time_each_function_takes_to_complete_processing(
@@ -359,13 +372,17 @@ class TestEncode(unittest.TestCase):
         encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
-        byte_size = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.compressed_file_path,
         )
 
+        byte_string = encode.create_byte_string(
+            node_mapping_dict, bit_string, end_zero_padding
+        )
+
         process_signal.write_file_bytes(
-            file_path=self.compressed_file_path, data_bytes=byte_size
+            file_path=self.compressed_file_path, data_bytes=byte_string
         )
 
         total_stop_time = time.time_ns()
@@ -452,9 +469,13 @@ class TestEncode(unittest.TestCase):
             encoded_data
         )
 
-        byte_string = encode.huffman_encoding(
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.compressed_file_path,
+        )
+
+        byte_string = encode.create_encoded_data(
+            node_mapping_dict, bit_string, end_zero_padding
         )
 
         process_signal.write_file_bytes(

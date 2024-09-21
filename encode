@@ -27,7 +27,7 @@ class Node:
         return self.freq < nxt.freq
 
 
-def createNodeMappingDictionary(node, val="", nodeMappingDict={}):
+def createnode_mapping_dictionary(node, val="", node_mapping_dict={}):
     """Creates a mapping of unique binary strings to unique bytes of
            pairs of hexidecimal values found within the input wave file.
 
@@ -37,7 +37,7 @@ def createNodeMappingDictionary(node, val="", nodeMappingDict={}):
         val (str, optional): This is the huffman code that is being
                              built into the unique representation of the
                              hexadecimal pair. Defaults to ''.
-        nodeMappingDict (dict, optional): This is the dictionary that
+        node_mapping_dict (dict, optional): This is the dictionary that
                                           contains the mapping of
                                           hexadecimal values to unique
                                           binary string representations.
@@ -50,13 +50,13 @@ def createNodeMappingDictionary(node, val="", nodeMappingDict={}):
     newVal = val + str(node.code)
     # if node is not an edge node, traverse
     if node.left:
-        createNodeMappingDictionary(node.left, newVal, nodeMappingDict)
+        createnode_mapping_dictionary(node.left, newVal, node_mapping_dict)
     if node.right:
-        createNodeMappingDictionary(node.right, newVal, nodeMappingDict)
+        createnode_mapping_dictionary(node.right, newVal, node_mapping_dict)
     if not node.left and not node.right:
-        nodeMappingDict[node.data] = newVal
+        node_mapping_dict[node.data] = newVal
         # print(f"{node.data} -> {newVal}")
-    return nodeMappingDict
+    return node_mapping_dict
 
 
 def determine_hex_freq(input_wav):
@@ -89,7 +89,7 @@ def determine_hex_freq(input_wav):
     return sorted_hex_freq_dictionary
 
 
-def convertHexToBit(input_wav, nodeMappingDict):
+def convertHexToBit(input_wav, node_mapping_dict):
     """This function uses a dictionary of node mappings to convert
           the hexadecimal representation of the of the input wave file
           to a string of bits. This representation is a compressed form
@@ -98,47 +98,47 @@ def convertHexToBit(input_wav, nodeMappingDict):
     Args:
         input_wav (bytes): This is the path of the file to be read into
                            memory.
-        nodeMappingDict (dict): This is the dictionary mapping bits to
+        node_mapping_dict (dict): This is the dictionary mapping bits to
                                 the hexadecimal representation of the
                                 input wav file.
 
     Returns:
-        bitString: This is the string of bits that will be written to
+        bit_string: This is the string of bits that will be written to
                    the output file.
-        lenEndZeroPadding: This is the number of zeroes that have been
+        lenend_zero_padding: This is the number of zeroes that have been
                              padded onto the end of the bit string to
                              make a complete set of bytes.
     """
     hex_input_wav = input_wav.hex()
-    bitString = ""
+    bit_string = ""
     for index in range(0, len(hex_input_wav), 2):
         hex_pair = hex_input_wav[index] + hex_input_wav[index + 1]
-        bitString += nodeMappingDict[hex_pair]
-    endZeroPadding = "0" * (8 - (len(bitString) % 8))
-    bitString += endZeroPadding
-    lenEndZeroPadding = len(endZeroPadding)
-    return bitString, lenEndZeroPadding
+        bit_string += node_mapping_dict[hex_pair]
+    end_zero_padding = "0" * (8 - (len(bit_string) % 8))
+    bit_string += end_zero_padding
+    lenend_zero_padding = len(end_zero_padding)
+    return bit_string, lenend_zero_padding
 
 
 def create_byte_string(
-    nodeMappingDict,
-    bitString,
-    endZeroPadding,
+    node_mapping_dict,
+    bit_string,
+    end_zero_padding,
 ):
     """This function writes the encoded outputfile.
 
     Args:
-        nodeMappingDict (dict): This is the dictionary which maps each
+        node_mapping_dict (dict): This is the dictionary which maps each
                                   hexadecimal representation of the
                                   bytes of the input wave file to a
                                   string of bits whose length is
                                   depended on frequency of the
                                   hexadecimal pair.
-        bitString (str): This is the string of bits that is
+        bit_string (str): This is the string of bits that is
                             interpreted from the original input wave
-                            file and parsed using the nodeMappingDict.
-        endZeroPadding (str): This is the number of zeroes that are
-                                 padded to the end of the bitString to
+                            file and parsed using the node_mapping_dict.
+        end_zero_padding (str): This is the number of zeroes that are
+                                 padded to the end of the bit_string to
                                  create a full set of bytes to be
                                  written to the output data file.
     Returns:
@@ -146,7 +146,7 @@ def create_byte_string(
                              compressed data.
 
     Notes:
-        The encoding is the nodeMappingDictionary written as bytes, the
+        The encoding is the node_mapping_dictionary written as bytes, the
         encoded data as bytes, the indices of the start and end of each
         data portion as mentioned here, and the size in bytes of the
         indices. The last index of the indices array contains the value
@@ -167,20 +167,26 @@ def create_byte_string(
     indices = []
     byte_string = b""
     indices.append(0)
-    node_mapping_dict_list = list(nodeMappingDict.items())
+    node_mapping_dict_indices = []
+    node_mapping_dict_list = list(node_mapping_dict.items())
+
+    # The indices can be run-length-encoded because the values are known
+    # to be repeating.
     for index in range(0, len(node_mapping_dict_list)):
         key_byte = int(node_mapping_dict_list[index][0], base=16)
         key_byte = key_byte.to_bytes()
-        indices.append(len(key_byte))
+        node_mapping_dict_indices.append(len(key_byte))
         byte_string += key_byte
-        # This has potential for optimization via rle:
-        indices.append(len(bytes(node_mapping_dict_list[index][1], encoding="utf-8")))
+        # This has potential for optimization:
+        node_mapping_dict_indices.append(
+            len(bytes(node_mapping_dict_list[index][1], encoding="utf-8"))
+        )
         byte_string += bytes(node_mapping_dict_list[index][1], encoding="utf-8")
-    # This is the length of the nodeMappingDictionary represented as
+    # This is the length of the node_mapping_dictionary represented as
     # bytes.
     indices.append(len(byte_string))
-    for index in range(0, len(bitString), 8):
-        byte_to_write = bitString[index : index + 8]
+    for index in range(0, len(bit_string), 8):
+        byte_to_write = bit_string[index : index + 8]
         int_of_byte_to_write = int(byte_to_write, base=2)
         byte_string += int_of_byte_to_write.to_bytes(num_bytes, byteorder)
 
@@ -188,9 +194,15 @@ def create_byte_string(
     # bytes.
     indices.append(len(byte_string) - indices[-1])
 
+    # Write the node_mapping_dict_indices to the byte_string
+    for byte in node_mapping_dict_indices:
+        byte_string += byte
+    indices.append(len(byte_string) - indices[-1])
+
     # This is the number of zeros that have been padded to the ultimate
     # byte_string index in order to make it equal to a byte.
-    indices.append(endZeroPadding)
+    indices.append(end_zero_padding)
+
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
     for byte in bytes_indices_list:
         byte_string += byte
@@ -223,6 +235,18 @@ def huffman_encoding(
                                               of the output compressed
                                               file.
                                               Defaults to None.
+
+    Returns:
+        node_mapping_dict (dict): This is the dictionary containing
+                                hexadecimal keys and their corresponding
+                                binary string values.
+        bit_string (str): This is the string of bits that represent the
+                         huffman encoded data.
+        end_zero_padding (int): This is the integer that indicates how
+                              many zeros have been added to the bit
+                              string to make the length evenly divisible
+                              by eight such that each eight bits may be
+                              converted into individual bytes.
     """
 
     if compressed_file_path == None:
@@ -249,20 +273,24 @@ def huffman_encoding(
             left.freq + right.freq, left.data + right.data, left=left, right=right
         )
         heapq.heappush(nodes, newNode)
-    nodeMappingDict = createNodeMappingDictionary(nodes[0], val="", nodeMappingDict={})
+    node_mapping_dict = createnode_mapping_dictionary(
+        nodes[0], val="", node_mapping_dict={}
+    )
 
     # The hexadecimal representation of the bytes of the input wave file
     # is converted to a string of bits to write
-    bitString, endZeroPadding = convertHexToBit(
+    bit_string, end_zero_padding = convertHexToBit(
         input_data if type(input_data) == bytes else input_data.tobytes(),
-        nodeMappingDict,
+        node_mapping_dict,
     )
+
+    return node_mapping_dict, bit_string, end_zero_padding
 
     # The bits are written by using single bytes of integers
     byte_string = create_byte_string(
-        nodeMappingDict,
-        bitString,
-        endZeroPadding,
+        node_mapping_dict,
+        bit_string,
+        end_zero_padding,
     )
 
     return byte_string
@@ -313,7 +341,13 @@ def create_huffman_encoded_file():
     the data and writing the resulting string of bytes to a file."""
 
     sample_rate, input_wav, compressed_file_path = read_file()
-    huffman_encoding(input_data=input_wav, compressed_file_path=compressed_file_path)
+    node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
+        input_data=input_wav, compressed_file_path=compressed_file_path
+    )
+    byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
+    process_signal.write_file_bytes(
+        file_path=compressed_file_path, data_bytes=byte_string
+    )
 
 
 def implement_spike_detection_module_and_huffman_encode_file():

@@ -1,46 +1,46 @@
 #!/usr/bin/python3
 
-import pickle
 import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 
 
-def convert_bytes_to_bitstring(data_to_decode, endZeroPadding):
+def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
     """This function converts bytes into a string of bits.
 
     Args:
         data_to_decode (str): This is the string of bytes that will be
                               converted into bits.
-        endZeroPadding (int): This is the number of zeroes that were
+        end_zero_padding (int): This is the number of zeroes that were
                               padded into the final byte. They will be
                               removed so the resultant bit string can be
                               properly decompressed.
 
     Returns:
-        bitString (str): This is the string of bits that will need to be
-                         parsed into hexadecimal pairs that represent
-                         the bytes of the decompressed wave file.
+        bit_string (str): This is the string of bits that will need to
+                          be parsed into hexadecimal pairs that
+                          represent the bytes of the decompressed wave
+                          file.
     """
-    bitString = ""
+    bit_string = ""
     for byteIndex in range(0, len(data_to_decode)):
-        bitStringByte = format(data_to_decode[byteIndex], "b")
-        bitStringByte = "0" * (8 - len(bitStringByte)) + bitStringByte
-        bitString += bitStringByte
-    bitString = bitString[: len(bitString) - endZeroPadding]
-    return bitString
+        bit_string_byte = format(data_to_decode[byteIndex], "b")
+        bit_string_byte = "0" * (8 - len(bit_string_byte)) + bit_string_byte
+        bit_string += bit_string_byte
+    bit_string = bit_string[: len(bit_string) - end_zero_padding]
+    return bit_string
 
 
 def find_key_by_value_in_node_mapping_dictionary(
-    val_str_to_find, nodeMappingDictionary
+    val_str_to_find, node_mapping_dictionary
 ):
-    """This function allows the searching of the nodeMappingDictionary
+    """This function allows the searching of the node_mapping_dictionary
     for a key given a value.
 
     Args:
         val_str_to_find (str): This is expected to be a string of bits.
-        nodeMappingDictionary (dict): This is the dictionary that maps
+        node_mapping_dictionary (dict): This is the dictionary that maps
                                       hexadecimal values as keys in the
                                       dictionary to uniquely identifying
                                       strings of bits as values.
@@ -48,15 +48,15 @@ def find_key_by_value_in_node_mapping_dictionary(
     Returns:
         key_mapped_to_value (list): This function returns the
                                     hexadecimal pair found as a key in
-                                    the nodeMappingDictionary given a
+                                    the node_mapping_dictionary given a
                                     string of bit values. If the given
                                     string of bits is not found in the
                                     dictionary, the return value is
                                     'None'.
     """
     try:
-        key_mapped_to_value = list(nodeMappingDictionary.keys())[
-            list(nodeMappingDictionary.values()).index(val_str_to_find)
+        key_mapped_to_value = list(node_mapping_dictionary.keys())[
+            list(node_mapping_dictionary.values()).index(val_str_to_find)
         ]
     except ValueError:
         return None
@@ -76,7 +76,6 @@ def huffman_decoding(huffman_encoded_data: str):
                                    algorithm.
     """
 
-    # nodeMappingDictionary = pickle.loads(huffman_encoded_data)
     indices_byte_size = int.from_bytes(huffman_encoded_data[-2:])
     indices_byte_string = huffman_encoded_data[
         len(huffman_encoded_data)
@@ -89,7 +88,7 @@ def huffman_decoding(huffman_encoded_data: str):
         for index in range(0, len(indices_byte_string), 4)
     ]
     data_to_decode = huffman_encoded_data[indices_array[1] : indices_array[2]]
-    bitString = convert_bytes_to_bitstring(data_to_decode, indices_array[-1])
+    bit_string = convert_bytes_to_bit_string(data_to_decode, indices_array[-1])
     node_mapping_dictionary_byte_string = huffman_encoded_data[
         indices_array[0] : indices_array[1]
     ]
@@ -98,19 +97,17 @@ def huffman_decoding(huffman_encoded_data: str):
     node_mapping_dictionary = {}
     for index in range(0, len(node_mapping_dictionary_byte_string), 2):
         key = hex(node_mapping_dictionary_byte_string[index]).lstrip("0x")
-        # value =
-        # node_mapping_dictionary[key] =
 
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
-    while len(bitString) > 0:
+    while len(bit_string) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
-            bitString[:bitLength], node_mapping_dictionary
+            bit_string[:bitLength], node_mapping_dictionary
         )
         if key is not None:
             hex_value_array.append(key)
-            bitString = bitString[bitLength:]
+            bit_string = bit_string[bitLength:]
             bitLength = 0
         else:
             bitLength += 1
