@@ -120,18 +120,14 @@ def convertHexToBit(input_wav, nodeMappingDict):
     return bitString, lenEndZeroPadding
 
 
-def write_file(
-    compressed_file_path,
+def create_byte_string(
     nodeMappingDict,
     bitString,
     endZeroPadding,
-    use_pickle_file_format=False,
 ):
     """This function writes the encoded outputfile.
 
     Args:
-        compressed_file_path (str): This is the path to which to write
-                                    the compressed file.
         nodeMappingDict (dict): This is the dictionary which maps each
                                   hexadecimal representation of the
                                   bytes of the input wave file to a
@@ -145,22 +141,14 @@ def write_file(
                                  padded to the end of the bitString to
                                  create a full set of bytes to be
                                  written to the output data file.
-        use_pickle_file_format (bool, optional): This is an indicator
-                                                 which will use
-                                                 pickling on set to
-                                                 'True'.
-                                                 Otherwise, manual
-                                                 writing of bytes will
-                                                 be implemented.
-                                                 Defaults to 'False'.
     Returns:
         byte_string (bytes): This function returns a bytes object of the
                              compressed data.
 
     Notes:
-        The encoding is the pickled nodeMappingDictionary, the encoded
-        data as bytes, the indices of the start and end of each data
-        portion as mentioned here, and the size in bytes of the
+        The encoding is the nodeMappingDictionary written as bytes, the
+        encoded data as bytes, the indices of the start and end of each
+        data portion as mentioned here, and the size in bytes of the
         indices. The last index of the indices array contains the value
         of the number of zeros that the encoded data is padded with.
         This is because the last index would be the length of the
@@ -174,88 +162,48 @@ def write_file(
         node mapping dictionary to write the hex representation of the
         encoded information.
     """
-    with open(compressed_file_path, "wb+") as file:
-        num_bytes = 1
-        byteorder = "big"
-        indices = []
-        byte_string = b""
-        indices.append(file.tell())
+    num_bytes = 1
+    byteorder = "big"
+    indices = []
+    byte_string = b""
+    indices.append(0)
+    node_mapping_dict_list = list(nodeMappingDict.items())
+    for index in range(0, len(node_mapping_dict_list)):
+        key_byte = int(node_mapping_dict_list[index][0], base=16)
+        key_byte = key_byte.to_bytes()
+        indices.append(len(key_byte))
+        byte_string += key_byte
+        # This has potential for optimization via rle:
+        indices.append(len(bytes(node_mapping_dict_list[index][1], encoding="utf-8")))
+        byte_string += bytes(node_mapping_dict_list[index][1], encoding="utf-8")
+    # This is the length of the nodeMappingDictionary represented as
+    # bytes.
+    indices.append(len(byte_string))
+    for index in range(0, len(bitString), 8):
+        byte_to_write = bitString[index : index + 8]
+        int_of_byte_to_write = int(byte_to_write, base=2)
+        byte_string += int_of_byte_to_write.to_bytes(num_bytes, byteorder)
 
-        # Debugging
-        latent_byte_string = b""
-        written_file_size_l = []
+    # This is the length of the huffman encoded string of bits stored as
+    # bytes.
+    indices.append(len(byte_string) - indices[-1])
 
-        if use_pickle_file_format:
-            file.write(pickle.dumps(nodeMappingDict))
-        else:
-            node_mapping_dict_list = list(nodeMappingDict.items())
-            for index in range(0, len(node_mapping_dict_list)):
-                byte = int(node_mapping_dict_list[index][0], base=16)
-                byte = byte.to_bytes()
+    # This is the number of zeros that have been padded to the ultimate
+    # byte_string index in order to make it equal to a byte.
+    indices.append(endZeroPadding)
+    bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
+    for byte in bytes_indices_list:
+        byte_string += byte
+    bytes_indices_size = 4 * len(bytes_indices_list)
 
-                written_file_size_l.append(
-                    # file.write(
-                    #     bytes(node_mapping_dict_list[index][0], encoding="utf-8")
-                    # )
-                    file.write(byte)
-                )
+    # The line of code below is presuming the
+    # "bytes_indices_size" is < 256
+    byte_string += bytes_indices_size.to_bytes(2, byteorder=byteorder)
+    return byte_string
 
-                latent_byte_string = bytes(
-                    node_mapping_dict_list[index][1], encoding="utf-8"
-                )
-                byte_string += latent_byte_string
 
-                # This could be optimized to write a rle of the bit-string:
-                # bytes(node_mapping_dict_list[index][1], encoding="utf-8")
-                written_file_size_l.append(
-                    file.write(
-                        bytes(node_mapping_dict_list[index][1], encoding="utf-8")
-                    )
-                )
-        indices.append(file.tell())
-        for index in range(0, len(bitString), 8):
-            byte_to_write = bitString[index : index + 8]
-            int_of_byte_to_write = int(byte_to_write, 2)
-
-            latent_byte_string = b""
-            latent_byte_string = int_of_byte_to_write.to_bytes(num_bytes, byteorder)
-            byte_string += latent_byte_string
-
-            written_file_size_l.append(
-                file.write(int_of_byte_to_write.to_bytes(num_bytes, byteorder))
-            )
-        indices.append(file.tell())
-        indices.append(endZeroPadding)
-        if use_pickle_file_format:
-            bytes_indices = file.write(pickle.dumps(indices))
-
-            # This indicates the number of bytes that were written to the
-            # file with respect to the size in bytes of the number of
-            # indices.
-            file.write(bytes_indices.to_bytes(1, byteorder=byteorder))
-        else:
-            bytes_indices_list = [
-                file.write(index.to_bytes(4, "big")) for index in indices
-            ]
-            written_file_size_l.append(sum(bytes_indices_list))
-
-            # bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
-            # for index in bytes_indices_list:
-            #     latent_byte_string += bytes_indices_list[index]
-            #     byte_string = latent_byte_string
-
-            bytes_indices_size = sum(bytes_indices_list)
-
-            latent_byte_string = bytes_indices_size.to_bytes(1, byteorder=byteorder)
-            byte_string += latent_byte_string
-
-            # The line of code below is presuming the
-            # "bytes_indices_size" is < 256
-            written_file_size_l.append(
-                file.write(bytes_indices_size.to_bytes(1, byteorder=byteorder))
-            )
-
-            return byte_string
+# bytes_indices_size = int.from_bytes(byte_string[-2:])
+# byte_indices = byte_string[-(bytes_indices_size):-2]
 
 
 def huffman_encoding(
@@ -311,12 +259,10 @@ def huffman_encoding(
     )
 
     # The bits are written by using single bytes of integers
-    byte_string = write_file(
-        compressed_file_path,
+    byte_string = create_byte_string(
         nodeMappingDict,
         bitString,
         endZeroPadding,
-        use_pickle_file_format=False,
     )
 
     return byte_string
@@ -398,7 +344,12 @@ def implement_spike_detection_module_and_huffman_encode_file():
         encoded_data
     )
 
-    huffman_encoding(input_data=input_wav, compressed_file_path=compressed_file_path)
+    byte_string = huffman_encoding(
+        input_data=encoded_data_byte_string, compressed_file_path=compressed_file_path
+    )
+    process_signal.write_file_bytes(
+        file_path=compressed_file_path, data_bytes=byte_string
+    )
 
 
 def compress(file: str):

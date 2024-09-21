@@ -153,7 +153,7 @@ class TestDecode(unittest.TestCase):
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -165,9 +165,12 @@ class TestDecode(unittest.TestCase):
         encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
             encoded_data
         )
-        encode.huffman_encoding(
+        byte_string = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
             compressed_file_path=self.debug_compressed_file_path,
+        )
+        process_signal.write_file_bytes(
+            file_path=self.debug_compressed_file_path, data_bytes=byte_string
         )
 
         # Decoding

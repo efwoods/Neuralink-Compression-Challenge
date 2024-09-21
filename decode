@@ -76,24 +76,37 @@ def huffman_decoding(huffman_encoded_data: str):
                                    algorithm.
     """
 
-    nodeMappingDictionary = pickle.loads(huffman_encoded_data)
-    indices_byte_size = huffman_encoded_data[len(huffman_encoded_data) - 1]
-    indices_pickle = huffman_encoded_data[
+    # nodeMappingDictionary = pickle.loads(huffman_encoded_data)
+    indices_byte_size = int.from_bytes(huffman_encoded_data[-2:])
+    indices_byte_string = huffman_encoded_data[
         len(huffman_encoded_data)
         - 1
         - indices_byte_size : len(huffman_encoded_data)
         - 1
     ]
-    indices_array = pickle.loads(indices_pickle)
+    indices_array = [
+        int.from_bytes(indices_byte_string[index : index + 4])
+        for index in range(0, len(indices_byte_string), 4)
+    ]
     data_to_decode = huffman_encoded_data[indices_array[1] : indices_array[2]]
     bitString = convert_bytes_to_bitstring(data_to_decode, indices_array[-1])
+    node_mapping_dictionary_byte_string = huffman_encoded_data[
+        indices_array[0] : indices_array[1]
+    ]
+    node_mapping_dictionary_key_l = []
+    node_mapping_dictionary_value_l = []
+    node_mapping_dictionary = {}
+    for index in range(0, len(node_mapping_dictionary_byte_string), 2):
+        key = hex(node_mapping_dictionary_byte_string[index]).lstrip("0x")
+        # value =
+        # node_mapping_dictionary[key] =
 
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
     while len(bitString) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
-            bitString[:bitLength], nodeMappingDictionary
+            bitString[:bitLength], node_mapping_dictionary
         )
         if key is not None:
             hex_value_array.append(key)
