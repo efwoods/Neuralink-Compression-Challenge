@@ -193,11 +193,6 @@ def write_file(
                 byte = int(node_mapping_dict_list[index][0], base=16)
                 byte = byte.to_bytes()
 
-                # latent_byte_string = bytes(
-                #     node_mapping_dict_list[index][0], encoding="utf-8"
-                # )
-                latent_byte_string = byte
-                byte_string += latent_byte_string
                 written_file_size_l.append(
                     # file.write(
                     #     bytes(node_mapping_dict_list[index][0], encoding="utf-8")
