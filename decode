@@ -6,6 +6,108 @@ import numpy as np
 from signal_processing_utilities import process_signal
 
 
+def decode_rle(
+    index_array: list,
+    rle_locations_in_index_array=[],
+    use_rle_locations=False,
+    UNSIGNED_INTEGER_CUTOFF_VALUE=65530,
+):
+    """This will expand the index array where the values have been
+       compressed by run-length-encoding. If use_rle_locations is set to
+       'False', then the index_array will be presumed to have a format of
+       ['value', 'frequency', 'value', etc...]. A separate
+       implementation is defined to parse this format. If
+       use_rle_locations is set to 'True', then the
+       rle_locations_in_index_array is non-optional and must be used as
+       an input.
+
+    Args:
+        index_array (list): This is a list of values which contain
+                            either signular values or run-length-encoded
+                            values followed by the frequency of the
+                            run-length-encoded value.
+        rle_locations_in_index_array (list, optional): This is a list of
+                              locations in the index_array where the
+                              locations have been run-length-encoded.
+                              The subsequent values of these locations
+                              are frequencies of the run-length-encoded
+                              values.
+
+    Returns:
+        reconstructed_array (list): This is the list of the original
+                                    values before run-length-encoding
+                                    was applied.
+    """
+
+    index = 0
+    rle_index = 0
+    rle_location = 0
+    reconstructed_array = []
+
+    if use_rle_locations:
+        try:
+            if rle_locations_in_index_array:
+                # rle_locations_in_index_array exists
+                pass
+        except:
+            error_string = (
+                "rle_locations_in_index_array must be "
+                + "declared when 'use_rle_locations' is set to 'True'."
+            )
+            raise NameError(error_string)
+        rle_location_split_array = identify_index_split(rle_locations_in_index_array)
+        current_rle_location_split_array_index = 0
+
+        while rle_index < len(rle_locations_in_index_array):
+            try:
+                if (
+                    rle_index
+                    >= rle_location_split_array[current_rle_location_split_array_index]
+                ):
+                    current_rle_location_split_array_index += 1
+            except:
+                # This is an Index Location Error: the
+                # rle_location_split_array contains indices that are
+                # innermost boundaries within the
+                # larger rle_locations_in_index_array array. That is to say,
+                # the rle_locations_in_index_array
+                # array will surpass the ultimate location in the
+                # rle_location_split_array. The index of the
+                # rle_location_split_array will not need to be incremented as
+                # the index is being used as a scalar to scale the value of the
+                # UNSIGNED_INTEGER_CUTOFF_VALUE to properly calculate the
+                # rle_location in the index_array.
+                pass
+
+            rle_location = rle_locations_in_index_array[rle_index] + (
+                current_rle_location_split_array_index * UNSIGNED_INTEGER_CUTOFF_VALUE
+            )
+
+            reconstructed_array.extend(index_array[index:(rle_location)])
+
+            rle_index_of_value = rle_location
+            rle_index_of_frequency = rle_location + 1
+
+            expanded_rle_value = [
+                index_array[rle_index_of_value]
+                for frequency in range(index_array[rle_index_of_frequency])
+            ]
+
+            reconstructed_array.extend(expanded_rle_value)
+            index = rle_index_of_value + 2
+            rle_index += 1
+
+        reconstructed_array.extend(index_array[index:])
+        return reconstructed_array
+    else:
+        while index < len(index_array):
+            reconstructed_array.extend(
+                [index_array[index] for value in range(index_array[index + 1])]
+            )
+            index += 2
+        return reconstructed_array
+
+
 def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
     """This function converts bytes into a string of bits.
 
@@ -76,34 +178,86 @@ def huffman_decoding(huffman_encoded_data: str):
                                    algorithm.
     """
 
-    indices_byte_size = int.from_bytes(huffman_encoded_data[-2:])
-    indices_byte_string = huffman_encoded_data[
-        len(huffman_encoded_data)
-        - 1
-        - indices_byte_size : len(huffman_encoded_data)
-        - 1
+    # Capturing the indices of the huffman_encoded_data
+    """ The last two bytes of the huffman_encoded_data are the length of
+        the indices within the huffman_encoded_data.
+    """
+    indices_length = int.from_bytes(huffman_encoded_data[-2:])
+
+    reconstructed_indices_bytes = huffman_encoded_data[-(indices_length) - 2 : -2]
+
+    reconstructed_indices = [
+        int.from_bytes(reconstructed_indices_bytes[index : index + 4])
+        for index in range(0, len(reconstructed_indices_bytes), 4)
     ]
-    indices_array = [
-        int.from_bytes(indices_byte_string[index : index + 4])
-        for index in range(0, len(indices_byte_string), 4)
+
+    # Capturing the End Zero Padding:
+    end_zero_padding = reconstructed_indices[-1]
+
+    # Node Mapping Dictionary Keys:
+    reconstructed_node_mapping_dictionary_keys_byte_string = huffman_encoded_data[
+        0 : reconstructed_indices[0]
     ]
-    data_to_decode = huffman_encoded_data[indices_array[1] : indices_array[2]]
-    bit_string = convert_bytes_to_bit_string(data_to_decode, indices_array[-1])
-    node_mapping_dictionary_byte_string = huffman_encoded_data[
-        indices_array[0] : indices_array[1]
+
+    reconstructed_node_mapping_dictionary_keys_l = [
+        hex(reconstructed_node_mapping_dictionary_keys_byte_string[index]).lstrip("0x")
+        for index in range(len(reconstructed_node_mapping_dictionary_keys_byte_string))
     ]
-    node_mapping_dictionary_key_l = []
-    node_mapping_dictionary_value_l = []
-    node_mapping_dictionary = {}
-    for index in range(0, len(node_mapping_dictionary_byte_string), 2):
-        key = hex(node_mapping_dictionary_byte_string[index]).lstrip("0x")
+
+    # Node Mapping Dictionary Values:
+    reconstructed_node_mapping_dictionary_values_byte_string = huffman_encoded_data[
+        reconstructed_indices[0] : reconstructed_indices[1]
+    ]
+
+    # Node Mapping Dictionary Values Lengths:
+    reconstructed_node_mapping_dictionary_values_indices_rle_byte_string = (
+        huffman_encoded_data[reconstructed_indices[1] : reconstructed_indices[2]]
+    )
+
+    reconstructed_node_mapping_dictionary_values_indices_rle = [
+        reconstructed_node_mapping_dictionary_values_indices_rle_byte_string[index]
+        for index in range(
+            len(reconstructed_node_mapping_dictionary_values_indices_rle_byte_string)
+        )
+    ]
+
+    reconstructed_node_mapping_dict_indices = decode_rle(
+        index_array=reconstructed_node_mapping_dictionary_values_indices_rle
+    )
+
+    # Capturing the bit_string:
+    bit_string = huffman_encoded_data[
+        reconstructed_indices[2] : reconstructed_indices[3]
+    ]
+
+    bit_string = convert_bytes_to_bit_string(bit_string, end_zero_padding)
+
+    # Parsing the Node Mapping Dictionary
+    byte_string_index = 0
+
+    reconstructed_node_mapping_dictionary = {}
+
+    for index in range(0, len(reconstructed_node_mapping_dict_indices)):
+        # Key
+        key_str = reconstructed_node_mapping_dictionary_keys_l[index]
+
+        # Value original dictionary is bytes
+        value_byte = reconstructed_node_mapping_dictionary_values_byte_string[
+            byte_string_index : byte_string_index
+            + reconstructed_node_mapping_dict_indices[index]
+        ]
+        value_str = str(value_byte).lstrip("b'").rstrip("'")
+        reconstructed_node_mapping_dictionary[key_str] = value_str
+        byte_string_index += reconstructed_node_mapping_dict_indices[index]
+
+    ###
 
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
     while len(bit_string) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
-            bit_string[:bitLength], node_mapping_dictionary
+            bit_string[:bitLength], reconstructed_node_mapping_dictionary
         )
         if key is not None:
             hex_value_array.append(key)
