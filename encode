@@ -126,7 +126,7 @@ class Node:
         return self.freq < nxt.freq
 
 
-def createnode_mapping_dictionary(node, val="", node_mapping_dict={}):
+def create_node_mapping_dictionary(node, val="", node_mapping_dict={}):
     """Creates a mapping of unique binary strings to unique bytes of
            pairs of hexidecimal values found within the input wave file.
 
@@ -150,9 +150,9 @@ def createnode_mapping_dictionary(node, val="", node_mapping_dict={}):
     newVal = val + str(node.code)
     # if node is not an edge node, traverse
     if node.left:
-        createnode_mapping_dictionary(node.left, newVal, node_mapping_dict)
+        create_node_mapping_dictionary(node.left, newVal, node_mapping_dict)
     if node.right:
-        createnode_mapping_dictionary(node.right, newVal, node_mapping_dict)
+        create_node_mapping_dictionary(node.right, newVal, node_mapping_dict)
     if not node.left and not node.right:
         node_mapping_dict[node.data] = newVal
         # print(f"{node.data} -> {newVal}")
@@ -270,15 +270,23 @@ def create_byte_string(
     node_mapping_dict_values_list = list(node_mapping_dict.values())
 
     # Node Mapping Dictionary Keys appended to byte_string:
-    for index in range(0, len(node_mapping_dict_keys_list)):
-        key_byte = int(node_mapping_dict_keys_list[index], base=16).to_bytes()
-        byte_string += key_byte
+    node_mapping_dict_keys_list_byte_string_l = [
+        bytes(node_mapping_dict_keys_list[index], encoding="utf-8")
+        for index in range(len(node_mapping_dict_keys_list))
+    ]
+
+    for key_value in node_mapping_dict_keys_list_byte_string_l:
+        byte_string += key_value
+
     # Node Mapping Dictionary Keys: indices[0]
     indices.append(len(byte_string))
 
     # Node Mapping Dictionary Values appended to byte_string:
-    for index in range(0, len(node_mapping_dict_values_list)):
-        value_bytes = bytes(node_mapping_dict_values_list[index], encoding="utf-8")
+    node_mapping_dict_values_list_byte_string_l = [
+        bytes(node_mapping_dict_values_list[index], encoding="utf-8")
+        for index in range(len(node_mapping_dict_values_list))
+    ]
+    for value_bytes in node_mapping_dict_values_list_byte_string_l:
         byte_string += value_bytes
 
     # Node Mapping Dictionary Values: indices[1]
@@ -391,7 +399,7 @@ def huffman_encoding(
             left.freq + right.freq, left.data + right.data, left=left, right=right
         )
         heapq.heappush(nodes, newNode)
-    node_mapping_dict = createnode_mapping_dictionary(
+    node_mapping_dict = create_node_mapping_dictionary(
         nodes[0], val="", node_mapping_dict={}
     )
 
@@ -521,9 +529,11 @@ def compress(file: str):
     encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
         encoded_data
     )
-    byte_string = huffman_encoding(
+    node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=encoded_data_byte_string, compressed_file_path=(file + ".brainwire")
     )
+
+    byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
     return byte_string
 
 

@@ -140,7 +140,8 @@ class TestDecode(unittest.TestCase):
 
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
-            "This is an end-to-end test of the huffman encode & decode algorithm."
+            "This is an end-to-end test of the huffman encode & decode "
+            + "algorithm with signal processing included."
         )
 
         logging.info(
@@ -158,6 +159,8 @@ class TestDecode(unittest.TestCase):
         )
 
         # Spike Detection & Huffman Encoding
+        start_time = time.time_ns()
+
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
         )
@@ -204,6 +207,15 @@ class TestDecode(unittest.TestCase):
             decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
         )
+        stop_time = time.time_ns()
+        process_signal.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
+        )
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time, stop_time=stop_time
+        )
+
+        print("breakpoint")
 
     @unittest.skip("Testing End-to-end functionality in test05")
     def test06_encode_data_implement_huffman_encoding_and_decode(self):

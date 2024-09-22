@@ -4,6 +4,7 @@ import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
+import time
 
 
 def decode_rle(
@@ -199,9 +200,12 @@ def huffman_decoding(huffman_encoded_data: str):
         0 : reconstructed_indices[0]
     ]
 
+    reconstructed_node_mapping_dictionary_keys_string = str(
+        reconstructed_node_mapping_dictionary_keys_byte_string, encoding="utf-8"
+    )
     reconstructed_node_mapping_dictionary_keys_l = [
-        hex(reconstructed_node_mapping_dictionary_keys_byte_string[index]).lstrip("0x")
-        for index in range(len(reconstructed_node_mapping_dictionary_keys_byte_string))
+        reconstructed_node_mapping_dictionary_keys_string[index : index + 2]
+        for index in range(0, len(reconstructed_node_mapping_dictionary_keys_string), 2)
     ]
 
     # Node Mapping Dictionary Values:
@@ -250,14 +254,21 @@ def huffman_decoding(huffman_encoded_data: str):
         reconstructed_node_mapping_dictionary[key_str] = value_str
         byte_string_index += reconstructed_node_mapping_dict_indices[index]
 
-    ###
+    reconstructed_node_mapping_dictionary_sorted = dict(
+        sorted(
+            reconstructed_node_mapping_dictionary.items(),
+            key=lambda items: len(items[1]),
+        )
+    )
 
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
+
+    start_time = time.time_ns()
     while len(bit_string) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
-            bit_string[:bitLength], reconstructed_node_mapping_dictionary
+            bit_string[:bitLength], reconstructed_node_mapping_dictionary_sorted
         )
         if key is not None:
             hex_value_array.append(key)
@@ -265,6 +276,11 @@ def huffman_decoding(huffman_encoded_data: str):
             bitLength = 0
         else:
             bitLength += 1
+    stop_time = time.time_ns()
+    process_signal.print_time_each_function_takes_to_complete_processing(
+        start_time=start_time, stop_time=stop_time
+    )
+
     hex_wav_str = ""
     hex_wav_str = hex_wav_str.join(hex_value_array)
     decoded_wav_bytes = bytes.fromhex(hex_wav_str)
