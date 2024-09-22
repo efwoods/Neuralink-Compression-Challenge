@@ -81,7 +81,6 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    @unittest.skip("Debugging using test05")
     def test03_decoding_encoded_byte_string(self):
         logging.info(
             "This test encodes a file using huffman encoding and decodes using huffman encoding."
@@ -130,6 +129,7 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
+    @unittest.skip("Debugging using test05")
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
             "This is a test to encode the huffman encoded byte string,"
