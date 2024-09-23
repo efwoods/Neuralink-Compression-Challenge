@@ -81,6 +81,7 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
+    @unittest.skip("Debugging using test05")
     def test03_decoding_encoded_byte_string(self):
         logging.info(
             "This test encodes a file using huffman encoding and decodes using huffman encoding."
@@ -129,7 +130,6 @@ class TestDecode(unittest.TestCase):
             decompressed_file_path=self.decompressed_file_path,
         )
 
-    @unittest.skip("Debugging using test05")
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
             "This is a test to encode the huffman encoded byte string,"
@@ -146,14 +146,15 @@ class TestDecode(unittest.TestCase):
         )
 
         # Spike Detection & Huffman Encoding
+        encoding_start_time = time.time_ns()
         sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.debug_file, self.debug_compressed_file_path
+            self.file, self.compressed_file_path
         )
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
         )
-        spike_train_time_index_list, neural_data = process_signal.detect_neural_spikes(
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
             neural_data=filtered_data_bandpass, single_spike_detection=False
         )
         encoded_data = process_signal.create_encoded_data(
@@ -167,12 +168,14 @@ class TestDecode(unittest.TestCase):
         )
         encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.debug_compressed_file_path,
+            compressed_file_path=self.compressed_file_path,
         )
+        encoding_stop_time = time.time_ns()
 
         # Decoding
+        decoding_start_time = time.time_ns()
         huffman_encoded_data = decode.read_encoded_file(
-            compressed_file_path=self.debug_compressed_file_path,
+            compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
@@ -182,7 +185,25 @@ class TestDecode(unittest.TestCase):
         decode.write_decoded_wav(
             sample_rate=sample_rate,
             decoded_wav=amplitude_array,
-            decompressed_file_path=self.debug_decompressed_file_path,
+            decompressed_file_path=self.decompressed_file_path,
+        )
+        decoding_stop_time = time.time_ns()
+
+        print(f"Encoding Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=encoding_stop_time
+        )
+        print(f"Decoding Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=decoding_start_time, stop_time=decoding_stop_time
+        )
+        print(f"Total Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=decoding_stop_time
+        )
+
+        process_signal.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
 
