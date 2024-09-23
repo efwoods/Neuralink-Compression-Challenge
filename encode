@@ -548,14 +548,26 @@ def create_byte_string(
         int_of_byte_to_write = int(byte_to_write, base=2)
         byte_string += int_of_byte_to_write.to_bytes(num_bytes, byteorder)
 
+    # Compression of bit_string using rle
+    rle_compressed_bytes, rle_locations_compressed_byte_string = rle_bit_compression(
+        byte_string=bytes(bit_string, encoding="utf-8"),
+        compress=True,
+        rle_locations=None,
+    )
+
     # This is the length of the huffman encoded string of bits stored as
-    # bytes.
-    # Bit String Converted to Bytes: indices[3]
+    # rle bytes.
+    # Bit String Converted to RLE Bytes: indices[3]
+    byte_string += rle_compressed_bytes
+    indices.append(len(byte_string))
+
+    # RLE Locations byte string: indices[4]
+    byte_string += rle_locations_compressed_byte_string
     indices.append(len(byte_string))
 
     # This is the number of zeros that have been padded to the ultimate
     # byte_string index in order to make it equal to a byte.
-    # end_zero_padding: indices[4]
+    # end_zero_padding: indices[5]
     indices.append(end_zero_padding)
 
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
@@ -567,10 +579,6 @@ def create_byte_string(
     # "bytes_indices_size" is < 256
     byte_string += bytes_indices_size.to_bytes(2, byteorder=byteorder)
     return byte_string
-
-
-# bytes_indices_size = int.from_bytes(byte_string[-2:])
-# byte_indices = byte_string[-(bytes_indices_size):-2]
 
 
 def huffman_encoding(
