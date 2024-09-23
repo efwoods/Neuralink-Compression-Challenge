@@ -12,6 +12,7 @@ from signal_processing_utilities import process_signal
 def encode_rle(
     original_data_list: list,
     use_rle_locations=False,
+    data_is_binary=False,
     UNSIGNED_INTEGER_CUTOFF_VALUE=65530,
 ):
     """This algorithm will search for contiguous values within the
@@ -27,14 +28,27 @@ def encode_rle(
 
     Args:
         original_data_list (list): This is a list of integer values to
-        be encoded.
+                                   be encoded.
+        use_rle_locations (bool, optional): This is a flag which
+                                            indicates whether a
+                                            locations array will be
+                                            implemented to identify
+                                            where the run-length-encoded
+                                            values exist within the
+                                            compressed array. This is
+                                            because the compressed array
+                                            in this mode will not
+                                            contain run-length-encoded
+                                            values for values that have
+                                            singular representations.
 
     Returns:
         index_array (list): This is the list of run length encoded
                             values.
-        rle_locations_in_index_array (list): This is a list of locations of elements
-                              that are repeated that are present in the
-                              array of indices.
+        rle_locations_in_index_array (list): This is a list of locations
+                                             of elements that are
+                                             repeated that are present
+                                             in the array of indices.
     """
     initial_index = 0
     second_index = 1
@@ -102,6 +116,221 @@ def encode_rle(
         if use_rle_locations == False:
             index_array.append(1)
     return index_array, rle_locations_in_index_array
+
+
+# RLE for bit compression
+def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
+    """This function will compress the byte string using
+    run-length-encoding. It will create a rle_locations byte string to
+    differentiate between frequency and value locations. When compress
+    is set to true, rle_locations is non-optional. The return value
+    established when compress is set to true is the expected input.
+    This is labeled "rle_locations_compressed_byte_string". If
+    "compress" is set to "False", the return values are the byte
+    string object of the original byte_string input and the
+    rle_locations as a list of integers. The rle_locations can be
+    safely ignored.
+
+
+
+    Args:
+        byte_string (bytes): This is a bytes object of 0 and 1 values.
+        compress (bool, optional): This is a flag to indicate if mode
+                                   is to compress or decompress.
+                                   Defaults to True.
+        rle_locations (_type_, optional): These are the rle_locations
+                                          that are used when
+                                          decompressing. If "compress"
+                                          is equal to "True", then this
+                                          can safely be set to "None".
+                                          Otherwise, this is a mandatory
+                                          input. Defaults to None.
+
+    Returns:
+        rle_compressed_bytes (bytes): This is a byte string object of
+                                       the compressed byte_string.
+        rle_locations_compressed_byte_string (bytes): This is a
+                                                      compressed byte
+                                                      string object of
+                                                      the rle_locations.
+    """
+    if compress:
+        byte_string_str = str(byte_string).lstrip("b'").rstrip("'")
+        # Convert byte string to string of bits
+
+        initial_index = 0
+        second_index = 1
+        frequency = 0
+        rle_compression = []
+        rle_locations = []
+
+        # RLE compessing the byte_string_str
+        while second_index < len(byte_string_str):
+            if byte_string_str[initial_index] == byte_string_str[second_index]:
+                rle_compression.append(str(byte_string_str[initial_index]))
+                frequency += 1
+                while byte_string_str[initial_index] == byte_string_str[second_index]:
+                    second_index += 1
+                    frequency += 1
+                    if second_index >= len(byte_string_str):
+                        break
+                rle_compression.append(str(frequency))
+            else:
+                rle_compression.append(byte_string_str[initial_index])
+                rle_compression.append("x")
+            frequency = 0
+            initial_index = second_index
+            second_index += 1
+        # Accounting for the case of the frequency
+        #   byte_string_str[second_index] not being accounted for if it
+        #   is a unique value.
+        # If non-unique, this will be handled by the frequency in the
+        #   second while loop. Otherwise the second_index will be
+        #   larger than the length of the byte_string_str, and the
+        #   frequency of the individual value must be declared.
+
+        if byte_string_str[-2] != byte_string_str[-1]:
+            if rle_compression[-1] != "x":  # Redundancy to prevent error
+                rle_compression.append("x")
+
+        # verify rle_compression has captured all values:
+        total = 0
+        for index in range(0, len(rle_compression), 2):
+            if rle_compression[index + 1] == "x":
+                total += 1
+            else:
+                total = total + int(rle_compression[index + 1])
+
+        # RLE locations array run-length-encoded compression:
+        # -1 signifies the start of a run-length-encoding.
+        # Otherwise the value is written individually.
+
+        # Establishing RLE Locations
+        for index in range(0, len(rle_compression)):
+            rle_locations.append(len(rle_compression[index]))
+
+        # Compression of RLE Locations
+        initial_index = 0
+        second_index = 1
+        frequency = 0
+        rle_locations_compressed = []
+        while second_index < len(rle_locations):
+            if rle_locations[initial_index] == rle_locations[second_index]:
+                rle_locations_compressed.append(-1)
+                rle_locations_compressed.append(rle_locations[initial_index])
+                frequency += 1
+                while rle_locations[initial_index] == rle_locations[second_index]:
+                    second_index += 1
+                    frequency += 1
+                    if second_index >= len(rle_locations):
+                        break
+                rle_locations_compressed.append(frequency)
+            else:
+                rle_locations_compressed.append(rle_locations[initial_index])
+            frequency = 0
+            initial_index = second_index
+            second_index += 1
+        if rle_locations[-2] != rle_locations[-1]:
+            rle_locations_compressed.append(rle_locations[-1])
+        print("breakpoint")
+        # RLE Locations Compressed to Byte String:
+        rle_locations_compressed_byte_string_l = [
+            rle_locations_compressed[index].to_bytes(2, "big", signed=True)
+            for index in range(len(rle_locations_compressed))
+        ]
+        rle_locations_compressed_byte_string = b""
+        for byte in rle_locations_compressed_byte_string_l:
+            rle_locations_compressed_byte_string += byte
+
+        rle_compression_join = "".join(rle_compression)
+        rle_compressed_bytes = bytes(rle_compression_join, encoding="utf-8")
+
+        return rle_compressed_bytes, rle_locations_compressed_byte_string
+    else:
+        rle_compressed_bytes = byte_string
+        rle_locations_compressed_byte_string = rle_locations
+        # RLE Locations Compressed Byte String Expansion:
+        # int.from_bytes(, signed=True)
+        rle_locations_compressed_byte_string_l = [
+            rle_locations_compressed_byte_string[index : index + 2]
+            for index in range(len(rle_locations_compressed_byte_string))
+        ]
+
+        rle_locations_compressed = []
+        for index in range(0, len(rle_locations_compressed_byte_string_l), 2):
+            rle_locations_compressed.append(
+                int.from_bytes(
+                    rle_locations_compressed_byte_string_l[index], signed=True
+                )
+            )
+
+        # Expansion of RLE Locations Compressed:
+        rle_locations = []
+        index = 0
+
+        while index < len(rle_locations_compressed):
+            if rle_locations_compressed[index] != -1:
+                rle_locations.append(rle_locations_compressed[index])
+                index += 1
+            else:
+                index += 1
+                rle_expanded_value_l = []
+                rle_value = rle_locations_compressed[index]
+                rle_value_frequency = rle_locations_compressed[index + 1]
+                rle_expanded_value_l = [
+                    rle_value for index in range(rle_value_frequency)
+                ]
+                rle_locations.extend(rle_expanded_value_l)
+                index += 2
+
+        # Original Byte Expansion
+        rle_compressed_bytes_index = 0
+        rle_location_index = 0
+        rle_compressed_str_l = []
+
+        # converting from bytes to int, but i need to go from bytes to string
+        while rle_location_index < len(rle_locations):
+            rle_compressed_str = (
+                str(
+                    rle_compressed_bytes[
+                        rle_compressed_bytes_index : rle_compressed_bytes_index
+                        + rle_locations[rle_location_index]
+                    ],
+                )
+                .lstrip("b'")
+                .rstrip("'")
+            )
+            rle_compressed_str_l.append(rle_compressed_str)
+
+            rle_compressed_bytes_index += rle_locations[rle_location_index]
+            rle_location_index += 1
+
+        # Expand rle_compressed_int_l to a string
+        byte_string_str = ""
+        index = 0
+        print(f"len(rle_compressed_str_l) / 2: {len(rle_compressed_str_l) / 2}")
+        while index < len(rle_compressed_str_l):
+            if index == 0:
+                print(f"index: {index}")
+                print(f"rle_compressed_str_l[index]: {rle_compressed_str_l[index]}")
+
+            byte_string_str_subset_value = rle_compressed_str_l[index]
+            byte_string_str_subset_value_frequency = rle_compressed_str_l[index + 1]
+            if byte_string_str_subset_value_frequency != "x":
+                byte_string_str_subset_l = [
+                    byte_string_str_subset_value
+                    for value in range(int(byte_string_str_subset_value_frequency))
+                ]
+                byte_string_str_subset_str = "".join(byte_string_str_subset_l)
+                byte_string_str += byte_string_str_subset_str
+                index += 2
+            else:
+                byte_string_str += byte_string_str_subset_value
+                index += 2
+
+        # Convert String type to original byte string
+        byte_string = bytes(byte_string_str, encoding="utf-8")
+        return byte_string, rle_locations
 
 
 ###
