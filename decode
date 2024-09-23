@@ -122,8 +122,6 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
     rle_locations as a list of integers. The rle_locations can be
     safely ignored.
 
-
-
     Args:
         byte_string (bytes): This is a bytes object of 0 and 1 values.
         compress (bool, optional): This is a flag to indicate if mode
@@ -280,7 +278,6 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
         rle_location_index = 0
         rle_compressed_str_l = []
 
-        # converting from bytes to int, but i need to go from bytes to string
         while rle_location_index < len(rle_locations):
             rle_compressed_str = (
                 str(
@@ -424,64 +421,69 @@ def huffman_decoding(huffman_encoded_data: str):
         for index in range(0, len(reconstructed_node_mapping_dictionary_keys_string), 2)
     ]
 
-    # Node Mapping Dictionary Values:
-    reconstructed_node_mapping_dictionary_values_byte_string = huffman_encoded_data[
+    # Node Mapping Dictionary Values Expansion:
+
+    # Node Mapping Dictionary Values (rle_compressed):
+    rle_compressed_bytes = huffman_encoded_data[
         reconstructed_indices[0] : reconstructed_indices[1]
     ]
 
-    # Node Mapping Dictionary Values Lengths:
-    reconstructed_node_mapping_dictionary_values_indices_rle_byte_string = (
-        huffman_encoded_data[reconstructed_indices[1] : reconstructed_indices[2]]
-    )
-
-    reconstructed_node_mapping_dictionary_values_indices_rle = [
-        reconstructed_node_mapping_dictionary_values_indices_rle_byte_string[index]
-        for index in range(
-            len(reconstructed_node_mapping_dictionary_values_indices_rle_byte_string)
-        )
+    # Node Mapping Dictionary Values RLE Compressed Indices (rle_compressed):
+    rle_locations_compressed_byte_string = huffman_encoded_data[
+        reconstructed_indices[1] : reconstructed_indices[2]
     ]
 
-    reconstructed_node_mapping_dict_indices = decode_rle(
-        index_array=reconstructed_node_mapping_dictionary_values_indices_rle
+    node_mapping_dictionary_values_byte_string, _ = rle_bit_compression(
+        byte_string=rle_compressed_bytes,
+        rle_locations=rle_locations_compressed_byte_string,
+        compress=False,
+    )
+
+    # Node Mapping Dictionary Values Indices:
+    node_mapping_dict_values_indices_length_compressed_byte_string = (
+        huffman_encoded_data[reconstructed_indices[2] : reconstructed_indices[3]]
+    )
+    reconstructed_node_mapping_dict_values_indices_length_l = decode_rle(
+        node_mapping_dict_values_indices_length_compressed_byte_string
     )
 
     # Capturing the bit_string:
-
-    # Capturing rle_compressed_bytes:
-    rle_compressed_bytes = huffman_encoded_data[
-        reconstructed_indices[2] : reconstructed_indices[3]
-    ]
-
-    # Capturing rle_locations_compressed_byte_string:
-    rle_locations_compressed_byte_string = huffman_encoded_data[
+    bit_string_bytes = huffman_encoded_data[
         reconstructed_indices[3] : reconstructed_indices[4]
     ]
 
-    bit_string, rle_locations = rle_bit_compression(
-        byte_string=rle_compressed_bytes,
-        compress=False,
-        rle_locations=rle_locations_compressed_byte_string,
-    )
+    bit_string = convert_bytes_to_bit_string(bit_string_bytes, end_zero_padding)
 
-    bit_string = convert_bytes_to_bit_string(bit_string, end_zero_padding)
+    # reconstructed_node_mapping_dictionary_values_indices_rle = [
+    #     reconstructed_node_mapping_dictionary_values_indices_rle_byte_string[index]
+    #     for index in range(
+    #         len(reconstructed_node_mapping_dictionary_values_indices_rle_byte_string)
+    #     )
+    # ]
+
+    # reconstructed_node_mapping_dict_indices = decode_rle(
+    #     index_array=reconstructed_node_mapping_dictionary_values_indices_rle
+    # )
 
     # Parsing the Node Mapping Dictionary
     byte_string_index = 0
 
     reconstructed_node_mapping_dictionary = {}
 
-    for index in range(0, len(reconstructed_node_mapping_dict_indices)):
+    for index in range(0, len(reconstructed_node_mapping_dictionary_keys_l)):
         # Key
         key_str = reconstructed_node_mapping_dictionary_keys_l[index]
 
         # Value original dictionary is bytes
-        value_byte = reconstructed_node_mapping_dictionary_values_byte_string[
+        value_byte = node_mapping_dictionary_values_byte_string[
             byte_string_index : byte_string_index
-            + reconstructed_node_mapping_dict_indices[index]
+            + reconstructed_node_mapping_dict_values_indices_length_l[index]
         ]
         value_str = str(value_byte).lstrip("b'").rstrip("'")
         reconstructed_node_mapping_dictionary[key_str] = value_str
-        byte_string_index += reconstructed_node_mapping_dict_indices[index]
+        byte_string_index += reconstructed_node_mapping_dict_values_indices_length_l[
+            index
+        ]
 
     reconstructed_node_mapping_dictionary_sorted = dict(
         sorted(
