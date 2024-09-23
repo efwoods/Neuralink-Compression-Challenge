@@ -221,7 +221,7 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
             second_index += 1
         if rle_locations[-2] != rle_locations[-1]:
             rle_locations_compressed.append(rle_locations[-1])
-        print("breakpoint")
+
         # RLE Locations Compressed to Byte String:
         rle_locations_compressed_byte_string_l = [
             rle_locations_compressed[index].to_bytes(2, "big", signed=True)
@@ -297,12 +297,7 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
         # Expand rle_compressed_int_l to a string
         byte_string_str = ""
         index = 0
-        print(f"len(rle_compressed_str_l) / 2: {len(rle_compressed_str_l) / 2}")
         while index < len(rle_compressed_str_l):
-            if index == 0:
-                print(f"index: {index}")
-                print(f"rle_compressed_str_l[index]: {rle_compressed_str_l[index]}")
-
             byte_string_str_subset_value = rle_compressed_str_l[index]
             byte_string_str_subset_value_frequency = rle_compressed_str_l[index + 1]
             if byte_string_str_subset_value_frequency != "x":
@@ -454,17 +449,6 @@ def huffman_decoding(huffman_encoded_data: str):
 
     bit_string = convert_bytes_to_bit_string(bit_string_bytes, end_zero_padding)
 
-    # reconstructed_node_mapping_dictionary_values_indices_rle = [
-    #     reconstructed_node_mapping_dictionary_values_indices_rle_byte_string[index]
-    #     for index in range(
-    #         len(reconstructed_node_mapping_dictionary_values_indices_rle_byte_string)
-    #     )
-    # ]
-
-    # reconstructed_node_mapping_dict_indices = decode_rle(
-    #     index_array=reconstructed_node_mapping_dictionary_values_indices_rle
-    # )
-
     # Parsing the Node Mapping Dictionary
     byte_string_index = 0
 
@@ -495,8 +479,6 @@ def huffman_decoding(huffman_encoded_data: str):
     # Parse the string of bits into hexadecimal values.
     hex_value_array = []
     bitLength = 0
-
-    start_time = time.time_ns()
     while len(bit_string) > 0:
         key = find_key_by_value_in_node_mapping_dictionary(
             bit_string[:bitLength], reconstructed_node_mapping_dictionary_sorted
@@ -507,10 +489,6 @@ def huffman_decoding(huffman_encoded_data: str):
             bitLength = 0
         else:
             bitLength += 1
-    stop_time = time.time_ns()
-    process_signal.print_time_each_function_takes_to_complete_processing(
-        start_time=start_time, stop_time=stop_time
-    )
 
     hex_wav_str = ""
     hex_wav_str = hex_wav_str.join(hex_value_array)

@@ -344,7 +344,6 @@ class TestEncode(unittest.TestCase):
         huffman_encoded_data_file_size = process_signal.print_file_size(
             file_path=self.compressed_file_path
         )
-        print("breakpoint")
 
     def test10_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")

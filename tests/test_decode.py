@@ -103,14 +103,13 @@ class TestDecode(unittest.TestCase):
 
         encoding_stop_time = time.time_ns()
 
-        process_signal.print_size_of_file_compression(
-            file_path=self.file, compressed_file_path=self.compressed_file_path
-        )
+        print("Encoding Time: ")
         process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=encoding_start_time, stop_time=encoding_stop_time
         )
 
         # Decoding Below
+        # decoding_start_time = time.time_ns()
         encoded_data_byte_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
@@ -121,6 +120,20 @@ class TestDecode(unittest.TestCase):
             sample_rate=19531,
             decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
+        )
+
+        decoding_stop_time = time.time_ns()
+
+        # print("Decoding Time: ")
+        # process_signal.print_time_each_function_takes_to_complete_processing(
+        #     start_time=decoding_start_time, stop_time=decoding_stop_time
+        # )
+        print("Total Time: ")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=decoding_stop_time
+        )
+        process_signal.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
     @unittest.skip("Debugging using test05")
@@ -159,7 +172,7 @@ class TestDecode(unittest.TestCase):
         )
 
         # Spike Detection & Huffman Encoding
-        start_time = time.time_ns()
+        encoding_start_time = time.time_ns()
 
         sample_rate, input_wav, compressed_file_path = encode.read_file(
             self.file, self.compressed_file_path
@@ -193,7 +206,15 @@ class TestDecode(unittest.TestCase):
             file_path=self.compressed_file_path, data_bytes=byte_string
         )
 
+        encoding_stop_time = time.time_ns()
+
+        print("Encoding Time: ")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=encoding_stop_time
+        )
+
         # Decoding
+        decoding_start_time = time.time_ns()
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
@@ -207,15 +228,20 @@ class TestDecode(unittest.TestCase):
             decoded_wav=amplitude_array,
             decompressed_file_path=self.decompressed_file_path,
         )
-        stop_time = time.time_ns()
+
+        decoding_stop_time = time.time_ns()
+
+        print("Decoding Time: ")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=decoding_start_time, stop_time=decoding_stop_time
+        )
+        print("Total Time: ")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=decoding_stop_time
+        )
         process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
-        process_signal.print_time_each_function_takes_to_complete_processing(
-            start_time=start_time, stop_time=stop_time
-        )
-
-        print("breakpoint")
 
     @unittest.skip("Testing End-to-end functionality in test05")
     def test06_encode_data_implement_huffman_encoding_and_decode(self):

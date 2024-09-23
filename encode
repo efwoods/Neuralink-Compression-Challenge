@@ -232,7 +232,6 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
             second_index += 1
         if rle_locations[-2] != rle_locations[-1]:
             rle_locations_compressed.append(rle_locations[-1])
-        print("breakpoint")
         # RLE Locations Compressed to Byte String:
         rle_locations_compressed_byte_string_l = [
             rle_locations_compressed[index].to_bytes(2, "big", signed=True)
@@ -308,12 +307,7 @@ def rle_bit_compression(byte_string: bytes, compress=True, rle_locations=None):
         # Expand rle_compressed_int_l to a string
         byte_string_str = ""
         index = 0
-        print(f"len(rle_compressed_str_l) / 2: {len(rle_compressed_str_l) / 2}")
         while index < len(rle_compressed_str_l):
-            if index == 0:
-                print(f"index: {index}")
-                print(f"rle_compressed_str_l[index]: {rle_compressed_str_l[index]}")
-
             byte_string_str_subset_value = rle_compressed_str_l[index]
             byte_string_str_subset_value_frequency = rle_compressed_str_l[index + 1]
             if byte_string_str_subset_value_frequency != "x":
