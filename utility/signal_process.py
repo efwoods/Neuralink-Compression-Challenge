@@ -640,3 +640,52 @@ def print_time_each_function_takes_to_complete_processing(
     print(f"Time Δ Milliseconds: {(time_Δ / 1e6)}")
     print(f"Time Δ Seconds: {(time_Δ / 1e9)}")
     print(f"\n")
+
+
+def read_file_bytes(file_path: str):
+    """This function will read a file at the given path and return a
+       string of bytes.
+
+    Args:
+        file_path (str): This is the path of the file to be read as
+                         bytes.
+
+    Returns:
+        file_bytes (bytes): This is the string of bytes that represent
+                            the file that was read.
+    """
+    with open(file_path, "rb") as fp:
+        file_bytes = fp.read()
+        fp.close()
+    return file_bytes
+
+
+def write_file_bytes(file_path: str, data_bytes: bytes):
+    """This function will write the given data as bytes to the defined
+       file path.
+
+    Args:
+        file_path (str): This is the path of the file to be read as
+                         bytes.
+        data_bytes (bytes): This is the string of bytes to be written to
+                            a file.
+    """
+    with open(file_path, "wb+") as fp:
+        fp.write(data_bytes)
+        fp.close()
+
+
+def print_file_size(file_path: str):
+    """This function prints the size of the given file in Bytes.
+
+    Args:
+        file_path (str): This is the path to the file to be
+                                analyzed with respect to size in Bytes.
+
+    Returns:
+        file_size (int): this is the size of the file in Bytes.
+    """
+    file_size = os.path.getsize(file_path)
+    print(f'File Name: "{os.path.basename(file_path)}".')
+    print(f"Size: {file_size} Bytes.")
+    return file_size
