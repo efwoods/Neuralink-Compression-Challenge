@@ -5,6 +5,7 @@ from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 import time
+import os
 
 
 def decode_rle(
@@ -560,6 +561,27 @@ def process_spike_detection_huffman_encoded_data():
         sample_rate=sample_rate,
         decoded_wav=amplitude_array,
     )
+
+
+def decompress(byte_string: bytes):
+    """This function accepts a compressed byte string compressed
+    using "brainwire" compression from the encode module. It then
+    decompresses this data into the original array of amplitudes except
+    only detected neural spike information is present. There are
+    zero-valued amplitudes at all other locations of the original
+    waveform. The decompressed representation returned as the
+    sample_rate and corresponding amplitude_array.
+
+    Args:
+        file (str): This is the string of the compressed file path. The
+                    expected encoding file type is ".brainwire"
+    """
+    decoded_wav_bytes = huffman_decoding(byte_string)
+    encoded_data = process_signal.convert_byte_string_to_encoded_data(
+        encoded_data_byte_string=decoded_wav_bytes
+    )
+    sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
+    return sample_rate, amplitude_array
 
 
 def main():
