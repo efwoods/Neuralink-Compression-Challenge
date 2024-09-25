@@ -20,3 +20,6 @@ Your submission will be scored on the compression ratio it achieves on a differe
 Bonus points for optimizing latency and power efficiency
 
 Submit with source code and build script. Should at least build on Linux.
+
+## [Pypi Brainwire Package](https://pypi.org/project/brainwire/)
+Encode and Decode are now available under the [brainwire](https://pypi.org/project/brainwire/) pypi package. The modules will detect neural spikes, compress the data, and decompress the data to present a sample rate and array of amplitudes that only contain detected spike information.
