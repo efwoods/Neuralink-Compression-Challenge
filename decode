@@ -199,9 +199,9 @@ def read_encoded_file(compressed_file_path: str = None):
         try:
             compressed_file_path = sys.argv[1]
         except IndexError:
-        print("Error: Missing compressed file path. Please provide ", end="")
-        print("the path to the '.brainwire' compressed file path to ", end="")
-        print("be decoded.")
+            print("Error: Missing compressed file path. Please provide ", end="")
+            print("the path to the '.brainwire' compressed file path to ", end="")
+            print("be decoded.")
 
     # Retrieve the encoded file for decoding and parse the file.
     with open(compressed_file_path, "rb+") as file:
