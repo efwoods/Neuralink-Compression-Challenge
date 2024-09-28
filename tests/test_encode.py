@@ -162,7 +162,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path, input_data=input_wav
         )
 
-        byte_string = encode.create_encoded_data(
+        byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
         )
 
@@ -201,7 +201,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path, input_data=amplitude_array
         )
 
-        byte_string = encode.create_encoded_data(
+        byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
         )
 
@@ -307,7 +307,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-        byte_string = encode.create_encoded_data(
+        byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
         )
         stop_time = time.time_ns()
@@ -473,7 +473,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-        byte_string = encode.create_encoded_data(
+        byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
         )
 
