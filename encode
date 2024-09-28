@@ -291,9 +291,9 @@ def huffman_encoding(
         try:
             compressed_file_path = sys.argv[2]
         except IndexError:
-        print("Error: Missing compressed file path. ", end="")
-        print("Please provide the compressed, ", end="")
-        print("file path as a command line argument.")
+            print("Error: Missing compressed file path. ", end="")
+            print("Please provide the compressed, ", end="")
+            print("file path as a command line argument.")
 
     sorted_hex_freq_dict = determine_hex_freq(
         input_data if type(input_data) == bytes else input_data.tobytes()
