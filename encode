@@ -290,7 +290,10 @@ def huffman_encoding(
     if compressed_file_path == None:
         try:
             compressed_file_path = sys.argv[2]
-        except IndexError('Error: Missing compressed file path. Please provide the compressed file path as a command line argument.')
+        except IndexError:
+        print("Error: Missing compressed file path. ", end="")
+        print("Please provide the compressed, ", end="")
+        print("file path as a command line argument.")
 
     sorted_hex_freq_dict = determine_hex_freq(
         input_data if type(input_data) == bytes else input_data.tobytes()
@@ -357,12 +360,17 @@ def read_file(file: str = None, compressed_file_path: str = None):
     if file == None:
         try:
             file = sys.argv[1]
-        except IndexError("Error: Missing data file path. Please provide the path to the '.wav' file to be encoded.")
+        except IndexError:
+            print("Error: Missing data file path. Please provide the ", end="")
+            print("path to the '.wav' file to be encoded.")
 
     if compressed_file_path == None:
         try:
             compressed_file_path = sys.argv[2]
-        except IndexError('Error: Missing compressed file path. Please provide the compressed file path as a command line argument.')
+        except IndexError:
+            print("Error: Missing compressed file path. Please ", end="")
+            print("provide the compressed file path as a command ", end="")
+            print("line argument.")
 
     print("file: {}".format(file))
     print("compressed_file_path: {}".format(compressed_file_path))
