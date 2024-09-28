@@ -196,7 +196,9 @@ def read_encoded_file(compressed_file_path: str = None):
     """
 
     if compressed_file_path == None:
-        compressed_file_path = sys.argv[1]
+        try:
+            compressed_file_path = sys.argv[1]
+        except IndexError("Error: Missing compressed file path. Please provide the path to the '.brainwire' compressed file path to be decoded.")
 
     # Retrieve the encoded file for decoding and parse the file.
     with open(compressed_file_path, "rb+") as file:
@@ -217,7 +219,9 @@ def write_decoded_wav(sample_rate, decoded_wav, decompressed_file_path: str = No
     """
 
     if decompressed_file_path == None:
-        decompressed_file_path = sys.argv[2]
+        try:
+            decompressed_file_path = sys.argv[2]
+        except IndexError("Error: Missing decompressed file path. Please provide the absolute path of the file after it is decoded. The file will have this new name at this given path after decoding.")
 
     wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=decoded_wav)
 
