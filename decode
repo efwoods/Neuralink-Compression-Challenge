@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
@@ -213,6 +212,7 @@ def process_huffman_encoded_file(args):
     huffman_encoded_data = read_encoded_file(
         compressed_file_path=args.compressed_file_path
     )
+
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
 
     # The sample rate of the data is known in advance.
