@@ -505,6 +505,21 @@ class TestEncode(unittest.TestCase):
         # If duplicate_list.shape[1] is 0, there are no duplicates:
         self.assertEqual(duplicate_list.shape[1], 0)
 
+    def test15_test_of_arg_parser(self):
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
+
+        # Asserting args for quick compression
+        self.assertEqual(args.quick, True)
+        self.assertEqual(args.file_path, self.file)
+        self.assertEqual(args.compressed_file_path, self.compressed_file_path)
+
+        # Asserting args for spike detection module
+        args = parser.parse_args([self.file, self.compressed_file_path])
+        self.assertEqual(args.quick, False)
+        self.assertEqual(args.file_path, self.file)
+        self.assertEqual(args.compressed_file_path, self.compressed_file_path)
+
 
 if __name__ == "__main__":
     unittest.main()

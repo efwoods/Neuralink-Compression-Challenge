@@ -316,12 +316,12 @@ def huffman_encoding(
     return node_mapping_dict, bit_string, end_zero_padding
 
 
-def create_huffman_encoded_file(args=None):
+def create_huffman_encoded_file(args):
     """This driver function will read the data before huffman encoding
     the data and writing the resulting string of bytes to a file.
 
     Args:
-        args: These are the arguments parsed from the command line.
+        args (Sequence[str]) These are the arguments parsed from the command line.
                 If defined, they are expected to contain the 'file_path'
                 of the raw neural data to be compressed and the
                 'compressed_file_path' that will be the output return
@@ -339,7 +339,7 @@ def create_huffman_encoded_file(args=None):
     )
 
 
-def implement_spike_detection_module_and_huffman_encode_file(args=None):
+def implement_spike_detection_module_and_huffman_encode_file(args):
     """This driver function will read data, preprocess the data, detect neural
     spikes, create an object containing only the detected spikes,
     convert this object to a string of bytes, huffman encode those
@@ -347,7 +347,7 @@ def implement_spike_detection_module_and_huffman_encode_file(args=None):
     a file.
 
     Args:
-        args: These are the arguments parsed from the command line.
+        args (Sequence[str]) These are the arguments parsed from the command line.
                 If used, they are expected to contain the 'file_path'
                 of the raw neural data to be compressed and the
                 'compressed_file_path' that will be the output return
@@ -424,8 +424,7 @@ def initialize_argument_parser():
     line arguments.
 
     Returns:
-        This function will return the parsed arguments from the command
-        line.
+        This function will return the parser to parse arguments.
     """
 
     parser = argparse.ArgumentParser()
@@ -443,6 +442,20 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    return parser
+
+
+def parse_arguments():
+    """This function will parse arguments and print the file paths of
+    the parsed arguments.
+
+    Args:
+        parser (ArgumentParser): This is the initialized argument parser.
+
+    Returns:
+        args (str): This is the sequence of the string of arguments.
+    """
+    parser = initialize_argument_parser()
     args = parser.parse_args()
 
     print("file: {}".format(args.file_path))
@@ -452,7 +465,7 @@ def initialize_argument_parser():
 
 def main():
     """This is the main driver of the code."""
-    args = initialize_argument_parser()
+    args = parse_arguments()
     if args.quick:
         create_huffman_encoded_file(args=args)
     else:

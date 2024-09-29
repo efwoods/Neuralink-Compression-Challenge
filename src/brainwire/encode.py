@@ -424,8 +424,7 @@ def initialize_argument_parser():
     line arguments.
 
     Returns:
-        This function will return the parsed arguments from the command
-        line.
+        This function will return the parser to parse arguments.
     """
 
     parser = argparse.ArgumentParser()
@@ -443,6 +442,20 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    return parser
+
+
+def parse_arguments():
+    """This function will parse arguments and print the file paths of
+    the parsed arguments.
+
+    Args:
+        parser (ArgumentParser): This is the initialized argument parser.
+
+    Returns:
+        args (str): This is the sequence of the string of arguments.
+    """
+    parser = initialize_argument_parser()
     args = parser.parse_args()
 
     print("file: {}".format(args.file_path))
@@ -452,7 +465,7 @@ def initialize_argument_parser():
 
 def main():
     """This is the main driver of the code."""
-    args = initialize_argument_parser()
+    args = parse_arguments()
     if args.quick:
         create_huffman_encoded_file(args=args)
     else:

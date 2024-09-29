@@ -273,18 +273,17 @@ def initialize_argument_parser():
     line arguments.
 
     Returns:
-        This function will return the parsed arguments from the command
-        line.
+        This function will return the parser to parse arguments.
     """
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "compressed_file_path",
-        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension. A sample file name is 'compressed_file.wav.brainwire.",
+        "file_path",
+        help="This is the absolute file path to the raw neural data with a '.wav' file extension.",
     )
     parser.add_argument(
-        "decompressed_file_path",
-        help="This is the absolute file path to the reconstructed raw neural data. This is used to name the output file along with the extension. A sample file extension is 'reconstructed_neural_data.wav.brainwire.copy'.",
+        "compressed_file_path",
+        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension.",
     )
     parser.add_argument(
         "-q",
@@ -292,16 +291,30 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    return parser
+
+
+def parse_arguments():
+    """This function will parse arguments and print the file paths of
+    the parsed arguments.
+
+    Args:
+        parser (ArgumentParser): This is the initialized argument parser.
+
+    Returns:
+        args (str): This is the sequence of the string of arguments.
+    """
+    parser = initialize_argument_parser()
     args = parser.parse_args()
 
+    print("file: {}".format(args.file_path))
     print("compressed_file_path: {}".format(args.compressed_file_path))
-    print("decompressed_file_path: {}".format(args.decompressed_file_path))
     return args
 
 
 def main():
     """This is the main driver logic of the decode function."""
-    args = initialize_argument_parser()
+    args = parse_arguments()
     if args.quick:
         process_huffman_encoded_file(args=args)
     else:
