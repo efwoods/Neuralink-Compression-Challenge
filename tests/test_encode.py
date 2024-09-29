@@ -83,22 +83,19 @@ class TestEncode(unittest.TestCase):
         module.
         """
 
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         logging.info("test_read_input_wav_is_type_bytes")
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+
         self.assertEqual(type(input_wav), np.ndarray)
         self.assertEqual(type(sample_rate), int)
-        self.assertEqual(type(compressed_file_path), str)
 
     def test03_huffman_encoding_pickling(self):
         """Testing Reading Data, Filtering the Data, Detecting Neural
         Spikes, & Creating Encoded Data"""
 
         logging.info("Testing huffman encoding of pickled object format")
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
+
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -138,7 +135,7 @@ class TestEncode(unittest.TestCase):
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
-        sample_rate, raw_signal_array = wavfile.read(self.file)
+        sample_rate, raw_signal_array = wavfile.read(filename=self.file)
         fft, freq_bins = process_signal.preprocess_to_frequency_domain(
             raw_signal_array, sample_rate
         )
@@ -155,11 +152,10 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "The sample rate is implied using this method to be a known value of 19531."
         )
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
+
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
-            compressed_file_path=self.compressed_file_path, input_data=input_wav
+            input_data=input_wav
         )
 
         byte_string = encode.create_byte_string(
@@ -179,9 +175,7 @@ class TestEncode(unittest.TestCase):
         information where the noise has been zero-valued everywhere else."""
 
         logging.info("Testing using spike detection.")
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -198,7 +192,7 @@ class TestEncode(unittest.TestCase):
             encoded_data=encoded_data
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
-            compressed_file_path=self.compressed_file_path, input_data=amplitude_array
+            input_data=amplitude_array
         )
 
         byte_string = encode.create_byte_string(
@@ -213,9 +207,7 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "Testing File Size and Algorithmic Speed using the encoded information only"
         )
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -229,12 +221,12 @@ class TestEncode(unittest.TestCase):
             neural_data=filtered_data_bandpass,
         )
 
-        with open(compressed_file_path, "wb+") as file:
+        with open(self.compressed_file_path, "wb+") as file:
             file.write(pickle.dumps(encoded_data))
             file.close()
 
         pickle_encoded_data_file_size = process_signal.print_file_size(
-            file_path=compressed_file_path
+            file_path=self.compressed_file_path
         )
 
     def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
@@ -243,14 +235,12 @@ class TestEncode(unittest.TestCase):
         )
         total_start_time = time.time_ns()
         start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.debug_file, self.debug_compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         stop_time = time.time_ns()
         process_signal.print_time_each_function_takes_to_complete_processing(
             start_time=start_time,
             stop_time=stop_time,
-            executed_line="encode.read_file(",
+            executed_line="wavfile.read(",
         )
 
         start_time = time.time_ns()
@@ -304,7 +294,6 @@ class TestEncode(unittest.TestCase):
         start_time = time.time_ns()
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
@@ -348,9 +337,7 @@ class TestEncode(unittest.TestCase):
     def test10_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")
         total_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -373,7 +360,6 @@ class TestEncode(unittest.TestCase):
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
@@ -399,9 +385,7 @@ class TestEncode(unittest.TestCase):
             "Testing Efficiency of Writing String of Bytes that Contain Only Detected Spike Information."
         )
         total_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -435,8 +419,8 @@ class TestEncode(unittest.TestCase):
         )
         decompressed_file_path = "data/_0ab237b7-fb12-4687-afed-8d1e2070d621.wav"
 
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
+        sample_rate, input_wav = wavfile.read(
+            filename=self.file,
         )
 
         wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=input_wav)
@@ -449,9 +433,7 @@ class TestEncode(unittest.TestCase):
         compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
 
         total_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            file, compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -470,7 +452,6 @@ class TestEncode(unittest.TestCase):
 
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
@@ -502,9 +483,7 @@ class TestEncode(unittest.TestCase):
         compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
 
         total_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            file, compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(filename=self.file)
 
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate

@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import time
 from signal_processing_utilities import process_signal
+from scipy.io import wavfile
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
@@ -87,11 +88,9 @@ class TestDecode(unittest.TestCase):
         )
         # Test 06 from test_encode.py of Huffman Encoding
         encoding_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(self.file)
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
-            input_data=input_wav, compressed_file_path=self.compressed_file_path
+            input_data=input_wav
         )
 
         byte_string = encode.create_byte_string(
@@ -174,9 +173,7 @@ class TestDecode(unittest.TestCase):
         # Spike Detection & Huffman Encoding
         encoding_start_time = time.time_ns()
 
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
@@ -195,7 +192,6 @@ class TestDecode(unittest.TestCase):
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
@@ -263,8 +259,8 @@ class TestDecode(unittest.TestCase):
         )
 
         # Spike Detection & Huffman Encoding
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.debug_file, self.debug_compressed_file_path
+        sample_rate, input_wav = wavfile.read(
+            self.debug_file,
         )
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
@@ -284,7 +280,6 @@ class TestDecode(unittest.TestCase):
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.debug_compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
