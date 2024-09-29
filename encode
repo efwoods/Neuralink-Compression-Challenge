@@ -5,6 +5,7 @@ import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
+import argparse
 
 
 class Node:
@@ -132,7 +133,7 @@ def create_byte_string(
                                   hexadecimal representation of the
                                   bytes of the input wave file to a
                                   string of bits whose length is
-                                  depended on frequency of the
+                                  dependent on frequency of the
                                   hexadecimal pair.
         bit_string (str): This is the string of bits that is
                             interpreted from the original input wave
@@ -258,7 +259,6 @@ def create_byte_string(
 
 def huffman_encoding(
     input_data: np.ndarray,
-    compressed_file_path: str = None,
 ):
     """Main method to drive the encoding operation implementing huffman
     encoding.
@@ -268,11 +268,6 @@ def huffman_encoding(
                                            as a numpy array. If this
                                            input is given, the data will
                                            be converted to bytes.
-        compressed_file_path (str, optional): This is the string of the
-                                              location
-                                              of the output compressed
-                                              file.
-                                              Defaults to None.
 
     Returns:
         node_mapping_dict (dict): This is the dictionary containing
@@ -286,14 +281,6 @@ def huffman_encoding(
                               by eight such that each eight bits may be
                               converted into individual bytes.
     """
-
-    if compressed_file_path == None:
-        try:
-            compressed_file_path = sys.argv[2]
-        except IndexError:
-            print("Error: Missing compressed file path. ", end="")
-            print("Please provide the compressed, ", end="")
-            print("file path as a command line argument.")
 
     sorted_hex_freq_dict = determine_hex_freq(
         input_data if type(input_data) == bytes else input_data.tobytes()
@@ -330,78 +317,47 @@ def huffman_encoding(
     return node_mapping_dict, bit_string, end_zero_padding
 
 
-def read_file(file: str = None, compressed_file_path: str = None):
-    """This function reads a file and returns the sample rate and the
-    waveform of the file to be processed and compressed as well as the
-    path of which to compress the file.
+def create_huffman_encoded_file(args=None):
+    """This driver function will read the data before huffman encoding
+    the data and writing the resulting string of bytes to a file.
 
     Args:
-        file (str, optional): This is the name of the file to be
-                              compressed. The format of the string is
-                              expected to be "dir/*.wav" for example.
-                              This is set to default as "None" so as to
-                              enable the function to operate with a
-                              command line input when no file path is
-                              passed to the main method or to enable the
-                              main method to be tested with custom
-                              input. Defaults to None.
-        compressed_file_path (str, optional): This is the string of the
-                                              location of the output
-                                              compressed file. Defaults
-                                              to None.
-
-    Returns:
-        sample_rate (int): This is the rate of the sample.
-        input_wav (array): This is the waveform representation of the
-                           audio.
-        compressed_file_path (str): This is the path of which to
-                                    compress the file.
+        args: These are the arguments parsed from the command line.
+                If defined, they are expected to contain the 'file_path'
+                of the raw neural data to be compressed and the
+                'compressed_file_path' that will be the output return
+                value after encoding the original '.wav' file. Defaults
+                to None.
     """
-    if file == None:
-        try:
-            file = sys.argv[1]
-        except IndexError:
-            print("Error: Missing data file path. Please provide the ", end="")
-            print("path to the '.wav' file to be encoded.")
 
-    if compressed_file_path == None:
-        try:
-            compressed_file_path = sys.argv[2]
-        except IndexError:
-            print("Error: Missing compressed file path. Please ", end="")
-            print("provide the compressed file path as a command ", end="")
-            print("line argument.")
-
-    print("file: {}".format(file))
-    print("compressed_file_path: {}".format(compressed_file_path))
-
-    sample_rate, input_wav = wavfile.read(file)
-    return sample_rate, input_wav, compressed_file_path
-
-
-def create_huffman_encoded_file():
-    """This driver function will read the data before huffman encoding
-    the data and writing the resulting string of bytes to a file."""
-
-    sample_rate, input_wav, compressed_file_path = read_file()
+    sample_rate, input_wav = read_file(file=args.file_path)
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
-        input_data=input_wav, compressed_file_path=compressed_file_path
+        input_data=input_wav
     )
     byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
     process_signal.write_file_bytes(
-        file_path=compressed_file_path, data_bytes=byte_string
+        file_path=args.compressed_file_path, data_bytes=byte_string
     )
 
 
-def implement_spike_detection_module_and_huffman_encode_file():
+def implement_spike_detection_module_and_huffman_encode_file(args=None):
     """This driver function will read data, preprocess the data, detect neural
     spikes, create an object containing only the detected spikes,
     convert this object to a string of bytes, huffman encode those
     bytes, and write the huffman encoded representation of the bytes to
-    a file."""
+    a file.
+
+    Args:
+        args: These are the arguments parsed from the command line.
+                If used, they are expected to contain the 'file_path'
+                of the raw neural data to be compressed and the
+                'compressed_file_path' that will be the output return
+                value after encoding the original '.wav' file. Defaults
+                to None.
+    """
 
     # Read Data
-    sample_rate, input_wav, compressed_file_path = read_file()
+    sample_rate, input_wav = wavfile.read(file=args.file_path)
 
     # Preprocess Data & Detect Spikes
     filtered_data_bandpass = process_signal.preprocess_signal(
@@ -422,10 +378,11 @@ def implement_spike_detection_module_and_huffman_encode_file():
     )
 
     byte_string = huffman_encoding(
-        input_data=encoded_data_byte_string, compressed_file_path=compressed_file_path
+        input_data=encoded_data_byte_string,
     )
+
     process_signal.write_file_bytes(
-        file_path=compressed_file_path, data_bytes=byte_string
+        file_path=args.compressed_file_path, data_bytes=byte_string
     )
 
 
@@ -456,17 +413,51 @@ def compress(file: str):
         encoded_data
     )
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
-        input_data=encoded_data_byte_string, compressed_file_path=(file + ".brainwire")
+        input_data=encoded_data_byte_string
     )
 
     byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
     return byte_string
 
 
+def initialize_argument_parser():
+    """This function will initialize the argument parser with command
+    line arguments.
+
+    Returns:
+        This function will return the parsed arguments from the command
+        line.
+    """
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "file_path",
+        help="This is the absolute file path to the raw neural data with a '.wav' file extension.",
+    )
+    parser.add_argument(
+        "compressed_file_path",
+        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension.",
+    )
+    parser.add_argument(
+        "-q",
+        "--quick",
+        action="store_true",
+        help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
+    )
+    args = parser.parse_args()
+
+    print("file: {}".format(args.file_path))
+    print("compressed_file_path: {}".format(args.compressed_file_path))
+    return args
+
+
 def main():
     """This is the main driver of the code."""
-    # create_huffman_encoded_file()
-    implement_spike_detection_module_and_huffman_encode_file()
+    args = initialize_argument_parser()
+    if args.quick:
+        create_huffman_encoded_file(args=args)
+    else:
+        implement_spike_detection_module_and_huffman_encode_file(args=args)
 
 
 if __name__ == "__main__":
