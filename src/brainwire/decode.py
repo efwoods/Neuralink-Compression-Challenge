@@ -4,6 +4,7 @@ import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
+import argparse
 
 
 def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
@@ -199,18 +200,19 @@ def read_encoded_file(compressed_file_path: str):
     return huffman_encoded_data
 
 
-def process_huffman_encoded_file(args = None):
+def process_huffman_encoded_file(args=None):
     """This is the driver function that processes a huffman encoded file
     format.
-    
+
     Args:
-        args: This is the list of arguments that include the compressed 
+        args: This is the list of arguments that include the compressed
         and decompressed file paths. These arguments are parsed from the
         command line at runtime.
     """
 
     huffman_encoded_data = read_encoded_file(
-        compressed_file_path = args.compressed_file_path)
+        compressed_file_path=args.compressed_file_path
+    )
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
 
     # The sample rate of the data is known in advance.
@@ -227,12 +229,14 @@ def process_spike_detection_huffman_encoded_data(args=None):
     spikes.
 
     Args:
-        args: Thes are the parsed command line arguments. These 
-            arguments contain the compressed and decompressed file 
+        args: Thes are the parsed command line arguments. These
+            arguments contain the compressed and decompressed file
             paths.
     """
 
-    huffman_encoded_data = read_encoded_file(compressed_file_path = args.compressed_file_path)
+    huffman_encoded_data = read_encoded_file(
+        compressed_file_path=args.compressed_file_path
+    )
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
     encoded_data = process_signal.convert_byte_string_to_encoded_data(decoded_wav_bytes)
     sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
@@ -297,11 +301,11 @@ def initialize_argument_parser():
 
 def main():
     """This is the main driver logic of the decode function."""
-    args = =initialize_argument_parser()
+    args = initialize_argument_parser()
     if args.quick:
-        process_huffman_encoded_file(args = args)
+        process_huffman_encoded_file(args=args)
     else:
-        process_spike_detection_huffman_encoded_data(args = args)
+        process_spike_detection_huffman_encoded_data(args=args)
 
 
 if __name__ == "__main__":

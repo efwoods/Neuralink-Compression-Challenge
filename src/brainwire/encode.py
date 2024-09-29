@@ -1,7 +1,6 @@
 #!/usr/bin/python3
 
 import heapq
-import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
@@ -330,7 +329,7 @@ def create_huffman_encoded_file(args=None):
                 to None.
     """
 
-    sample_rate, input_wav = read_file(file=args.file_path)
+    sample_rate, input_wav = wavfile.read(filename=args.file_path)
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=input_wav
     )
