@@ -7,6 +7,7 @@ import logging
 import numpy as np
 import time
 from signal_processing_utilities import process_signal
+from scipy.io import wavfile
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
@@ -50,7 +51,6 @@ class TestDecode(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
-    @unittest.skip("Debugging using test05")
     def test01_huffman_decoding(self):
         logging.info("This is a test of decoding a huffman encoded file exclusively")
         huffman_encoded_data = decode.read_encoded_file(
@@ -58,7 +58,6 @@ class TestDecode(unittest.TestCase):
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
-    @unittest.skip("Debugging using test05")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string,"
@@ -74,31 +73,29 @@ class TestDecode(unittest.TestCase):
             encoded_data_byte_string=decoded_wav_bytes
         )
         sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-        decode.write_decoded_wav(
-            sample_rate=sample_rate,
-            decoded_wav=amplitude_array,
-            decompressed_file_path=self.decompressed_file_path,
+
+        wavfile.write(
+            filename=self.decompressed_file_path,
+            rate=sample_rate,
+            data=amplitude_array,
         )
 
-    @unittest.skip("Debugging using test05")
     def test03_decoding_encoded_byte_string(self):
         logging.info(
             "This test encodes a file using huffman encoding and decodes using huffman encoding."
         )
         # Test 06 from test_encode.py of Huffman Encoding
         encoding_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(self.file)
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
-            input_data=input_wav, compressed_file_path=self.compressed_file_path
+            input_data=input_wav
         )
 
         byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
         )
         process_signal.write_file_bytes(
-            file_path=compressed_file_path, data_bytes=byte_string
+            file_path=self.compressed_file_path, data_bytes=byte_string
         )
 
         encoding_stop_time = time.time_ns()
@@ -116,10 +113,11 @@ class TestDecode(unittest.TestCase):
         decoded_wav_bytes = decode.huffman_decoding(encoded_data_byte_string)
 
         amplitude_array = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
-        decode.write_decoded_wav(
-            sample_rate=19531,
-            decoded_wav=amplitude_array,
-            decompressed_file_path=self.decompressed_file_path,
+
+        wavfile.write(
+            filename=self.decompressed_file_path,
+            rate=self.sample_rate,
+            data=amplitude_array,
         )
 
         decoding_stop_time = time.time_ns()
@@ -136,7 +134,6 @@ class TestDecode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    @unittest.skip("Debugging using test05")
     def test04_huffman_decode_operates(self):
         logging.info("Testing Huffman Decoding exclusively.")
         huffman_encoded_string = decode.read_encoded_file(
@@ -145,10 +142,11 @@ class TestDecode(unittest.TestCase):
         decoded_wav_bytes = decode.huffman_decoding(
             huffman_encoded_data=huffman_encoded_string
         )
-        decode.write_decoded_wav(
-            sample_rate=self.sample_rate,
-            decoded_wav=decoded_wav_bytes,
-            decompressed_file_path=self.decompressed_file_path,
+
+        wavfile.write(
+            filename=self.decompressed_file_path,
+            rate=self.sample_rate,
+            data=np.frombuffer(decoded_wav_bytes, dtype=np.int16),
         )
 
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
@@ -163,20 +161,10 @@ class TestDecode(unittest.TestCase):
             + " reconstruct the amplitude array."
         )
 
-        logging.info(
-            "ValueError: setting an array element with a"
-            + "sequence. The requested array has an "
-            + "inhomogeneous shape after 1 dimensions. The "
-            + "detected shape was (3850,) + inhomogeneous "
-            + "part. Traceback (most recent call last)"
-        )
-
         # Spike Detection & Huffman Encoding
         encoding_start_time = time.time_ns()
 
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
-        )
+        sample_rate, input_wav = wavfile.read(self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
             sample_rate=sample_rate,
@@ -195,7 +183,6 @@ class TestDecode(unittest.TestCase):
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
 
         byte_string = encode.create_byte_string(
@@ -223,10 +210,11 @@ class TestDecode(unittest.TestCase):
             encoded_data_byte_string=decoded_wav_bytes
         )
         sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-        decode.write_decoded_wav(
-            sample_rate=sample_rate,
-            decoded_wav=amplitude_array,
-            decompressed_file_path=self.decompressed_file_path,
+
+        wavfile.write(
+            filename=self.decompressed_file_path,
+            rate=sample_rate,
+            data=amplitude_array,
         )
 
         decoding_stop_time = time.time_ns()
@@ -243,7 +231,6 @@ class TestDecode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    @unittest.skip("Testing End-to-end functionality in test05")
     def test06_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info("Debugging Key:Value Pair not found in bit string.")
         logging.info("Debugging: decode.find_key_by_value_in_node_mapping_dictionary(")
@@ -264,8 +251,8 @@ class TestDecode(unittest.TestCase):
 
         # Spike Detection & Huffman Encoding
         encoding_start_time = time.time_ns()
-        sample_rate, input_wav, compressed_file_path = encode.read_file(
-            self.file, self.compressed_file_path
+        sample_rate, input_wav = wavfile.read(
+            self.debug_file,
         )
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav,
@@ -285,7 +272,6 @@ class TestDecode(unittest.TestCase):
         )
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
-            compressed_file_path=self.compressed_file_path,
         )
         encoding_stop_time = time.time_ns()
 
@@ -306,11 +292,12 @@ class TestDecode(unittest.TestCase):
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
+
         sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-        decode.write_decoded_wav(
-            sample_rate=sample_rate,
-            decoded_wav=amplitude_array,
-            decompressed_file_path=self.decompressed_file_path,
+        wavfile.write(
+            filename=self.decompressed_file_path,
+            rate=sample_rate,
+            data=amplitude_array,
         )
         decoding_stop_time = time.time_ns()
 
@@ -330,6 +317,21 @@ class TestDecode(unittest.TestCase):
         process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
+
+    def test07_test_of_arg_parser(self):
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
+
+        # Asserting args for quick compression
+        self.assertEqual(args.quick, True)
+        self.assertEqual(args.file_path, self.file)
+        self.assertEqual(args.compressed_file_path, self.compressed_file_path)
+
+        # Asserting args for spike detection module
+        args = parser.parse_args([self.file, self.compressed_file_path])
+        self.assertEqual(args.quick, False)
+        self.assertEqual(args.file_path, self.file)
+        self.assertEqual(args.compressed_file_path, self.compressed_file_path)
 
 
 if __name__ == "__main__":

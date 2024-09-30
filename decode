@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
@@ -200,12 +199,12 @@ def read_encoded_file(compressed_file_path: str):
     return huffman_encoded_data
 
 
-def process_huffman_encoded_file(args=None):
+def process_huffman_encoded_file(args):
     """This is the driver function that processes a huffman encoded file
     format.
 
     Args:
-        args: This is the list of arguments that include the compressed
+        args (Sequence[str]): This is the list of arguments that include the compressed
         and decompressed file paths. These arguments are parsed from the
         command line at runtime.
     """
@@ -218,18 +217,18 @@ def process_huffman_encoded_file(args=None):
     # The sample rate of the data is known in advance.
     wavfile.write(
         filename=args.decompressed_file_path,
-        sample_rate=19531,
+        rate=19531,
         data=np.frombuffer(decoded_wav_bytes, dtype=np.int16),
     )
 
 
-def process_spike_detection_huffman_encoded_data(args=None):
+def process_spike_detection_huffman_encoded_data(args):
     """This is the driver function that processes a huffman encoded file
     format that has been encoded in such a way as to only detect neural
     spikes.
 
     Args:
-        args: Thes are the parsed command line arguments. These
+        args (Sequence[str]) Thes are the parsed command line arguments. These
             arguments contain the compressed and decompressed file
             paths.
     """
@@ -242,7 +241,7 @@ def process_spike_detection_huffman_encoded_data(args=None):
     sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
     wavfile.write(
         filename=args.decompressed_file_path,
-        sample_rate=sample_rate,
+        rate=sample_rate,
         data=amplitude_array,
     )
 
@@ -273,8 +272,7 @@ def initialize_argument_parser():
     line arguments.
 
     Returns:
-        This function will return the parsed arguments from the command
-        line.
+        This function will return the parser to parse arguments.
     """
 
     parser = argparse.ArgumentParser()
@@ -292,6 +290,20 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    return parser
+
+
+def parse_arguments():
+    """This function will parse arguments and print the file paths of
+    the parsed arguments.
+
+    Args:
+        parser (ArgumentParser): This is the initialized argument parser.
+
+    Returns:
+        args (str): This is the sequence of the string of arguments.
+    """
+    parser = initialize_argument_parser()
     args = parser.parse_args()
 
     print("compressed_file_path: {}".format(args.compressed_file_path))
@@ -301,7 +313,7 @@ def initialize_argument_parser():
 
 def main():
     """This is the main driver logic of the decode function."""
-    args = initialize_argument_parser()
+    args = parse_arguments()
     if args.quick:
         process_huffman_encoded_file(args=args)
     else:
