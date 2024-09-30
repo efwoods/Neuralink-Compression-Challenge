@@ -356,7 +356,7 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
     """
 
     # Read Data
-    sample_rate, input_wav = wavfile.read(file=args.file_path)
+    sample_rate, input_wav = wavfile.read(filename=args.file_path)
 
     # Preprocess Data & Detect Spikes
     filtered_data_bandpass = process_signal.preprocess_signal(
@@ -376,9 +376,11 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
         encoded_data
     )
 
-    byte_string = huffman_encoding(
+    node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=encoded_data_byte_string,
     )
+
+    byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
 
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
