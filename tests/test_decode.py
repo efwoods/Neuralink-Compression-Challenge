@@ -250,6 +250,7 @@ class TestDecode(unittest.TestCase):
         )
 
         # Spike Detection & Huffman Encoding
+        encoding_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(
             self.debug_file,
         )
@@ -272,6 +273,7 @@ class TestDecode(unittest.TestCase):
         node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
             input_data=encoded_data_byte_string,
         )
+        encoding_stop_time = time.time_ns()
 
         byte_string = encode.create_byte_string(
             node_mapping_dict, bit_string, end_zero_padding
@@ -282,8 +284,9 @@ class TestDecode(unittest.TestCase):
         )
 
         # Decoding
+        decoding_start_time = time.time_ns()
         huffman_encoded_data = decode.read_encoded_file(
-            compressed_file_path=self.debug_compressed_file_path,
+            compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
@@ -291,11 +294,28 @@ class TestDecode(unittest.TestCase):
         )
 
         sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-
         wavfile.write(
             filename=self.decompressed_file_path,
             rate=sample_rate,
             data=amplitude_array,
+        )
+        decoding_stop_time = time.time_ns()
+
+        print(f"Encoding Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=encoding_stop_time
+        )
+        print(f"Decoding Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=decoding_start_time, stop_time=decoding_stop_time
+        )
+        print(f"Total Time:")
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=encoding_start_time, stop_time=decoding_stop_time
+        )
+
+        process_signal.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
     def test07_test_of_arg_parser(self):

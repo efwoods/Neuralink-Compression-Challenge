@@ -316,12 +316,12 @@ def huffman_encoding(
     return node_mapping_dict, bit_string, end_zero_padding
 
 
-def create_huffman_encoded_file(args=None):
+def create_huffman_encoded_file(args):
     """This driver function will read the data before huffman encoding
     the data and writing the resulting string of bytes to a file.
 
     Args:
-        args: These are the arguments parsed from the command line.
+        args (Sequence[str]) These are the arguments parsed from the command line.
                 If defined, they are expected to contain the 'file_path'
                 of the raw neural data to be compressed and the
                 'compressed_file_path' that will be the output return
@@ -339,7 +339,7 @@ def create_huffman_encoded_file(args=None):
     )
 
 
-def implement_spike_detection_module_and_huffman_encode_file(args=None):
+def implement_spike_detection_module_and_huffman_encode_file(args):
     """This driver function will read data, preprocess the data, detect neural
     spikes, create an object containing only the detected spikes,
     convert this object to a string of bytes, huffman encode those
@@ -347,7 +347,7 @@ def implement_spike_detection_module_and_huffman_encode_file(args=None):
     a file.
 
     Args:
-        args: These are the arguments parsed from the command line.
+        args (Sequence[str]) These are the arguments parsed from the command line.
                 If used, they are expected to contain the 'file_path'
                 of the raw neural data to be compressed and the
                 'compressed_file_path' that will be the output return

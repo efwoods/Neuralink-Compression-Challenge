@@ -1,6 +1,5 @@
 #!/usr/bin/python3
 
-import sys
 from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
@@ -200,12 +199,12 @@ def read_encoded_file(compressed_file_path: str):
     return huffman_encoded_data
 
 
-def process_huffman_encoded_file(args=None):
+def process_huffman_encoded_file(args):
     """This is the driver function that processes a huffman encoded file
     format.
 
     Args:
-        args: This is the list of arguments that include the compressed
+        args (Sequence[str]): This is the list of arguments that include the compressed
         and decompressed file paths. These arguments are parsed from the
         command line at runtime.
     """
@@ -218,18 +217,18 @@ def process_huffman_encoded_file(args=None):
     # The sample rate of the data is known in advance.
     wavfile.write(
         filename=args.decompressed_file_path,
-        sample_rate=19531,
+        rate=19531,
         data=np.frombuffer(decoded_wav_bytes, dtype=np.int16),
     )
 
 
-def process_spike_detection_huffman_encoded_data(args=None):
+def process_spike_detection_huffman_encoded_data(args):
     """This is the driver function that processes a huffman encoded file
     format that has been encoded in such a way as to only detect neural
     spikes.
 
     Args:
-        args: Thes are the parsed command line arguments. These
+        args (Sequence[str]) Thes are the parsed command line arguments. These
             arguments contain the compressed and decompressed file
             paths.
     """
@@ -242,7 +241,7 @@ def process_spike_detection_huffman_encoded_data(args=None):
     sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
     wavfile.write(
         filename=args.decompressed_file_path,
-        sample_rate=sample_rate,
+        rate=sample_rate,
         data=amplitude_array,
     )
 
@@ -278,12 +277,12 @@ def initialize_argument_parser():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "file_path",
-        help="This is the absolute file path to the raw neural data with a '.wav' file extension.",
+        "compressed_file_path",
+        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension. A sample file name is 'compressed_file.wav.brainwire.",
     )
     parser.add_argument(
-        "compressed_file_path",
-        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension.",
+        "decompressed_file_path",
+        help="This is the absolute file path to the reconstructed raw neural data. This is used to name the output file along with the extension. A sample file extension is 'reconstructed_neural_data.wav.brainwire.copy'.",
     )
     parser.add_argument(
         "-q",
@@ -307,8 +306,8 @@ def parse_arguments():
     parser = initialize_argument_parser()
     args = parser.parse_args()
 
-    print("file: {}".format(args.file_path))
     print("compressed_file_path: {}".format(args.compressed_file_path))
+    print("decompressed_file_path: {}".format(args.decompressed_file_path))
     return args
 
 

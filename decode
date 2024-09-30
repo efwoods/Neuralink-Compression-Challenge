@@ -212,7 +212,6 @@ def process_huffman_encoded_file(args):
     huffman_encoded_data = read_encoded_file(
         compressed_file_path=args.compressed_file_path
     )
-
     decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
 
     # The sample rate of the data is known in advance.
@@ -278,12 +277,12 @@ def initialize_argument_parser():
 
     parser = argparse.ArgumentParser()
     parser.add_argument(
-        "file_path",
-        help="This is the absolute file path to the raw neural data with a '.wav' file extension.",
+        "compressed_file_path",
+        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension. A sample file name is 'compressed_file.wav.brainwire.",
     )
     parser.add_argument(
-        "compressed_file_path",
-        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension.",
+        "decompressed_file_path",
+        help="This is the absolute file path to the reconstructed raw neural data. This is used to name the output file along with the extension. A sample file extension is 'reconstructed_neural_data.wav.brainwire.copy'.",
     )
     parser.add_argument(
         "-q",
@@ -307,8 +306,8 @@ def parse_arguments():
     parser = initialize_argument_parser()
     args = parser.parse_args()
 
-    print("file: {}".format(args.file_path))
     print("compressed_file_path: {}".format(args.compressed_file_path))
+    print("decompressed_file_path: {}".format(args.decompressed_file_path))
     return args
 
 
