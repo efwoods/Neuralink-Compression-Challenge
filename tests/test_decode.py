@@ -53,27 +53,47 @@ class TestDecode(unittest.TestCase):
 
     def test01_huffman_decoding(self):
         logging.info("This is a test of decoding a huffman encoded file exclusively")
+
+        # Creating Test Data
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
+        encode.create_huffman_encoded_file(args=args)
+
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
+    @unittest.skip("testing elsewhere")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string,"
             + " convert the byte string into the encoded format, and"
             + " reconstruct the amplitude array."
         )
+        # Creating Test Data
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args(
+            [
+                self.file,
+                self.compressed_file_path,
+            ]
+        )
+        encode.implement_spike_detection_module_and_huffman_encode_file(args)
 
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        #
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
         sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
 
+        #
+        amplitude_array = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
         wavfile.write(
             filename=self.decompressed_file_path,
             rate=sample_rate,
