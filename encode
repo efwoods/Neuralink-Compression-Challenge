@@ -356,7 +356,7 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
     """
 
     # Read Data
-    sample_rate, input_wav = wavfile.read(file=args.file_path)
+    sample_rate, input_wav = wavfile.read(filename=args.file_path)
 
     # Preprocess Data & Detect Spikes
     filtered_data_bandpass = process_signal.preprocess_signal(
@@ -395,7 +395,7 @@ def compress(file: str):
     Args:
         file (str): This is the path to the file to be compressed.
     """
-    sample_rate, input_wav = wavfile.read(file)
+    sample_rate, input_wav = wavfile.read(filename=file)
     filtered_data_bandpass = process_signal.preprocess_signal(
         raw_neural_signal=input_wav, sample_rate=sample_rate
     )

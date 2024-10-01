@@ -10,7 +10,6 @@ from signal_processing_utilities import process_signal
 from scipy.io import wavfile
 import brainwire
 
-
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
@@ -66,7 +65,6 @@ class TestDecode(unittest.TestCase):
         )
         decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
-    @unittest.skip("testing elsewhere")
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
             "This is a test to decode the huffman encoded byte string,"
