@@ -8,20 +8,19 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 from scipy.io import wavfile
-from brainwire import encode
-import brainwire
+
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
 # Custom import of python file "decode"
-# spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
-# decode = module_from_spec(spec)
-# spec.loader.exec_module(decode)
+spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
+decode = module_from_spec(spec)
+spec.loader.exec_module(decode)
 
-# spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
-# encode = module_from_spec(spec)
-# spec.loader.exec_module(encode)
+spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
+encode = module_from_spec(spec)
+spec.loader.exec_module(encode)
 
 
 class TestDecode(unittest.TestCase):
@@ -61,10 +60,10 @@ class TestDecode(unittest.TestCase):
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
         encode.create_huffman_encoded_file(args=args)
 
-        huffman_encoded_data = brainwire.decode.read_encoded_file(
+        huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = brainwire.decode.huffman_decoding(huffman_encoded_data)
+        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
 
     @unittest.skip("testing elsewhere")
     def test02_huffman_decoding_to_encoded_format(self):
