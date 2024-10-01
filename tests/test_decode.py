@@ -8,6 +8,7 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 from scipy.io import wavfile
+import brainwire
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
