@@ -376,9 +376,11 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
         encoded_data
     )
 
-    byte_string = huffman_encoding(
+    node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=encoded_data_byte_string,
     )
+
+    byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
 
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
@@ -395,7 +397,7 @@ def compress(file: str):
     Args:
         file (str): This is the path to the file to be compressed.
     """
-    sample_rate, input_wav = wavfile.read(filename=file)
+    sample_rate, input_wav = wavfile.read(file)
     filtered_data_bandpass = process_signal.preprocess_signal(
         raw_neural_signal=input_wav, sample_rate=sample_rate
     )
