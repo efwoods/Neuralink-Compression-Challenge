@@ -10,7 +10,6 @@ import numpy as np
 import pickle
 import time
 from signal_processing_utilities import process_signal
-import brainwire
 
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
