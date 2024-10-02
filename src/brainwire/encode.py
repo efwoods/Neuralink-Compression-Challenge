@@ -5,6 +5,7 @@ from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
+import time
 
 
 class Node:
@@ -329,6 +330,8 @@ def create_huffman_encoded_file(args):
                 to None.
     """
 
+    
+
     sample_rate, input_wav = wavfile.read(filename=args.file_path)
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=input_wav
@@ -376,9 +379,11 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
         encoded_data
     )
 
-    byte_string = huffman_encoding(
+    node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=encoded_data_byte_string,
     )
+
+    byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
 
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
@@ -395,7 +400,7 @@ def compress(file: str):
     Args:
         file (str): This is the path to the file to be compressed.
     """
-    sample_rate, input_wav = wavfile.read(filename=file)
+    sample_rate, input_wav = wavfile.read(file)
     filtered_data_bandpass = process_signal.preprocess_signal(
         raw_neural_signal=input_wav, sample_rate=sample_rate
     )
@@ -442,6 +447,14 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="This will print metrics to the console upon completion of the compression. These metrics include time to compress and percent of compression relative to the original file size."
+    )
+    
     return parser
 
 
@@ -466,10 +479,27 @@ def parse_arguments():
 def main():
     """This is the main driver of the code."""
     args = parse_arguments()
+
     if args.quick:
+        if args.verbose:
+            start_time = time.time_ns()
+
         create_huffman_encoded_file(args=args)
+
+        if args.verbose:
+            stop_time = time.time_ns()            
+            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
+            process_signal.print_size_of_file_compression(file_path = args.file_path, compressed_file_path=args.compressed_file_path)
     else:
+        if args.verbose:
+            start_time = time.time_ns()
+
         implement_spike_detection_module_and_huffman_encode_file(args=args)
+
+        if args.verbose:
+            stop_time = time.time_ns()            
+            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="implement_spike_detection_module_and_huffman_encode_file")
+            process_signal.print_size_of_file_compression(file_path = args.file_path, compressed_file_path=args.compressed_file_path)
 
 
 if __name__ == "__main__":
