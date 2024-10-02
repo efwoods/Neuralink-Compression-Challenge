@@ -4,6 +4,7 @@ from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
+import time
 
 
 def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
@@ -290,6 +291,12 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="This will print metrics to the console upon completion of the compression. These metrics include time to compress and percent of compression relative to the original file size."
+    )
     return parser
 
 
@@ -315,10 +322,25 @@ def main():
     """This is the main driver logic of the decode function."""
     args = parse_arguments()
     if args.quick:
+        if args.verbose:
+            start_time = time.time_ns()
+
         process_huffman_encoded_file(args=args)
+
+        if args.verbose:
+            stop_time = time.time_ns()            
+            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
+            process_signal.print_size_of_file_compression(file_path = args.decompressed_file_path, compressed_file_path=args.compressed_file_path)
     else:
+        if args.verbose:
+            start_time = time.time_ns()
+
         process_spike_detection_huffman_encoded_data(args=args)
 
+        if args.verbose:
+            stop_time = time.time_ns()            
+            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
+            process_signal.print_size_of_file_compression(file_path = args.decompressed_file_path, compressed_file_path=args.compressed_file_path)
 
 if __name__ == "__main__":
     main()
