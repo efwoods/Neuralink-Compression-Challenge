@@ -417,23 +417,20 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "This is a test to ensure the input wav is written to the output file and is functional."
         )
-        decompressed_file_path = "data/_0ab237b7-fb12-4687-afed-8d1e2070d621.wav"
 
         sample_rate, input_wav = wavfile.read(
-            filename=self.file,
+            filename=self.debug_file,
         )
 
-        wavfile.write(filename=decompressed_file_path, rate=sample_rate, data=input_wav)
+        wavfile.write(filename=self.debug_compressed_file_path, rate=sample_rate, data=input_wav)
 
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
         )
-        file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
-        compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
 
         total_start_time = time.time_ns()
-        sample_rate, input_wav = wavfile.read(filename=self.file)
+        sample_rate, input_wav = wavfile.read(filename=self.debug_file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
         )
@@ -459,14 +456,14 @@ class TestEncode(unittest.TestCase):
         )
 
         process_signal.write_file_bytes(
-            file_path=compressed_file_path, data_bytes=byte_string
+            file_path=self.debug_compressed_file_path, data_bytes=byte_string
         )
 
         total_stop_time = time.time_ns()
 
         process_signal.print_size_of_file_compression(
             file_path=self.file,
-            compressed_file_path=self.compressed_file_path,
+            compressed_file_path=self.debug_compressed_file_path,
         )
 
         process_signal.print_time_each_function_takes_to_complete_processing(
@@ -479,10 +476,6 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "Testing that there are no duplicates in the spike_train_time_index_list"
         )
-        file = "data/0052503c-2849-4f41-ab51-db382103690c.wav"
-        compressed_file_path = "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
-
-        total_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(filename=self.file)
 
         filtered_data_bandpass = process_signal.preprocess_signal(
