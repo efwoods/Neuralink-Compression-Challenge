@@ -155,7 +155,7 @@ class TestEncode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="q"
         )
 
         process_signal.write_file_bytes(
@@ -191,8 +191,10 @@ class TestEncode(unittest.TestCase):
             input_data=amplitude_array
         )
 
+        # This is a quick method of compression because only huffman
+        # encoding is truly implemented.
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="q"
         )
 
         process_signal.write_file_bytes(
@@ -201,7 +203,8 @@ class TestEncode(unittest.TestCase):
 
     def test08_writing_encoded_spikes_only(self):
         logging.info(
-            "Testing File Size and Algorithmic Speed using the encoded information only"
+            "Testing File Size and Algorithmic Speed using "
+            + "the encoded information only"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
@@ -227,7 +230,9 @@ class TestEncode(unittest.TestCase):
 
     def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
-            "This is the Main Function: Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
+            "This is the Main Function: Testing Using Huffman "
+            + "Encoding on the String of Bytes that Contain Only "
+            + "Detected Spike Information."
         )
         total_start_time = time.time_ns()
         start_time = time.time_ns()
@@ -293,7 +298,7 @@ class TestEncode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="n"
         )
         stop_time = time.time_ns()
         process_signal.print_time_each_function_takes_to_complete_processing(
@@ -359,7 +364,7 @@ class TestEncode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="n"
         )
 
         process_signal.write_file_bytes(
@@ -378,7 +383,8 @@ class TestEncode(unittest.TestCase):
 
     def test11_writing_encoded_data_byte_string_(self):
         logging.info(
-            "Testing Efficiency of Writing String of Bytes that Contain Only Detected Spike Information."
+            "Testing Efficiency of Writing String of Bytes that "
+            + "Contain Only Detected Spike Information."
         )
         total_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(filename=self.file)
@@ -411,7 +417,8 @@ class TestEncode(unittest.TestCase):
 
     def test12_testing_writing_input_wav(self):
         logging.info(
-            "This is a test to ensure the input wav is written to the output file and is functional."
+            "This is a test to ensure the input wav is written to "
+            + "the output file and is functional."
         )
 
         sample_rate, input_wav = wavfile.read(
@@ -424,7 +431,8 @@ class TestEncode(unittest.TestCase):
 
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
-            "Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information."
+            "Testing Using Huffman Encoding on the String of Bytes "
+            + "that Contain Only Detected Spike Information."
         )
 
         total_start_time = time.time_ns()
@@ -450,7 +458,7 @@ class TestEncode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="n"
         )
 
         process_signal.write_file_bytes(
@@ -472,7 +480,8 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "Testing that there are no duplicates in the spike_train_time_index_list"
+            "Testing that there are no duplicates in the "
+            + "spike_train_time_index_list"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
 
