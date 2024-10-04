@@ -47,7 +47,8 @@ def create_node_mapping_dictionary(node, val="", node_mapping_dict={}):
         bytes: This function returns the bytes of the wave file that was
                read.
     """
-    # Is this value a string or a
+    # Concatonate the determined edge value of the binary tree to
+    # create the new value that represents the hexadecimal byte pair.
     newVal = val + str(node.code)
     # if node is not an edge node, traverse
     if node.left:

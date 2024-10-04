@@ -13,14 +13,15 @@ from brainwire import encode, decode
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
-# Custom import of python file "decode"
-# spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
-# decode = module_from_spec(spec)
-# spec.loader.exec_module(decode)
+# Custom import of local file "decode"
+spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
+decode = module_from_spec(spec)
+spec.loader.exec_module(decode)
 
-# spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
-# encode = module_from_spec(spec)
-# spec.loader.exec_module(encode)
+# Custom import of local file "encode"
+spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
+encode = module_from_spec(spec)
+spec.loader.exec_module(encode)
 
 
 class TestDecode(unittest.TestCase):
