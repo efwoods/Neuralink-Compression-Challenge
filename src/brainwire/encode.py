@@ -317,49 +317,43 @@ def huffman_encoding(
     return node_mapping_dict, bit_string, end_zero_padding
 
 
-def create_huffman_encoded_file(args):
+def create_huffman_encoded_file(input_wav):
     """This driver function will read the data before huffman encoding
     the data and writing the resulting string of bytes to a file.
 
     Args:
-        args (Sequence[str]) These are the arguments parsed from the command line.
-                If defined, they are expected to contain the 'file_path'
-                of the raw neural data to be compressed and the
-                'compressed_file_path' that will be the output return
-                value after encoding the original '.wav' file. Defaults
-                to None.
+        input_wav (list): This is the array of integers which represent
+                            the amplitudes of the raw neural data.
+
+    Returns:
+        byte_string (bytes): This is the string of bytes that represent
+                                the compressed version of the raw neural
+                                data.
     """
-
-    
-
-    sample_rate, input_wav = wavfile.read(filename=args.file_path)
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=input_wav
     )
     byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
-    process_signal.write_file_bytes(
-        file_path=args.compressed_file_path, data_bytes=byte_string
-    )
+    return byte_string
 
 
-def implement_spike_detection_module_and_huffman_encode_file(args):
-    """This driver function will read data, preprocess the data, detect neural
+def implement_spike_detection_module_and_huffman_encode_file(sample_rate, input_wav):
+    """This driver function will preprocess the data, detect neural
     spikes, create an object containing only the detected spikes,
     convert this object to a string of bytes, huffman encode those
-    bytes, and write the huffman encoded representation of the bytes to
-    a file.
+    bytes, and return the string of bytes.
 
     Args:
-        args (Sequence[str]) These are the arguments parsed from the command line.
-                If used, they are expected to contain the 'file_path'
-                of the raw neural data to be compressed and the
-                'compressed_file_path' that will be the output return
-                value after encoding the original '.wav' file. Defaults
-                to None.
-    """
+        sample_rate (int): This is the sample rate of the input wave
+                            file.
+        input_wav (list): This is the array of integers which represent
+                            the amplitudes of the raw neural data.
 
-    # Read Data
-    sample_rate, input_wav = wavfile.read(filename=args.file_path)
+    Returns:
+        byte_string (bytes): This is the string of bytes that represent
+                                the compressed version of the raw neural
+                                data.
+    """
 
     # Preprocess Data & Detect Spikes
     filtered_data_bandpass = process_signal.preprocess_signal(
@@ -385,12 +379,12 @@ def implement_spike_detection_module_and_huffman_encode_file(args):
 
     byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
 
-    process_signal.write_file_bytes(
-        file_path=args.compressed_file_path, data_bytes=byte_string
-    )
+    return byte_string
 
 
-def compress(file: str):
+def compress(
+    file: str = None, sample_rate: int = None, data: list = None, quick: bool = None
+):
     """This function accepts a file path to compress. It will read data,
     preprocess the data, detect neural spikes, create an object
     containing only the detected spikes, convert this object to a string
@@ -399,25 +393,52 @@ def compress(file: str):
 
     Args:
         file (str): This is the path to the file to be compressed.
+                    Either this value is present or sample_rate, data,
+                    and quick are present. Defaults to None.
+        sample_rate (int): This is the rate at which the data was
+                            sampled. Defaults to None.
+        data (list): This is the list of amplitudes to compress.
+        quick (bool): This is the enabler variable that will allow the
+                        data to be either compressed strictly using
+                        huffman encoding (the fastest method) or to
+                        compress with the maximum level of compression.
+                        Defaults to None.
     """
-    sample_rate, input_wav = wavfile.read(file)
-    filtered_data_bandpass = process_signal.preprocess_signal(
-        raw_neural_signal=input_wav, sample_rate=sample_rate
-    )
-    spike_train_time_index_list = process_signal.detect_neural_spikes(
-        filtered_data_bandpass
-    )
-    encoded_data = process_signal.create_encoded_data(
-        sample_rate=sample_rate,
-        number_of_samples=len(filtered_data_bandpass),
-        spike_train_time_index_list=spike_train_time_index_list,
-        neural_data=filtered_data_bandpass,
-    )
-    encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
-        encoded_data
-    )
+
+    if file:
+        sample_rate, input_wav = wavfile.read(file)
+    else:
+        try:
+            if sample_rate and data and quick:
+                # Verify that sample_rate, data, & quick are present if
+                # file is not.
+                pass
+        except Exception as e:
+            print("Error: compress requires either file to be", end="")
+            print(" defined or sample_rate, data, and quick ", end="")
+            print("to be defined.")
+    if not quick:
+        filtered_data_bandpass = process_signal.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
+            filtered_data_bandpass
+        )
+        encoded_data = process_signal.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+        )
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
+            encoded_data
+        )
+        input_data = encoded_data_byte_string
+    else:
+        input_data = input_wav
+
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
-        input_data=encoded_data_byte_string
+        input_data=input_data
     )
 
     byte_string = create_byte_string(node_mapping_dict, bit_string, end_zero_padding)
@@ -447,14 +468,14 @@ def initialize_argument_parser():
         action="store_true",
         help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
     )
-    
+
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="This will print metrics to the console upon completion of the compression. These metrics include time to compress and percent of compression relative to the original file size."
+        help="This will print metrics to the console upon completion of the compression. These metrics include time to compress and percent of compression relative to the original file size.",
     )
-    
+
     return parser
 
 
@@ -480,26 +501,36 @@ def main():
     """This is the main driver of the code."""
     args = parse_arguments()
 
+    if args.verbose:
+        start_time = time.time_ns()
+        if args.quick:
+            executed_line = "create_huffman_encoded_file"
+        else:
+            executed_line = "implement_spike_detection_module_and_huffman_encode_file"
+
+    # Read Data
+    sample_rate, input_wav = wavfile.read(filename=args.file_path)
+
     if args.quick:
-        if args.verbose:
-            start_time = time.time_ns()
-
-        create_huffman_encoded_file(args=args)
-
-        if args.verbose:
-            stop_time = time.time_ns()            
-            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
-            process_signal.print_size_of_file_compression(file_path = args.file_path, compressed_file_path=args.compressed_file_path)
+        byte_string = create_huffman_encoded_file(input_wav)
     else:
-        if args.verbose:
-            start_time = time.time_ns()
+        byte_string = implement_spike_detection_module_and_huffman_encode_file(
+            sample_rate, input_wav
+        )
 
-        implement_spike_detection_module_and_huffman_encode_file(args=args)
-
-        if args.verbose:
-            stop_time = time.time_ns()            
-            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="implement_spike_detection_module_and_huffman_encode_file")
-            process_signal.print_size_of_file_compression(file_path = args.file_path, compressed_file_path=args.compressed_file_path)
+    process_signal.write_file_bytes(
+        file_path=args.compressed_file_path, data_bytes=byte_string
+    )
+    if args.verbose:
+        stop_time = time.time_ns()
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line=executed_line,
+        )
+        process_signal.print_size_of_file_compression(
+            file_path=args.file_path, compressed_file_path=args.compressed_file_path
+        )
 
 
 if __name__ == "__main__":

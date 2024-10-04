@@ -1,8 +1,6 @@
 """This module is used to test the encode module."""
 
 import unittest
-from importlib.util import spec_from_loader, module_from_spec
-from importlib.machinery import SourceFileLoader
 import logging
 from scipy.io import wavfile
 import wave
@@ -10,19 +8,10 @@ import numpy as np
 import pickle
 import time
 from signal_processing_utilities import process_signal
+from brainwire import encode
 
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
-
-# Import encode
-spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
-encode = module_from_spec(spec)
-spec.loader.exec_module(encode)
-
-# Import decode
-spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
-decode = module_from_spec(spec)
-spec.loader.exec_module(decode)
 
 
 # Helper Functions
@@ -422,7 +411,9 @@ class TestEncode(unittest.TestCase):
             filename=self.debug_file,
         )
 
-        wavfile.write(filename=self.debug_compressed_file_path, rate=sample_rate, data=input_wav)
+        wavfile.write(
+            filename=self.debug_compressed_file_path, rate=sample_rate, data=input_wav
+        )
 
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(

@@ -8,19 +8,20 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 from scipy.io import wavfile
+from brainwire import encode, decode
 
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
 # Custom import of python file "decode"
-spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
-decode = module_from_spec(spec)
-spec.loader.exec_module(decode)
+# spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
+# decode = module_from_spec(spec)
+# spec.loader.exec_module(decode)
 
-spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
-encode = module_from_spec(spec)
-spec.loader.exec_module(encode)
+# spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
+# encode = module_from_spec(spec)
+# spec.loader.exec_module(encode)
 
 
 class TestDecode(unittest.TestCase):
@@ -58,8 +59,13 @@ class TestDecode(unittest.TestCase):
         # Creating Test Data
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
-        encode.create_huffman_encoded_file(args=args)
+        sample_rate, input_wav = wavfile.read(args.file_path)
+        byte_string = encode.create_huffman_encoded_file(input_wav)
+        process_signal.write_file_bytes(
+            file_path=args.compressed_file_path, data_bytes=byte_string
+        )
 
+        # Reading from the file and decoding
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
@@ -79,7 +85,13 @@ class TestDecode(unittest.TestCase):
                 self.compressed_file_path,
             ]
         )
-        encode.implement_spike_detection_module_and_huffman_encode_file(args)
+        sample_rate, input_wav = wavfile.read(filename=args.file_path)
+        byte_string = encode.implement_spike_detection_module_and_huffman_encode_file(
+            sample_rate, input_wav
+        )
+        process_signal.write_file_bytes(
+            file_path=args.compressed_file_path, data_bytes=byte_string
+        )
 
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
