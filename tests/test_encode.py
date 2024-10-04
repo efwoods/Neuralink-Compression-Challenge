@@ -8,7 +8,14 @@ import numpy as np
 import pickle
 import time
 from signal_processing_utilities import process_signal
-from brainwire import encode
+from importlib.util import spec_from_loader, module_from_spec
+from importlib.machinery import SourceFileLoader
+
+# Importing local version of "encode" file
+spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
+encode = module_from_spec(spec)
+spec.loader.exec_module(encode)
+
 
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
