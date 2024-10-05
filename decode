@@ -64,17 +64,33 @@ def find_key_by_value_in_node_mapping_dictionary(
     return key_mapped_to_value
 
 
-def huffman_decoding(huffman_encoded_data: str):
+def huffman_decoding(huffman_encoded_data: str, unique_amplitude_l_exists: bool = False):
     """This is the algorithm that decodes a huffman encoded string of bytes.
 
     Args:
         huffman_encoded_data (str): This is the string of bytes to be
                                     decoded.
+        unique_amplitude_l_exists (bool): This is an indicator variable 
+                                            which indicates if the 
+                                            encoded data contains a
+                                            nested unique_amplitudes_l.
+                                            If unique_amplitudes_l is 
+                                            set to 'True', then 
+                                            unique_amplitudes_l exists 
+                                            as bytes in the data at the
+                                            penultimate index location.
+                                            Otherwise, the data was 
+                                            compressed using either 
+                                            huffman encoding exclusively
+                                            or using  huffman encoding
+                                            on the neural spike detected
+                                            data. Defaults to False. 
 
     Returns:
         decoded_wav_bytes (bytes): This is the byte string that has been
                                    decoded by the huffman decoding
                                    algorithm.
+        unique_amplitudes_l (list): This is the list of unique amplitudes in the original data.
     """
 
     # Capturing the indices of the huffman_encoded_data
@@ -92,6 +108,13 @@ def huffman_decoding(huffman_encoded_data: str):
 
     # Capturing the End Zero Padding:
     end_zero_padding = reconstructed_indices[-1]
+    
+    # Capture unique_amplitudes_l
+    if unique_amplitude_l_exists:
+        unique_amplitude_l_bytes = huffman_encoded_data[reconstructed_indices[4] : reconstructed_indices[5]]
+        unique_amplitude_l = np.frombuffer(unique_amplitude_l_bytes, dtype = np.int16)
+    else:
+        unique_amplitude_l = None
 
     # Node Mapping Dictionary Keys:
     reconstructed_node_mapping_dictionary_keys_byte_string = huffman_encoded_data[
@@ -183,7 +206,7 @@ def huffman_decoding(huffman_encoded_data: str):
     hex_wav_str = ""
     hex_wav_str = hex_wav_str.join(hex_value_array)
     decoded_wav_bytes = bytes.fromhex(hex_wav_str)
-    return decoded_wav_bytes
+    return decoded_wav_bytes, unique_amplitude_l
 
 
 def read_encoded_file(compressed_file_path: str):
@@ -214,7 +237,7 @@ def process_huffman_encoded_file(huffman_encoded_data):
         data (list): This is a numpy array of a list of integer values.
     """
 
-    decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
+    decoded_wav_bytes, _ = huffman_decoding(huffman_encoded_data)
 
     # The sample rate of the data is known in advance.
     rate = 19531
@@ -235,16 +258,35 @@ def process_spike_detection_huffman_encoded_data(huffman_encoded_data):
                                 original amplitudes.
 
     Returns:
-        rate (int): This is the rate at which the data was sampled. This
-                    value is known in advance to be 19531.
+        rate (int): This is the rate at which the data was sampled. 
         data (list): This is a numpy array of a list of integer values.
     """
 
-    decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
+    decoded_wav_bytes, _ = huffman_decoding(huffman_encoded_data)
     encoded_data = process_signal.convert_byte_string_to_encoded_data(decoded_wav_bytes)
     rate, data = process_signal.decode_data(encoded_data)
     return rate, data
 
+
+def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
+    """This function accepts huffman encoded data which contains a list 
+        of unique amplitudes. The data is decoded, the bytes are 
+        returned from huffman decoding, then the data is converted into 
+        integer amplitudes before being returned with the sample rate. 
+
+    Args:
+        huffman_encoded_data (_type_): _description_
+
+    Returns:
+        rate (int): This is the rate at which the data was sampled. This
+                    value is known in advance to be 19531.
+        data (list): This is a numpy array of a list of integer values.
+    """
+    decoded_wav_bytes, unique_amplitudes_l = huffman_decoding(huffman_encoded_data, unique_amplitude_l_exists=True)
+    indices_uint8 = np.frombuffer(decoded_wav_bytes, dtype=np.uint8)
+    data = unique_amplitudes_l[indices_uint8]
+    rate = 19531 # This value is known in advance.
+    return rate, data
 
 def decompress(byte_string: bytes):
     """This function accepts a compressed byte string compressed
@@ -259,7 +301,7 @@ def decompress(byte_string: bytes):
         file (str): This is the string of the compressed file path. The
                     expected encoding file type is ".brainwire"
     """
-    decoded_wav_bytes = huffman_decoding(byte_string)
+    decoded_wav_bytes, _ = huffman_decoding(byte_string)
     encoded_data = process_signal.convert_byte_string_to_encoded_data(
         encoded_data_byte_string=decoded_wav_bytes
     )
@@ -347,8 +389,8 @@ def main():
         # Data is contains a dictionary of unique amplitudes
         # and is huffman encoded.
         if args.verbose:
-            executed_line = "process_encoded_amplitude_indices"
-        pass
+            executed_line = "process_huffman_encoded_amplitude_indices"
+            rate, data = process_huffman_encoded_amplitude_indices(huffman_encoded_data)
     elif method_of_compression == "n":
         # Data is compressed using neural spike detection.
         if args.verbose:

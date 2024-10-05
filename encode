@@ -73,9 +73,9 @@ def determine_hex_freq(input_wav):
 
     Returns:
         sorted_hex_freq_dictionary: This function returns a dictionary
-                                    of hexpairs which are mapped to
-                                    frequency of occurence in the input
-                                    wave file.
+                                    of hexadecimal pairs which are 
+                                    mapped to frequency of occurence in
+                                    the input wave file.
     """
     input_wav_hex = input_wav.hex()
     hex_freq_dictionary = {}
@@ -503,13 +503,14 @@ def encode_using_amplitude_indices(data):
 
 
 def compress(
-    file: str = None, sample_rate: int = None, data: list = None, quick: bool = None
+    file: str = None, sample_rate: int = None, input_wav: list = None, quick: bool = None
 ):
     """This function accepts a file path to compress. It will read data,
     preprocess the data, detect neural spikes, create an object
     containing only the detected spikes, convert this object to a string
-    of bytes, huffman encode those bytes, and will return a bytes object
-    containing the compressed data.
+    of bytes, huffman encode those bytes, and return a bytes object
+    containing the compressed data. Using the file name & the quick 
+    option are acceptable input parameters. 
 
     Args:
         file (str): This is the path to the file to be compressed.
@@ -529,14 +530,15 @@ def compress(
         sample_rate, input_wav = wavfile.read(file)
     else:
         try:
-            if sample_rate and data and quick:
-                # Verify that sample_rate, data, & quick are present if
+            if sample_rate and input_wav:
+                # Verify that sample_rate & data are present if
                 # file is not.
                 pass
         except Exception as e:
-            print("Error: compress requires either file to be", end="")
-            print(" defined or sample_rate, data, and quick ", end="")
+            print("Error: compress requires either file to be ", end="")
+            print("defined or sample_rate and data ", end="")
             print("to be defined.")
+            print(f"\n{e}")
     if not quick:
         if len(np.unique(input_wav)) < 256:
             # implement unique dictionary and huffman encode for maximum
@@ -697,7 +699,7 @@ def main():
     if args.method_of_compression:
         if args.method_of_compression == "u":
             # encode using unique dictionary list and huffman encode.
-            unique_amplitudes_l, indices_uint8 = encode_using_amplitude_indices(
+            byte_string = encode_using_amplitude_indices(
                 data=input_wav
             )
 
@@ -715,8 +717,9 @@ def main():
         else:
             if len(np.unique(input_wav)) < 256:
                 # method of compression = u
-                # byte_string = encode_using_amplitudes_indices()
-                pass
+                byte_string = encode_using_amplitude_indices(
+                    data=input_wav
+                )
             else:
                 byte_string = implement_spike_detection_module_and_huffman_encode_file(
                     sample_rate, input_wav
