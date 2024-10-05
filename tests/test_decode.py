@@ -8,7 +8,6 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 from scipy.io import wavfile
-from brainwire import encode, decode
 
 # Set logging to all logging levels
 logging.basicConfig(level=logging.DEBUG)
@@ -124,7 +123,7 @@ class TestDecode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'q'
         )
         process_signal.write_file_bytes(
             file_path=self.compressed_file_path, data_bytes=byte_string
@@ -218,7 +217,7 @@ class TestDecode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'n'
         )
 
         process_signal.write_file_bytes(
@@ -308,7 +307,7 @@ class TestDecode(unittest.TestCase):
         encoding_stop_time = time.time_ns()
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'n'
         )
 
         process_signal.write_file_bytes(
