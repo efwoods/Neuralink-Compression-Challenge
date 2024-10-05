@@ -308,6 +308,37 @@ def decompress(byte_string: bytes):
     sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
     return sample_rate, amplitude_array
 
+def extract_method_of_compression(huffman_encoded_data):
+    """This function will extract the variable 'method_of_compression' 
+    from the data. This will allow for the data to be decoded 
+    intelligently.
+
+    Args:
+        huffman_encoded_data (bytes): This is a string of bytes that
+            represent data that was encoded using a huffman encoding 
+            technique. The last byte of the huffman_encoded_data is 
+            the method of compression. This variable is removed from 
+            the huffman_encoded_data so that the huffman_encoded_data
+            is of the proper format to be parsed.
+
+    Returns:
+        method_of_compression (str): This is the variable that is used 
+                                        to determine how the 
+                                        huffman_encoded data was 
+                                        encoded.
+        huffman_encoded_data (bytes): This is the string of bytes to be
+                                        decoded. The 
+                                        huffman_encoded_data has had
+                                        the last byte removed from the
+                                        larger string of bytes. This
+                                        data is prepared to be parsed
+                                        via the huffman_decoding 
+                                        function.
+    
+    """
+    method_of_compression = huffman_encoded_data[-1:].decode(encoding="utf-8")
+    huffman_encoded_data = huffman_encoded_data[:-1]
+    return method_of_compression, huffman_encoded_data
 
 def initialize_argument_parser():
     """This function will initialize the argument parser with command
@@ -377,8 +408,7 @@ def main():
         compressed_file_path=args.compressed_file_path
     )
 
-    method_of_compression = huffman_encoded_data[-1:].decode(encoding="utf-8")
-    huffman_encoded_data = huffman_encoded_data[:-1]
+    method_of_compression, huffman_encoded_data = extract_method_of_compression(huffman_encoded_data)
 
     if method_of_compression == "q":
         # Data is huffman encoded exclusively.

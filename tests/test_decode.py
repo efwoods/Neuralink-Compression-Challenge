@@ -68,7 +68,8 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
 
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
@@ -95,7 +96,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
 
         #
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
@@ -141,7 +144,9 @@ class TestDecode(unittest.TestCase):
         encoded_data_byte_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(encoded_data_byte_string)
+
+        method_of_compression, encoded_data_byte_string = decode.extract_method_of_compression(encoded_data_byte_string)
+        decoded_wav_bytes, _ = decode.huffman_decoding(encoded_data_byte_string)
 
         amplitude_array = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
 
@@ -170,7 +175,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path
         )
-        decoded_wav_bytes = decode.huffman_decoding(
+
+        method_of_compression, huffman_encoded_string = decode.extract_method_of_compression(huffman_encoded_string)
+        decoded_wav_bytes, _ = decode.huffman_decoding(
             huffman_encoded_data=huffman_encoded_string
         )
 
@@ -236,7 +243,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
@@ -319,7 +328,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
