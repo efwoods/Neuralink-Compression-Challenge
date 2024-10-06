@@ -399,9 +399,8 @@ def parse_arguments():
     return args
 
 
-def main():
+def main(*args, **kwargs):
     """This is the main driver logic of the decode function."""
-    args = parse_arguments()
     if args.verbose:
         start_time = time.time_ns()
     huffman_encoded_data = read_encoded_file(
@@ -448,4 +447,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(args)

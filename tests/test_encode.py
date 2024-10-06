@@ -520,6 +520,62 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(args.file_path, self.file)
         self.assertEqual(args.compressed_file_path, self.compressed_file_path)
 
+    # def test16_test_compress_file_name(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'compress' method and the file name.")
+    #     byte_string = encode.compress(file = self.file_path)
+    #     self.assertEqual(type(byte_string), bytes)
+        
+    # def test17_test_compress_file_name_quick(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'compress' method and the file name where "
+    #                 + "the quick argument is passed into the function.")
+    #     byte_string = encode.compress(file = self.file_path, quick = True)
+    #     self.assertEqual(type(byte_string), bytes)
+
+    # def test18_test_compress_sample_rate_input_wav(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'compress' method where the inputs are "
+    #                 + "sample_rate and the input_wav.")
+    #     sample_rate, input_wav = wavfile.read(filename=self.file_path)
+    #     byte_string = encode.compress(sample_rate = sample_rate, input_wav = input_wav)
+    #     self.assertEqual(type(byte_string), bytes)
+
+    # def test19_test_compress_sample_rate_input_wav_quick(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'compress' method where the inputs are "
+    #                 + "sample_rate and the input_wav")
+    #     sample_rate, input_wav = wavfile.read(filename=self.file_path)
+    #     byte_string = encode.compress(sample_rate= sample_rate, input_wav = input_wav, quick = True)
+    #     self.assertEqual(type(byte_string), bytes)
+
+    # def test20_test_main_method_of_compression_q(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'main' method where the method of compression "
+    #                 + "is 'q' which indicates a huffman encoding "
+    #                 + "format exclusively.")
+    #     parser = encode.initialize_argument_parser()
+    #     args = parser.parse_args([self.file, self.compressed_file_path, '-m=q', '-v'])
+    #     encode.main(args)
+
+    # def test21_test_main_method_of_compression_u(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'main' method where the method of compression "
+    #                 + "is 'q' which indicates a huffman encoding "
+    #                 + "format exclusively.")
+    #     parser = encode.initialize_argument_parser()
+    #     args = parser.parse_args([self.file, self.compressed_file_path, '-m=u', '-v'])
+    #     encode.main(args)
+
+    # def test22_test_main_method_of_compression_n(self):
+    #     logging.info("This is a test to compress the data using the "
+    #                 + "'main' method where the method of compression "
+    #                 + "is 'n' which indicates implementing neural spike "
+    #                 + "detection.")
+    #     parser = encode.initialize_argument_parser()
+    #     args = parser.parse_args([self.file, self.compressed_file_path, '-m=n', '-v'])
+    #     encode.main(args)
 
 if __name__ == "__main__":
+    
     unittest.main()

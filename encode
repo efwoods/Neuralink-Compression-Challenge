@@ -671,9 +671,8 @@ def parse_arguments():
     return args
 
 
-def main():
+def main(*args, **kwargs):
     """This is the main driver of the code."""
-    args = parse_arguments()
 
     if args.verbose:
         start_time = time.time_ns()
@@ -741,4 +740,5 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(args)
