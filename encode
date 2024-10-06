@@ -197,7 +197,7 @@ def create_byte_string(
     """
     if method_of_compression == "u":
         try:
-            if unique_amplitudes_l:
+            if unique_amplitudes_l.any():
                 # Verify unique_amplitudes_l exists
                 pass
         except Exception as e:
@@ -530,7 +530,7 @@ def compress(
         sample_rate, input_wav = wavfile.read(file)
     else:
         try:
-            if sample_rate and input_wav:
+            if sample_rate is not None and input_wav is not None:
                 # Verify that sample_rate & data are present if
                 # file is not.
                 pass
