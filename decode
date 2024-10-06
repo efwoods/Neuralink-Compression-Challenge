@@ -399,7 +399,7 @@ def parse_arguments():
     return args
 
 
-def main(*args, **kwargs):
+def main(args):
     """This is the main driver logic of the decode function."""
     if args.verbose:
         start_time = time.time_ns()

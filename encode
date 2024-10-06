@@ -671,7 +671,7 @@ def parse_arguments():
     return args
 
 
-def main(*args, **kwargs):
+def main(args):
     """This is the main driver of the code."""
 
     if args.verbose:
