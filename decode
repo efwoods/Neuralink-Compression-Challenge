@@ -419,7 +419,7 @@ def main(args):
         # and is huffman encoded.
         if args.verbose:
             executed_line = "process_huffman_encoded_amplitude_indices"
-            rate, data = process_huffman_encoded_amplitude_indices(huffman_encoded_data)
+        rate, data = process_huffman_encoded_amplitude_indices(huffman_encoded_data)
     elif method_of_compression == "n":
         # Data is compressed using neural spike detection.
         if args.verbose:
@@ -444,7 +444,6 @@ def main(args):
             file_path=args.decompressed_file_path,
             compressed_file_path=args.compressed_file_path,
         )
-
 
 if __name__ == "__main__":
     args = parse_arguments()
