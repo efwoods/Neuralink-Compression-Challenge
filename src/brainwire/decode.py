@@ -64,17 +64,33 @@ def find_key_by_value_in_node_mapping_dictionary(
     return key_mapped_to_value
 
 
-def huffman_decoding(huffman_encoded_data: str):
+def huffman_decoding(huffman_encoded_data: str, unique_amplitude_l_exists: bool = False):
     """This is the algorithm that decodes a huffman encoded string of bytes.
 
     Args:
         huffman_encoded_data (str): This is the string of bytes to be
                                     decoded.
+        unique_amplitude_l_exists (bool): This is an indicator variable 
+                                            which indicates if the 
+                                            encoded data contains a
+                                            nested unique_amplitudes_l.
+                                            If unique_amplitudes_l is 
+                                            set to 'True', then 
+                                            unique_amplitudes_l exists 
+                                            as bytes in the data at the
+                                            penultimate index location.
+                                            Otherwise, the data was 
+                                            compressed using either 
+                                            huffman encoding exclusively
+                                            or using  huffman encoding
+                                            on the neural spike detected
+                                            data. Defaults to False. 
 
     Returns:
         decoded_wav_bytes (bytes): This is the byte string that has been
                                    decoded by the huffman decoding
                                    algorithm.
+        unique_amplitudes_l (list): This is the list of unique amplitudes in the original data.
     """
 
     # Capturing the indices of the huffman_encoded_data
@@ -92,6 +108,13 @@ def huffman_decoding(huffman_encoded_data: str):
 
     # Capturing the End Zero Padding:
     end_zero_padding = reconstructed_indices[-1]
+    
+    # Capture unique_amplitudes_l
+    if unique_amplitude_l_exists:
+        unique_amplitude_l_bytes = huffman_encoded_data[reconstructed_indices[4] : reconstructed_indices[5]]
+        unique_amplitude_l = np.frombuffer(unique_amplitude_l_bytes, dtype = np.int16)
+    else:
+        unique_amplitude_l = None
 
     # Node Mapping Dictionary Keys:
     reconstructed_node_mapping_dictionary_keys_byte_string = huffman_encoded_data[
@@ -183,7 +206,7 @@ def huffman_decoding(huffman_encoded_data: str):
     hex_wav_str = ""
     hex_wav_str = hex_wav_str.join(hex_value_array)
     decoded_wav_bytes = bytes.fromhex(hex_wav_str)
-    return decoded_wav_bytes
+    return decoded_wav_bytes, unique_amplitude_l
 
 
 def read_encoded_file(compressed_file_path: str):
@@ -200,52 +223,70 @@ def read_encoded_file(compressed_file_path: str):
     return huffman_encoded_data
 
 
-def process_huffman_encoded_file(args):
+def process_huffman_encoded_file(huffman_encoded_data):
     """This is the driver function that processes a huffman encoded file
     format.
 
     Args:
-        args (Sequence[str]): This is the list of arguments that include the compressed
-        and decompressed file paths. These arguments are parsed from the
-        command line at runtime.
+        huffman_encoded_data (bytes): This is the string of bytes to be
+                                        decoded.
+
+    Returns:
+        rate (int): This is the rate at which the data was sampled. This
+                    value is known in advance to be 19531.
+        data (list): This is a numpy array of a list of integer values.
     """
 
-    huffman_encoded_data = read_encoded_file(
-        compressed_file_path=args.compressed_file_path
-    )
-    decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
+    decoded_wav_bytes, _ = huffman_decoding(huffman_encoded_data)
 
     # The sample rate of the data is known in advance.
-    wavfile.write(
-        filename=args.decompressed_file_path,
-        rate=19531,
-        data=np.frombuffer(decoded_wav_bytes, dtype=np.int16),
-    )
+    rate = 19531
+    data = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
+    return rate, data
 
 
-def process_spike_detection_huffman_encoded_data(args):
+def process_spike_detection_huffman_encoded_data(huffman_encoded_data):
     """This is the driver function that processes a huffman encoded file
     format that has been encoded in such a way as to only detect neural
     spikes.
 
     Args:
-        args (Sequence[str]) Thes are the parsed command line arguments. These
-            arguments contain the compressed and decompressed file
-            paths.
+        huffman_encoded_data (bytes): This is the string of bytes to be
+                                decoded. This data has also been encoded
+                                to include a format that contains the
+                                deconstructed representation of the
+                                original amplitudes.
+
+    Returns:
+        rate (int): This is the rate at which the data was sampled. 
+        data (list): This is a numpy array of a list of integer values.
     """
 
-    huffman_encoded_data = read_encoded_file(
-        compressed_file_path=args.compressed_file_path
-    )
-    decoded_wav_bytes = huffman_decoding(huffman_encoded_data)
+    decoded_wav_bytes, _ = huffman_decoding(huffman_encoded_data)
     encoded_data = process_signal.convert_byte_string_to_encoded_data(decoded_wav_bytes)
-    sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-    wavfile.write(
-        filename=args.decompressed_file_path,
-        rate=sample_rate,
-        data=amplitude_array,
-    )
+    rate, data = process_signal.decode_data(encoded_data)
+    return rate, data
 
+
+def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
+    """This function accepts huffman encoded data which contains a list 
+        of unique amplitudes. The data is decoded, the bytes are 
+        returned from huffman decoding, then the data is converted into 
+        integer amplitudes before being returned with the sample rate. 
+
+    Args:
+        huffman_encoded_data (_type_): _description_
+
+    Returns:
+        rate (int): This is the rate at which the data was sampled. This
+                    value is known in advance to be 19531.
+        data (list): This is a numpy array of a list of integer values.
+    """
+    decoded_wav_bytes, unique_amplitudes_l = huffman_decoding(huffman_encoded_data, unique_amplitude_l_exists=True)
+    indices_uint8 = np.frombuffer(decoded_wav_bytes, dtype=np.uint8)
+    data = unique_amplitudes_l[indices_uint8]
+    rate = 19531 # This value is known in advance.
+    return rate, data
 
 def decompress(byte_string: bytes):
     """This function accepts a compressed byte string compressed
@@ -260,13 +301,44 @@ def decompress(byte_string: bytes):
         file (str): This is the string of the compressed file path. The
                     expected encoding file type is ".brainwire"
     """
-    decoded_wav_bytes = huffman_decoding(byte_string)
+    decoded_wav_bytes, _ = huffman_decoding(byte_string)
     encoded_data = process_signal.convert_byte_string_to_encoded_data(
         encoded_data_byte_string=decoded_wav_bytes
     )
     sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
     return sample_rate, amplitude_array
 
+def extract_method_of_compression(huffman_encoded_data):
+    """This function will extract the variable 'method_of_compression' 
+    from the data. This will allow for the data to be decoded 
+    intelligently.
+
+    Args:
+        huffman_encoded_data (bytes): This is a string of bytes that
+            represent data that was encoded using a huffman encoding 
+            technique. The last byte of the huffman_encoded_data is 
+            the method of compression. This variable is removed from 
+            the huffman_encoded_data so that the huffman_encoded_data
+            is of the proper format to be parsed.
+
+    Returns:
+        method_of_compression (str): This is the variable that is used 
+                                        to determine how the 
+                                        huffman_encoded data was 
+                                        encoded.
+        huffman_encoded_data (bytes): This is the string of bytes to be
+                                        decoded. The 
+                                        huffman_encoded_data has had
+                                        the last byte removed from the
+                                        larger string of bytes. This
+                                        data is prepared to be parsed
+                                        via the huffman_decoding 
+                                        function.
+    
+    """
+    method_of_compression = huffman_encoded_data[-1:].decode(encoding="utf-8")
+    huffman_encoded_data = huffman_encoded_data[:-1]
+    return method_of_compression, huffman_encoded_data
 
 def initialize_argument_parser():
     """This function will initialize the argument parser with command
@@ -279,23 +351,32 @@ def initialize_argument_parser():
     parser = argparse.ArgumentParser()
     parser.add_argument(
         "compressed_file_path",
-        help="This is the compressed output file path. It is presumed to end this new file name with a '.brainwire' file extension. A sample file name is 'compressed_file.wav.brainwire.",
+        help=(
+            "This is the compressed output file path. It is presumed"
+            + " to end this new file name with a '.brainwire' "
+            + "file extension. A sample file name is "
+            + "'compressed_file.wav.brainwire.",
+        ),
     )
     parser.add_argument(
         "decompressed_file_path",
-        help="This is the absolute file path to the reconstructed raw neural data. This is used to name the output file along with the extension. A sample file extension is 'reconstructed_neural_data.wav.brainwire.copy'.",
-    )
-    parser.add_argument(
-        "-q",
-        "--quick",
-        action="store_true",
-        help="This option will increase compression speed at the cost of compression size by exclusively implementing a huffman-encoding algorithm.",
+        help=(
+            "This is the absolute file path to the reconstructed raw "
+            + "neural data. This is used to name the output file "
+            + "along with the extension. A sample file extension is "
+            + "'reconstructed_neural_data.wav.brainwire.copy'.",
+        ),
     )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="This will print metrics to the console upon completion of the compression. These metrics include time to compress and percent of compression relative to the original file size."
+        help=(
+            "This will print metrics to the console upon completion"
+            + " of the compression. These metrics include time to"
+            + " compress and percent of compression relative to"
+            + " the original file size.",
+        ),
     )
     return parser
 
@@ -318,29 +399,52 @@ def parse_arguments():
     return args
 
 
-def main():
+def main(args):
     """This is the main driver logic of the decode function."""
-    args = parse_arguments()
-    if args.quick:
-        if args.verbose:
-            start_time = time.time_ns()
+    if args.verbose:
+        start_time = time.time_ns()
+    huffman_encoded_data = read_encoded_file(
+        compressed_file_path=args.compressed_file_path
+    )
 
-        process_huffman_encoded_file(args=args)
+    method_of_compression, huffman_encoded_data = extract_method_of_compression(huffman_encoded_data)
 
+    if method_of_compression == "q":
+        # Data is huffman encoded exclusively.
         if args.verbose:
-            stop_time = time.time_ns()            
-            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
-            process_signal.print_size_of_file_compression(file_path = args.decompressed_file_path, compressed_file_path=args.compressed_file_path)
+            executed_line = "process_huffman_encoded_file"
+        rate, data = process_huffman_encoded_file(huffman_encoded_data)
+    elif method_of_compression == "u":
+        # Data is contains a dictionary of unique amplitudes
+        # and is huffman encoded.
+        if args.verbose:
+            executed_line = "process_huffman_encoded_amplitude_indices"
+        rate, data = process_huffman_encoded_amplitude_indices(huffman_encoded_data)
+    elif method_of_compression == "n":
+        # Data is compressed using neural spike detection.
+        if args.verbose:
+            executed_line = "process_spike_detection_huffman_encoded_data"
+        rate, data = process_spike_detection_huffman_encoded_data(huffman_encoded_data)
     else:
-        if args.verbose:
-            start_time = time.time_ns()
+        raise ValueError("Method of compression is not 'q', 'u', or 'n'.")
 
-        process_spike_detection_huffman_encoded_data(args=args)
-
-        if args.verbose:
-            stop_time = time.time_ns()            
-            process_signal.print_time_each_function_takes_to_complete_processing(start_time=start_time, stop_time=stop_time, executed_line="create_huffman_encoded_file")
-            process_signal.print_size_of_file_compression(file_path = args.decompressed_file_path, compressed_file_path=args.compressed_file_path)
+    wavfile.write(
+        filename=args.decompressed_file_path,
+        rate=rate,
+        data=data,
+    )
+    if args.verbose:
+        stop_time = time.time_ns()
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time=start_time,
+            stop_time=stop_time,
+            executed_line=executed_line,
+        )
+        process_signal.print_size_of_file_compression(
+            file_path=args.decompressed_file_path,
+            compressed_file_path=args.compressed_file_path,
+        )
 
 if __name__ == "__main__":
-    main()
+    args = parse_arguments()
+    main(args)
