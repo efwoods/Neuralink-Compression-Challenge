@@ -8,7 +8,6 @@ import numpy as np
 import time
 from signal_processing_utilities import process_signal
 from scipy.io import wavfile
-from brainwire import encode, decode
 
 
 # Set logging to all logging levels
@@ -54,6 +53,7 @@ class TestDecode(unittest.TestCase):
     def tearDown(self) -> None:
         pass
 
+
     def test01_huffman_decoding(self):
         logging.info("This is a test of decoding a huffman encoded file exclusively")
 
@@ -70,7 +70,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
+
 
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
@@ -97,7 +99,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
 
         #
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
@@ -113,6 +117,7 @@ class TestDecode(unittest.TestCase):
             data=amplitude_array,
         )
 
+
     def test03_decoding_encoded_byte_string(self):
         logging.info(
             "This test encodes a file using huffman encoding and decodes using huffman encoding."
@@ -125,7 +130,7 @@ class TestDecode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'q'
         )
         process_signal.write_file_bytes(
             file_path=self.compressed_file_path, data_bytes=byte_string
@@ -143,7 +148,9 @@ class TestDecode(unittest.TestCase):
         encoded_data_byte_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(encoded_data_byte_string)
+
+        method_of_compression, encoded_data_byte_string = decode.extract_method_of_compression(encoded_data_byte_string)
+        decoded_wav_bytes, _ = decode.huffman_decoding(encoded_data_byte_string)
 
         amplitude_array = np.frombuffer(decoded_wav_bytes, dtype=np.int16)
 
@@ -167,12 +174,15 @@ class TestDecode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
+
     def test04_huffman_decode_operates(self):
         logging.info("Testing Huffman Decoding exclusively.")
         huffman_encoded_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path
         )
-        decoded_wav_bytes = decode.huffman_decoding(
+
+        method_of_compression, huffman_encoded_string = decode.extract_method_of_compression(huffman_encoded_string)
+        decoded_wav_bytes, _ = decode.huffman_decoding(
             huffman_encoded_data=huffman_encoded_string
         )
 
@@ -181,6 +191,7 @@ class TestDecode(unittest.TestCase):
             rate=self.sample_rate,
             data=np.frombuffer(decoded_wav_bytes, dtype=np.int16),
         )
+
 
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
@@ -219,7 +230,7 @@ class TestDecode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'n'
         )
 
         process_signal.write_file_bytes(
@@ -238,7 +249,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
@@ -263,6 +276,7 @@ class TestDecode(unittest.TestCase):
         process_signal.print_size_of_file_compression(
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
+
 
     def test06_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info("Debugging Key:Value Pair not found in bit string.")
@@ -309,7 +323,7 @@ class TestDecode(unittest.TestCase):
         encoding_stop_time = time.time_ns()
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression = 'n'
         )
 
         process_signal.write_file_bytes(
@@ -321,7 +335,9 @@ class TestDecode(unittest.TestCase):
         huffman_encoded_data = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path,
         )
-        decoded_wav_bytes = decode.huffman_decoding(huffman_encoded_data)
+
+        method_of_compression, huffman_encoded_data = decode.extract_method_of_compression(huffman_encoded_data)
+        decoded_wav_bytes, _ = decode.huffman_decoding(huffman_encoded_data)
         encoded_data = process_signal.convert_byte_string_to_encoded_data(
             encoded_data_byte_string=decoded_wav_bytes
         )
@@ -351,6 +367,7 @@ class TestDecode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
+
     def test07_test_of_arg_parser(self):
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
@@ -366,6 +383,295 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(args.file_path, self.file)
         self.assertEqual(args.compressed_file_path, self.compressed_file_path)
 
+
+    def test08_test_decompressing_compress_file_name(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'compress' method and the file name. "
+                    + "The data is then decompressed.")
+        logging.info("Method of compression == 'u'")
+        byte_string = encode.compress(file = self.file)
+        
+        self.assertEqual(type(byte_string), bytes)
+        
+        process_signal.write_file_bytes(file_path=self.compressed_file_path, data_bytes=byte_string)
+        
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+        
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+        
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+
+    def test09_test_decompress_compress_file_name_quick(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'compress' method and the file name where "
+                    + "the quick argument is passed into the function. "
+                    + "The data is then decompressed.")
+        byte_string = encode.compress(file = self.file, quick = True)
+        self.assertEqual(type(byte_string), bytes)
+        
+        process_signal.write_file_bytes(file_path=self.compressed_file_path, data_bytes=byte_string)
+        
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+        
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+        
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+
+    def test10_test_compress_sample_rate_input_wav(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'compress' method where the inputs are "
+                    + "sample_rate and the input_wav. "
+                    + "The data is then decompressed. "
+                    + "Method of compression == 'u'.")
+
+        sample_rate, input_wav = wavfile.read(filename=self.file)
+        byte_string = encode.compress(sample_rate = sample_rate, input_wav = input_wav)
+        self.assertEqual(type(byte_string), bytes)
+        
+        process_signal.write_file_bytes(file_path=self.compressed_file_path, data_bytes=byte_string)
+        
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+        
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+        
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+
+    def test11_test_decompress_compress_sample_rate_input_wav_quick(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'compress' method where the inputs are "
+                    + "sample_rate and the input_wav. "
+                    + "The data is then decompressed. "
+                    + "Method of compression is quick.")
+        sample_rate, input_wav = wavfile.read(filename=self.file)
+        byte_string = encode.compress(sample_rate= sample_rate, input_wav = input_wav, quick = True)
+        self.assertEqual(type(byte_string), bytes)
+
+        process_signal.write_file_bytes(file_path=self.compressed_file_path, data_bytes=byte_string)
+
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+
+    def test12_test_decompress_main_method_of_compression_q(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'main' method where the method of compression "
+                    + "is 'q' which indicates a huffman encoding "
+                    + "format exclusively. "
+                    + "The data is then decompressed. "
+                    + "The method of compression is 'q'. ")
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, '-m=q', '-v'])
+        encode.main(args)
+
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+
+        original_sample_rate, original_data = wavfile.read(self.file)
+
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+    def test13_test_decompress_main_method_of_compression_u(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'main' method where the method of compression "
+                    + "is 'q' which indicates a huffman encoding "
+                    + "format exclusively. "
+                    + "The data is then decompressed. "
+                    + "The method of compression is 'u'. ")
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, '-m=u', '-v'])
+        encode.main(args)
+        
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                print(f"decompressed value not equal to original value")
+                print(f"Index: {[index]}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
+
+    def test14_test_decompress_main_method_of_compression_n_for_functionality(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'main' method where the method of compression "
+                    + "is 'n' which indicates implementing neural spike "
+                    + "detection. "
+                    + "The data is then decompressed. "
+                    + "The method of compression is 'n'. ")
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, '-m=n', '-v'])
+        encode.main(args)
+
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+
+
+    @unittest.skip("When the method of compression == 'n', the "
+                   + "original data will not match the filtered data.")
+    def test14_test_decompress_main_method_of_compression_n_for_equivalency(self):
+        logging.info("This is a test to compress the data using the "
+                    + "'main' method where the method of compression "
+                    + "is 'n' which indicates implementing neural spike "
+                    + "detection. "
+                    + "The data is then decompressed. "
+                    + "The method of compression is 'n'. ")
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, '-m=n', '-v'])
+        encode.main(args)
+
+        parser = decode.initialize_argument_parser()
+        args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path, '-v'])
+
+        decode.main(args)
+        sample_rate, data = wavfile.read(self.decompressed_file_path)
+
+        self.assertEqual(type(sample_rate), int)
+        self.assertEqual(sample_rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+        
+        original_sample_rate, original_data = wavfile.read(self.file)
+        
+        # Verifying the amplitudes are equivalent.
+        all_values_equal = True
+        for index, value in enumerate(original_data):
+            if value != data[index]:
+                all_values_equal = False
+                # print(f"decompressed value not equal to original value")
+                # print(f"Index: {[index]}")
+                # print(f"decompressed value: {data[index]}")
+                # print(f"original value: {value}")
+        self.assertTrue(all_values_equal)
+        if all_values_equal:
+            print("All values between original amplitudes and ", end='')
+            print("decompressed amplitudes are equivalent.")
 
 if __name__ == "__main__":
     unittest.main()
