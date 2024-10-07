@@ -1,2 +1,2 @@
-cp src/brainwire/encode.py encode
-cp src/brainwire/decode.py decode
+cp encode src/brainwire/encode.py
+cp decode src/brainwire/decode.py
