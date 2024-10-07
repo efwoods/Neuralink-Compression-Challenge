@@ -622,7 +622,7 @@ class TestDecode(unittest.TestCase):
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, '-m=n', '-v'])
         encode.main(args)
-        
+
         parser = decode.initialize_argument_parser()
         args = parser.parse_args([self.compressed_file_path, self.decompressed_file_path])
 
@@ -642,8 +642,8 @@ class TestDecode(unittest.TestCase):
                 all_values_equal = False
                 print(f"decompressed value not equal to original value")
                 print(f"Index: {[index]}")
-                print(f"original value: {data[index]}")
-                print(f"decompressed value: {value}")
+                print(f"decompressed value: {data[index]}")
+                print(f"original value: {value}")
         self.assertTrue(all_values_equal)
         if all_values_equal:
             print("All values between original amplitudes and ", end='')
