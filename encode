@@ -73,7 +73,7 @@ def determine_hex_freq(input_wav):
 
     Returns:
         sorted_hex_freq_dictionary: This function returns a dictionary
-                                    of hexadecimal pairs which are 
+                                    of hexadecimal pairs which are
                                     mapped to frequency of occurence in
                                     the input wave file.
     """
@@ -503,14 +503,17 @@ def encode_using_amplitude_indices(data):
 
 
 def compress(
-    file: str = None, sample_rate: int = None, input_wav: list = None, quick: bool = None
+    file: str = None,
+    sample_rate: int = None,
+    input_wav: list = None,
+    quick: bool = None,
 ):
     """This function accepts a file path to compress. It will read data,
     preprocess the data, detect neural spikes, create an object
     containing only the detected spikes, convert this object to a string
     of bytes, huffman encode those bytes, and return a bytes object
-    containing the compressed data. Using the file name & the quick 
-    option are acceptable input parameters. 
+    containing the compressed data. Using the file name & the quick
+    option are acceptable input parameters.
 
     Args:
         file (str): This is the path to the file to be compressed.
@@ -698,9 +701,7 @@ def main(args):
     if args.method_of_compression:
         if args.method_of_compression == "u":
             # encode using unique dictionary list and huffman encode.
-            byte_string = encode_using_amplitude_indices(
-                data=input_wav
-            )
+            byte_string = encode_using_amplitude_indices(data=input_wav)
 
         elif args.method_of_compression == "q":
             # encode using huffman encoding exclusively.
@@ -716,9 +717,7 @@ def main(args):
         else:
             if len(np.unique(input_wav)) < 256:
                 # method of compression = u
-                byte_string = encode_using_amplitude_indices(
-                    data=input_wav
-                )
+                byte_string = encode_using_amplitude_indices(data=input_wav)
             else:
                 byte_string = implement_spike_detection_module_and_huffman_encode_file(
                     sample_rate, input_wav
