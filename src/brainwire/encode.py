@@ -474,12 +474,18 @@ def encode_using_amplitude_indices(data):
     unique_amplitudes = pd.DataFrame(np.unique(data_df))
     unique_amplitudes_index_l = []
 
+    # Optimizing algorithm for speed:
+    start_time = time.time_ns()
     for index in range(0, len(data_df)):
         unique_amplitudes_index_l.append(
             unique_amplitudes.index[
                 unique_amplitudes[0] == data_df["Amplitude"][index]
             ][0]
         )
+    stop_time = time.time_ns()
+    process_signal.print_time_each_function_takes_to_complete_processing(
+        start_time, stop_time, executed_line="creating unique_amplitudes_index_l"
+    )
 
     data_df["unique_amplitudes_index_l"] = np.array(unique_amplitudes_index_l)
     indices_uint8 = np.array(
