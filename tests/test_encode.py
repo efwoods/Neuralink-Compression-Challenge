@@ -573,8 +573,8 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
-            + "is 'u' which indicates a huffman encoding "
-            + "format exclusively."
+            + "is 'u' which indicates implementing huffman encoding "
+            + "and a unique amplitudes list."
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=u", "-v"])

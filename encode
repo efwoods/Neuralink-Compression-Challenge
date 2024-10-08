@@ -468,30 +468,14 @@ def encode_using_amplitude_indices(data):
                                 data interpolated as indicies in the
                                 unique_amplitudes_l.
     """
-    data_df = pd.DataFrame(data)
-    data_df.columns = ["Amplitude"]
+    data_l = data.tolist()
+    unique_amplitudes = np.unique(data_l).tolist()
 
-    unique_amplitudes = pd.DataFrame(np.unique(data_df))
-    unique_amplitudes_index_l = []
-
-    # Optimizing algorithm for speed:
-    start_time = time.time_ns()
-    for index in range(0, len(data_df)):
-        unique_amplitudes_index_l.append(
-            unique_amplitudes.index[
-                unique_amplitudes[0] == data_df["Amplitude"][index]
-            ][0]
-        )
-    stop_time = time.time_ns()
-    process_signal.print_time_each_function_takes_to_complete_processing(
-        start_time, stop_time, executed_line="creating unique_amplitudes_index_l"
-    )
-
-    data_df["unique_amplitudes_index_l"] = np.array(unique_amplitudes_index_l)
     indices_uint8 = np.array(
-        data_df["unique_amplitudes_index_l"].values, dtype=np.uint8
+        [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
     )
-    unique_amplitudes_l = unique_amplitudes[0].values
+
+    unique_amplitudes_l = np.array(unique_amplitudes, dtype=np.int16)
 
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
         input_data=indices_uint8
