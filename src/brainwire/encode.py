@@ -113,11 +113,17 @@ def convertHexToBit(input_wav, node_mapping_dict):
                                 padded onto the end of the bit string to
                                 make a complete set of bytes.
     """
+    # Optimizing this section of code
+    # start_time = time.time_ns()
+
     hex_input_wav = input_wav.hex()
-    bit_string = ""
-    for index in range(0, len(hex_input_wav), 2):
-        hex_pair = hex_input_wav[index] + hex_input_wav[index + 1]
-        bit_string += node_mapping_dict[hex_pair]
+
+    hex_pair_l = [
+        hex_input_wav[index : index + 2] for index in range(0, len(hex_input_wav), 2)
+    ]
+    node_mapping_dict_l = [node_mapping_dict[hex_pair] for hex_pair in hex_pair_l]
+    bit_string = "".join(node_mapping_dict_l)
+
     end_zero_padding = "0" * (8 - (len(bit_string) % 8))
     bit_string += end_zero_padding
     len_end_zero_padding = len(end_zero_padding)
