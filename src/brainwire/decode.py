@@ -4,7 +4,6 @@ from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
-import time
 
 
 def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
