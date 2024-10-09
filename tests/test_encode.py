@@ -154,7 +154,7 @@ class TestEncode(unittest.TestCase):
         )
 
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="q"
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="h"
         )
 
         process_signal.write_file_bytes(
@@ -193,7 +193,7 @@ class TestEncode(unittest.TestCase):
         # This is a quick method of compression because only huffman
         # encoding is truly implemented.
         byte_string = encode.create_byte_string(
-            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="q"
+            node_mapping_dict, bit_string, end_zero_padding, method_of_compression="h"
         )
 
         process_signal.write_file_bytes(
@@ -550,7 +550,8 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the inputs are "
-            + "sample_rate and the input_wav"
+            + "sample_rate and input_wav while implementing the "
+            + "'quick' option. "
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         byte_string = encode.compress(
@@ -562,11 +563,11 @@ class TestEncode(unittest.TestCase):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
-            + "is 'q' which indicates a huffman encoding "
+            + "is 'h' which indicates a huffman encoding "
             + "format exclusively."
         )
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, "-m=q", "-v"])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=h"])
         encode.main(args)
 
     def test21_test_main_method_of_compression_u(self):
@@ -577,7 +578,7 @@ class TestEncode(unittest.TestCase):
             + "and a unique amplitudes list."
         )
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, "-m=u", "-v"])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=u"])
         encode.main(args)
 
     def test22_test_main_method_of_compression_n(self):
@@ -588,7 +589,7 @@ class TestEncode(unittest.TestCase):
             + "detection."
         )
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, "-m=n", "-v"])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args)
 
 

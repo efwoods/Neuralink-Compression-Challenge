@@ -151,11 +151,11 @@ def create_byte_string(
                                         used to compress the data. This
                                         will be useful in intelligently
                                         decoding the data. Expected
-                                        values are 'u', 'q', or 'n'
+                                        values are 'u', 'h', or 'n'
                                         where 'u' indicates a unique
                                         dictionary of amplitudes and
                                         huffman encoding was
-                                        implemented, 'q' indicates the
+                                        implemented, 'h' indicates the
                                         fastest method of compression
                                         (huffman encoding exclusively),
                                         and 'n' indicates encoding
@@ -391,7 +391,7 @@ def create_huffman_encoded_file(input_wav):
         input_data=input_wav
     )
     byte_string = create_byte_string(
-        node_mapping_dict, bit_string, end_zero_padding, method_of_compression="q"
+        node_mapping_dict, bit_string, end_zero_padding, method_of_compression="h"
     )
     return byte_string
 
@@ -532,34 +532,33 @@ def compress(
             print("defined or sample_rate and data ", end="")
             print("to be defined.")
             print(f"\n{e}")
-    if not quick:
-        if len(np.unique(input_wav)) < 256:
-            # implement unique dictionary and huffman encode for maximum
-            # compression in the shortest period of time.
-            method_of_compression = "u"
-            byte_string = encode_using_amplitude_indices(data=input_wav)
-        else:
-            # perform neural spike detection as a means of compression.
-            method_of_compression = "n"
-            filtered_data_bandpass = process_signal.preprocess_signal(
-                raw_neural_signal=input_wav, sample_rate=sample_rate
-            )
-            spike_train_time_index_list = process_signal.detect_neural_spikes(
-                filtered_data_bandpass
-            )
-            encoded_data = process_signal.create_encoded_data(
-                sample_rate=sample_rate,
-                number_of_samples=len(filtered_data_bandpass),
-                spike_train_time_index_list=spike_train_time_index_list,
-                neural_data=filtered_data_bandpass,
-            )
-            encoded_data_byte_string = (
-                process_signal.convert_encoded_data_to_byte_string(encoded_data)
-            )
-            input_data = encoded_data_byte_string
-    else:
-        method_of_compression = "q"
+    if len(np.unique(input_wav)) < 256:
+        # implement unique dictionary and huffman encode for maximum
+        # compression in the shortest period of time.
+        method_of_compression = "u"
+        byte_string = encode_using_amplitude_indices(data=input_wav)
+    elif quick:
+        method_of_compression = "h"
         input_data = input_wav
+    else:
+        # perform neural spike detection as a means of compression.
+        method_of_compression = "n"
+        filtered_data_bandpass = process_signal.preprocess_signal(
+            raw_neural_signal=input_wav, sample_rate=sample_rate
+        )
+        spike_train_time_index_list = process_signal.detect_neural_spikes(
+            filtered_data_bandpass
+        )
+        encoded_data = process_signal.create_encoded_data(
+            sample_rate=sample_rate,
+            number_of_samples=len(filtered_data_bandpass),
+            spike_train_time_index_list=spike_train_time_index_list,
+            neural_data=filtered_data_bandpass,
+        )
+        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
+            encoded_data
+        )
+        input_data = encoded_data_byte_string
 
     if method_of_compression != "u":
         node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
@@ -613,7 +612,7 @@ def initialize_argument_parser():
     parser.add_argument(
         "-m",
         "--method_of_compression",
-        choices=["u", "q", "n"],
+        choices=["u", "h", "n"],
         help=(
             "Used to select the method of compression. Explicitly "
             + "selecting the method of compression overrides the quick "
@@ -623,9 +622,8 @@ def initialize_argument_parser():
             + "256 unique amplitudes such that each interpreted amplitude "
             + "can be expressed as a single byte of information. After "
             + "this process, huffman encoding is implemented to increase "
-            + "the compression ratio. 'q' will exclusively use huffman "
-            + "encoding as a means of compression. This has been "
-            + "determined to be the fastest method of compression. 'n' "
+            + "the compression ratio. 'h' will exclusively use huffman "
+            + "encoding as a means of compression. 'n' "
             + "will implement the neural spike detection method in order "
             + "to compress the data.",
         ),
@@ -666,26 +664,6 @@ def parse_arguments():
 
 def main(args):
     """This is the main driver of the code."""
-
-    if args.verbose:
-        start_time = time.time_ns()
-        if args.method_of_compression:
-            if args.method_of_compression == "u":
-                executed_line = "encode_using_amplitude_indices"
-            elif args.method_of_compression == "q":
-                executed_line = "create_huffman_encoded_file"
-            else:
-                executed_line = (
-                    "implement_spike_detection_module_and_huffman_encode_file"
-                )
-        else:
-            if args.quick:
-                executed_line = "create_huffman_encoded_file"
-            else:
-                executed_line = (
-                    "implement_spike_detection_module_and_huffman_encode_file"
-                )
-
     # Read Data
     sample_rate, input_wav = wavfile.read(filename=args.file_path)
     if args.method_of_compression:
@@ -693,7 +671,7 @@ def main(args):
             # encode using unique dictionary list and huffman encode.
             byte_string = encode_using_amplitude_indices(data=input_wav)
 
-        elif args.method_of_compression == "q":
+        elif args.method_of_compression == "h":
             # encode using huffman encoding exclusively.
             byte_string = create_huffman_encoded_file(input_wav)
         else:
@@ -702,30 +680,21 @@ def main(args):
                 sample_rate, input_wav
             )
     else:
-        if args.quick:
+        if len(np.unique(input_wav)) < 256:
+            # method of compression = u
+            byte_string = encode_using_amplitude_indices(data=input_wav)
+        elif args.quick:
+            # method of compression = h
             byte_string = create_huffman_encoded_file(input_wav)
         else:
-            if len(np.unique(input_wav)) < 256:
-                # method of compression = u
-                byte_string = encode_using_amplitude_indices(data=input_wav)
-            else:
-                byte_string = implement_spike_detection_module_and_huffman_encode_file(
-                    sample_rate, input_wav
-                )
+            # method of compression = n
+            byte_string = implement_spike_detection_module_and_huffman_encode_file(
+                sample_rate, input_wav
+            )
 
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
     )
-    if args.verbose:
-        stop_time = time.time_ns()
-        process_signal.print_time_each_function_takes_to_complete_processing(
-            start_time=start_time,
-            stop_time=stop_time,
-            executed_line=executed_line,
-        )
-        process_signal.print_size_of_file_compression(
-            file_path=args.file_path, compressed_file_path=args.compressed_file_path
-        )
 
 
 if __name__ == "__main__":
