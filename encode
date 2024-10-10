@@ -2,7 +2,6 @@
 
 import heapq
 from scipy.io import wavfile
-import pandas as pd
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
