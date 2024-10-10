@@ -278,7 +278,9 @@ def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
         integer amplitudes before being returned with the sample rate.
 
     Args:
-        huffman_encoded_data (_type_): _description_
+        huffman_encoded_data (bytes): This is the compressed
+                                        representation of the huffman
+                                        encoded data.
 
     Returns:
         rate (int): This is the rate at which the data was sampled. This
