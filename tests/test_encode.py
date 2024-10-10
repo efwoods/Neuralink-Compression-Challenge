@@ -577,9 +577,19 @@ class TestEncode(unittest.TestCase):
             + "is 'u' which indicates implementing huffman encoding "
             + "and a unique amplitudes list."
         )
+        start_time = time.time_ns()
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=u"])
         encode.main(args)
+        stop_time = time.time_ns()
+        process_signal.print_time_each_function_takes_to_complete_processing(
+            start_time,
+            stop_time,
+            executed_line="encode_using_amplitude_indices_less_than_256",
+        )
+        process_signal.print_size_of_file_compression(
+            file_path=self.file, compressed_file_path=self.compressed_file_path
+        )
 
     def test22_test_main_method_of_compression_n(self):
         logging.info(
@@ -624,8 +634,7 @@ class TestEncode(unittest.TestCase):
             + "'compress' method where the method of compression "
             + "will be interpreted to 'h' because the length of the "
             + "unique indices of the input amplitudes will be more "
-            + "than 256 and the 'quick' option is set to 'True' "
-            + "by default. "
+            + "than 256 and the 'quick' option is set to 'True'. "
         )
 
         start_time = time.time_ns()
@@ -669,6 +678,24 @@ class TestEncode(unittest.TestCase):
             stop_time=stop_time,
             method="encode.compress(file=self.debug_file)",
         )
+
+    def test26_test_main_method_of_compression_u_unique_greater_than_256(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'main' method where the method of compression "
+            + "is 'u' which indicates implementing huffman encoding "
+            + "and a unique amplitudes list. There are more than 256 "
+            + "unique amplitudes in this list. This test will fail "
+            + "with a ValueError that there are too many unique "
+            + "indices."
+        )
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args(
+            [self.debug_file, self.debug_compressed_file_path, "-m=u"]
+        )
+        with self.assertRaises(ValueError) as e:
+            encode.main(args)
+        self.assertEqual(ValueError, type(e.exception))
 
 
 if __name__ == "__main__":
