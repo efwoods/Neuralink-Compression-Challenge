@@ -64,7 +64,6 @@ class TestEncode(unittest.TestCase):
     def tearDown(self):
         pass
 
-    @unittest.skip("testing elsewhere")
     def test01_logging_and_test_methods(self):
         """Used to test the test methods and the logger
         functionality.
@@ -74,7 +73,6 @@ class TestEncode(unittest.TestCase):
         print("test set up")
         logging.info("The logger works")
 
-    @unittest.skip("testing elsewhere")
     def test02_read_input_wav_is_type_bytes(self):
         """Used to test the read_file method in the encode
         module.
@@ -86,7 +84,6 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(input_wav), np.ndarray)
         self.assertEqual(type(sample_rate), int)
 
-    @unittest.skip("testing elsewhere")
     def test03_huffman_encoding_pickling(self):
         """Testing Reading Data, Filtering the Data, Detecting Neural
         Spikes, & Creating Encoded Data"""
@@ -107,7 +104,6 @@ class TestEncode(unittest.TestCase):
             neural_data=filtered_data_bandpass,
         )
 
-    @unittest.skip("testing elsewhere")
     def test04_read_wave_information(self):
         """This is a test that the information of the wave file is read."""
 
@@ -131,7 +127,6 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
-    @unittest.skip("testing elsewhere")
     def test05_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
@@ -145,7 +140,6 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
-    @unittest.skip("testing elsewhere")
     def test06_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
@@ -171,7 +165,6 @@ class TestEncode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    @unittest.skip("testing elsewhere")
     def test07_huffman_encoding_of_decoded_encoded_data(self):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
@@ -207,7 +200,6 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path, data_bytes=byte_string
         )
 
-    @unittest.skip("testing elsewhere")
     def test08_writing_encoded_spikes_only(self):
         logging.info(
             "Testing File Size and Algorithmic Speed using "
@@ -235,7 +227,6 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path
         )
 
-    @unittest.skip("testing elsewhere")
     def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
             "This is the Main Function: Testing Using Huffman "
@@ -343,7 +334,6 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path
         )
 
-    @unittest.skip("testing elsewhere")
     def test10_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")
         total_start_time = time.time_ns()
@@ -390,7 +380,6 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    @unittest.skip("testing elsewhere")
     def test11_writing_encoded_data_byte_string_(self):
         logging.info(
             "Testing Efficiency of Writing String of Bytes that "
@@ -425,7 +414,6 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    @unittest.skip("testing elsewhere")
     def test12_testing_writing_input_wav(self):
         logging.info(
             "This is a test to ensure the input wav is written to "
@@ -440,7 +428,6 @@ class TestEncode(unittest.TestCase):
             filename=self.debug_compressed_file_path, rate=sample_rate, data=input_wav
         )
 
-    @unittest.skip("testing elsewhere")
     def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes "
@@ -488,7 +475,6 @@ class TestEncode(unittest.TestCase):
             start_time=total_start_time, stop_time=total_stop_time
         )
 
-    @unittest.skip("testing elsewhere")
     def test14_test_that_duplicates_do_not_exist_in_the_spike_train_time_index_list(
         self,
     ):
@@ -518,7 +504,6 @@ class TestEncode(unittest.TestCase):
         # If duplicate_list.shape[1] is 0, there are no duplicates:
         self.assertEqual(duplicate_list.shape[1], 0)
 
-    @unittest.skip("testing elsewhere")
     def test15_test_of_arg_parser(self):
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
@@ -534,7 +519,6 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(args.file_path, self.file)
         self.assertEqual(args.compressed_file_path, self.compressed_file_path)
 
-    @unittest.skip("testing elsewhere")
     def test16_test_compress_file_name(self):
         logging.info(
             "This is a test to compress the data using the "
@@ -543,7 +527,6 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(file=self.file)
         self.assertEqual(type(byte_string), bytes)
 
-    @unittest.skip("testing elsewhere")
     def test17_test_compress_file_name_quick(self):
         logging.info(
             "This is a test to compress the data using the "
@@ -563,7 +546,6 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(sample_rate=sample_rate, input_wav=input_wav)
         self.assertEqual(type(byte_string), bytes)
 
-    @unittest.skip("testing elsewhere")
     def test19_test_compress_sample_rate_input_wav_quick(self):
         logging.info(
             "This is a test to compress the data using the "
@@ -577,8 +559,7 @@ class TestEncode(unittest.TestCase):
         )
         self.assertEqual(type(byte_string), bytes)
 
-    @unittest.skip("testing elsewhere")
-    def test20_test_main_method_of_compression_q(self):
+    def test20_test_main_method_of_compression_h(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -600,7 +581,6 @@ class TestEncode(unittest.TestCase):
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=u"])
         encode.main(args)
 
-    @unittest.skip("testing elsewhere")
     def test22_test_main_method_of_compression_n(self):
         logging.info(
             "This is a test to compress the data using the "

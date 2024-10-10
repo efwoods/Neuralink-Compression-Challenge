@@ -563,7 +563,7 @@ class TestDecode(unittest.TestCase):
             print("All values between original amplitudes and ", end="")
             print("decompressed amplitudes are equivalent.")
 
-    def test12_test_decompress_main_method_of_compression_q(self):
+    def test12_test_decompress_main_method_of_compression_h(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
