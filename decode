@@ -307,12 +307,22 @@ def decompress(byte_string: bytes):
         file (str): This is the string of the compressed file path. The
                     expected encoding file type is ".brainwire"
     """
-    decoded_wav_bytes, _ = huffman_decoding(byte_string)
-    encoded_data = process_signal.convert_byte_string_to_encoded_data(
-        encoded_data_byte_string=decoded_wav_bytes
-    )
-    sample_rate, amplitude_array = process_signal.decode_data(encoded_data)
-    return sample_rate, amplitude_array
+    method_of_compression, byte_string = extract_method_of_compression(byte_string)
+
+    if method_of_compression == "h":
+        # Data is huffman encoded exclusively.
+        rate, data = process_huffman_encoded_file(byte_string)
+    elif method_of_compression == "u":
+        # Data is contains a dictionary of unique amplitudes
+        # and is huffman encoded.
+        rate, data = process_huffman_encoded_amplitude_indices(byte_string)
+    elif method_of_compression == "n":
+        # Data is compressed using neural spike detection.
+        rate, data = process_spike_detection_huffman_encoded_data(byte_string)
+    else:
+        raise ValueError("Method of compression is not 'h', 'u', or 'n'.")
+
+    return rate, data
 
 
 def extract_method_of_compression(huffman_encoded_data):
