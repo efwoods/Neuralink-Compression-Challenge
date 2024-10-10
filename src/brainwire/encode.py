@@ -472,15 +472,23 @@ def encode_using_amplitude_indices(data):
     """
     data_l = data.tolist()
     unique_amplitudes = np.unique(data_l).tolist()
-
-    indices_uint8 = np.array(
-        [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
-    )
+    if len(unique_amplitudes) < 256:
+        indices = np.array(
+            [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
+        )
+    else:
+        error_string = (
+            "The number of unique_amplitudes is greater "
+            + "than 255. The indices will not be properly expressed "
+            + "by unsigned 8-bit integers. Please select another "
+            + "method of compression for this data."
+        )
+        raise ValueError(error_string)
 
     unique_amplitudes_l = np.array(unique_amplitudes, dtype=np.int16)
 
     node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
-        input_data=indices_uint8
+        input_data=indices
     )
 
     byte_string = create_byte_string(
