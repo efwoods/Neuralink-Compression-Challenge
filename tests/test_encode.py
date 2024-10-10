@@ -592,7 +592,84 @@ class TestEncode(unittest.TestCase):
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args)
 
+    def test23_test_compress_method_of_compression_u(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'u' because the length of the "
+            + "unique indices of the input amplitudes will be less "
+            + "than 256 and the 'quick' option is set to 'False' "
+            + "by default. "
+        )
+
+        start_time = time.time_ns()
+        byte_string = encode.compress(file=self.file)
+        stop_time = time.time_ns()
+
+        self.assertEqual(type(byte_string), bytes)
+
+        rate, data = wavfile.read(self.file)
+
+        process_signal.print_compression_efficiency_metrics_wrapper(
+            original_data=data,
+            compressed_data=byte_string,
+            start_time=start_time,
+            stop_time=stop_time,
+            method="encode.compress(file=self.file",
+        )
+
+    def test24_test_compress_method_of_compression_h(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'h' because the length of the "
+            + "unique indices of the input amplitudes will be more "
+            + "than 256 and the 'quick' option is set to 'True' "
+            + "by default. "
+        )
+
+        start_time = time.time_ns()
+        byte_string = encode.compress(file=self.debug_file, quick=True)
+        stop_time = time.time_ns()
+
+        self.assertEqual(type(byte_string), bytes)
+
+        rate, data = wavfile.read(self.debug_file)
+
+        process_signal.print_compression_efficiency_metrics_wrapper(
+            original_data=data,
+            compressed_data=byte_string,
+            start_time=start_time,
+            stop_time=stop_time,
+            method="encode.compress(file=self.debug_file, quick=True)",
+        )
+
+    def test25_test_compress_method_of_compression_n(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'n' because the length of the "
+            + "unique indices of the input amplitudes will be more "
+            + "than 256 and the 'quick' option is set to 'False' "
+            + "by default. "
+        )
+
+        start_time = time.time_ns()
+        byte_string = encode.compress(file=self.debug_file)
+        stop_time = time.time_ns()
+
+        self.assertEqual(type(byte_string), bytes)
+
+        rate, data = wavfile.read(self.debug_file)
+
+        process_signal.print_compression_efficiency_metrics_wrapper(
+            original_data=data,
+            compressed_data=byte_string,
+            start_time=start_time,
+            stop_time=stop_time,
+            method="encode.compress(file=self.debug_file)",
+        )
+
 
 if __name__ == "__main__":
-
     unittest.main()

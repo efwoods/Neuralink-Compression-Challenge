@@ -2,11 +2,9 @@
 
 import heapq
 from scipy.io import wavfile
-import pandas as pd
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
-import time
 
 
 class Node:
@@ -113,8 +111,6 @@ def convertHexToBit(input_wav, node_mapping_dict):
                                 padded onto the end of the bit string to
                                 make a complete set of bytes.
     """
-    # Optimizing this section of code
-    # start_time = time.time_ns()
 
     hex_input_wav = input_wav.hex()
 
@@ -632,18 +628,6 @@ def initialize_argument_parser():
             + "encoding as a means of compression. 'n' "
             + "will implement the neural spike detection method in order "
             + "to compress the data.",
-        ),
-    )
-
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help=(
-            "This will print metrics to the console upon completion "
-            + "of the compression. These metrics include time to "
-            + "compress and percent of compression relative to the "
-            + "original file size.",
         ),
     )
 

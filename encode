@@ -631,18 +631,6 @@ def initialize_argument_parser():
         ),
     )
 
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help=(
-            "This will print metrics to the console upon completion "
-            + "of the compression. These metrics include time to "
-            + "compress and percent of compression relative to the "
-            + "original file size.",
-        ),
-    )
-
     return parser
 
 

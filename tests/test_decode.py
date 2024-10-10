@@ -672,7 +672,7 @@ class TestDecode(unittest.TestCase):
 
     @unittest.skip(
         "When the method of compression == 'n', the "
-        + "original data will not match the filtered data."
+        + "original data will not match the filtered data identically."
     )
     def test14_test_decompress_main_method_of_compression_n_for_equivalency(self):
         logging.info(
@@ -714,6 +714,54 @@ class TestDecode(unittest.TestCase):
         if all_values_equal:
             print("All values between original amplitudes and ", end="")
             print("decompressed amplitudes are equivalent.")
+
+    def test15_test_decompress_method_of_compression_u(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'u' because the length of the "
+            + "unique indices of the input amplitudes will be less "
+            + "than 256 and the 'quick' option is set to 'False' "
+            + "by default. "
+        )
+
+        byte_string = encode.compress(file=self.file)
+        rate, data = decode.decompress(byte_string=byte_string)
+
+        self.assertEqual(rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+
+    def test16_test_decompress_method_of_compression_h(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'h' because the length of the "
+            + "unique indices of the input amplitudes will be more "
+            + "than 256 and the 'quick' option is set to 'True' "
+            + "by default. "
+        )
+
+        byte_string = encode.compress(file=self.debug_file, quick=True)
+        rate, data = decode.decompress(byte_string=byte_string)
+
+        self.assertEqual(rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
+
+    def test17_test_decompress_method_of_compression_n(self):
+        logging.info(
+            "This is a test to compress the data using the "
+            + "'compress' method where the method of compression "
+            + "will be interpreted to 'n' because the length of the "
+            + "unique indices of the input amplitudes will be more "
+            + "than 256 and the 'quick' option is set to 'False' "
+            + "by default. "
+        )
+
+        byte_string = encode.compress(file=self.debug_file)
+        rate, data = decode.decompress(byte_string=byte_string)
+
+        self.assertEqual(rate, 19531)
+        self.assertEqual(type(data), np.ndarray)
 
 
 if __name__ == "__main__":
