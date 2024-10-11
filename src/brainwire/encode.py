@@ -197,7 +197,7 @@ def create_byte_string(
         length of the encoded data file, but this information can be
         interpreted otherwise.
     """
-    if method_of_compression == "u":
+    if method_of_compression == "u" or method_of_compression == "w":
         try:
             if unique_amplitudes_l.any():
                 # Verify unique_amplitudes_l exists
@@ -206,7 +206,7 @@ def create_byte_string(
             error_string = (
                 "Error unique_amplitudes_l does not exist "
                 + "and method_of_compression_is_set to "
-                + "'u'"
+                + f"{method_of_compression}."
             )
             raise Exception(f"{error_string} : {e}")
 
@@ -291,7 +291,7 @@ def create_byte_string(
     # rle bytes: indices[4]
     indices.append(len(byte_string))
 
-    if method_of_compression == "u":
+    if method_of_compression == "u" or method_of_compression == "w":
         # This is the length of the unique_amplitudes_l
         # This only exists when the methods_of_compression are set to 'u'.
         # unique_amplitudes_l: indices[5]
@@ -476,11 +476,15 @@ def encode_using_amplitude_indices(data):
         indices = np.array(
             [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
         )
+    elif len(unique_amplitudes) < 65536:
+        indices = np.array(
+            [unique_amplitudes.index(value) for value in data_l], dtype=np.uint16
+        )
     else:
         error_string = (
             "The number of unique_amplitudes is greater "
-            + "than 255. The indices will not be properly expressed "
-            + "by unsigned 8-bit integers. Please select another "
+            + "than 65535. The indices will not be properly expressed "
+            + "by unsigned 16-bit integers. Please select another "
             + "method of compression for this data."
         )
         raise ValueError(error_string)
@@ -491,13 +495,22 @@ def encode_using_amplitude_indices(data):
         input_data=indices
     )
 
-    byte_string = create_byte_string(
-        node_mapping_dict,
-        bit_string,
-        end_zero_padding,
-        method_of_compression="u",
-        unique_amplitudes_l=unique_amplitudes_l,
-    )
+    if len(unique_amplitudes) < 256:
+        byte_string = create_byte_string(
+            node_mapping_dict,
+            bit_string,
+            end_zero_padding,
+            method_of_compression="u",
+            unique_amplitudes_l=unique_amplitudes_l,
+        )
+    else:
+        byte_string = create_byte_string(
+            node_mapping_dict,
+            bit_string,
+            end_zero_padding,
+            method_of_compression="w",
+            unique_amplitudes_l=unique_amplitudes_l,
+        )
 
     return byte_string
 
@@ -547,6 +560,9 @@ def compress(
         # compression in the shortest period of time.
         method_of_compression = "u"
         byte_string = encode_using_amplitude_indices(data=input_wav)
+    elif len(np.unique(input_wav)) < 65536:
+        method_of_compression = "w"
+        byte_string = encode_using_amplitude_indices(data=input_wav)
     elif quick:
         method_of_compression = "h"
         input_data = input_wav
@@ -570,7 +586,7 @@ def compress(
         )
         input_data = encoded_data_byte_string
 
-    if method_of_compression != "u":
+    if method_of_compression == "h" or method_of_compression == "n":
         node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
             input_data=input_data
         )
@@ -678,7 +694,7 @@ def main(args):
                 sample_rate, input_wav
             )
     else:
-        if len(np.unique(input_wav)) < 256:
+        if len(np.unique(input_wav)) < 65536:
             # method of compression = u
             byte_string = encode_using_amplitude_indices(data=input_wav)
         elif args.quick:
