@@ -23,11 +23,11 @@ logging.basicConfig(level=logging.DEBUG)
 # Helper Functions
 def print_differences_in_array(x_df, verbose=False):
     """This function will print differences between values in a given
-       array.
+        array.
 
     Args:
         x_df (numpy.ndarray): This is the numpy array of which to print
-                              differences.
+                                differences.
     """
     count = 0
     duplicate_list = []
