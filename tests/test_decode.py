@@ -671,10 +671,6 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(sample_rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
-    @unittest.skip(
-        "When the method of compression == 'n', the "
-        + "original data will not match the filtered data identically."
-    )
     def test14_test_decompress_main_method_of_compression_n_for_equivalency(self):
         logging.info(
             "This is a test to compress the data using the "
@@ -683,6 +679,11 @@ class TestDecode(unittest.TestCase):
             + "detection. "
             + "The data is then decompressed. "
             + "The method of compression is 'n'. "
+        )
+        logging.warning(
+            "\nWhen the method of compression == 'n', the "
+            + "original data will not match the filtered data "
+            + "identically.\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
@@ -711,7 +712,10 @@ class TestDecode(unittest.TestCase):
                 # print(f"Index: {[index]}")
                 # print(f"decompressed value: {data[index]}")
                 # print(f"original value: {value}")
-        self.assertTrue(all_values_equal)
+
+        # When the method of compression == 'n', the
+        # original data will not match the filtered data identically.
+        self.assertFalse(all_values_equal)
         if all_values_equal:
             print("All values between original amplitudes and ", end="")
             print("decompressed amplitudes are equivalent.")

@@ -685,17 +685,13 @@ class TestEncode(unittest.TestCase):
             + "'main' method where the method of compression "
             + "is 'u' which indicates implementing huffman encoding "
             + "and a unique amplitudes list. There are more than 256 "
-            + "unique amplitudes in this list. This test will fail "
-            + "with a ValueError that there are too many unique "
-            + "indices."
+            + "unique amplitudes in this list. "
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args(
             [self.debug_file, self.debug_compressed_file_path, "-m=u"]
         )
-        with self.assertRaises(ValueError) as e:
-            encode.main(args)
-        self.assertEqual(ValueError, type(e.exception))
+        encode.main(args)
 
 
 if __name__ == "__main__":

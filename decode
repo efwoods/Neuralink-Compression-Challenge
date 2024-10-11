@@ -271,7 +271,9 @@ def process_spike_detection_huffman_encoded_data(huffman_encoded_data):
     return rate, data
 
 
-def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
+def process_huffman_encoded_amplitude_indices(
+    huffman_encoded_data, method_of_compression
+):
     """This function accepts huffman encoded data which contains a list
         of unique amplitudes. The data is decoded, the bytes are
         returned from huffman decoding, then the data is converted into
@@ -281,6 +283,15 @@ def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
         huffman_encoded_data (bytes): This is the compressed
                                         representation of the huffman
                                         encoded data.
+        method_of_compression (str): This character will indicate the
+                                        data type of the indices. If the
+                                        method of compression is equal
+                                        to 'w', then the indices are
+                                        usigned 16-bit integers.
+                                        Otherwise, the method of
+                                        compression is equal to 'u' and
+                                        indicates the data is unsigned
+                                        8-bit integers.
 
     Returns:
         rate (int): This is the rate at which the data was sampled. This
@@ -290,8 +301,13 @@ def process_huffman_encoded_amplitude_indices(huffman_encoded_data):
     decoded_wav_bytes, unique_amplitudes_l = huffman_decoding(
         huffman_encoded_data, unique_amplitude_l_exists=True
     )
-    indices_uint8 = np.frombuffer(decoded_wav_bytes, dtype=np.uint8)
-    data = unique_amplitudes_l[indices_uint8]
+    if method_of_compression == "u":
+        dtype = np.uint8
+    else:
+        dtype = np.uint16
+
+    indices = np.frombuffer(decoded_wav_bytes, dtype=dtype)
+    data = unique_amplitudes_l[indices]
     rate = 19531  # This value is known in advance.
     return rate, data
 
@@ -314,15 +330,17 @@ def decompress(byte_string: bytes):
     if method_of_compression == "h":
         # Data is huffman encoded exclusively.
         rate, data = process_huffman_encoded_file(byte_string)
-    elif method_of_compression == "u":
+    elif method_of_compression == "u" or method_of_compression == "w":
         # Data is contains a dictionary of unique amplitudes
         # and is huffman encoded.
-        rate, data = process_huffman_encoded_amplitude_indices(byte_string)
+        rate, data = process_huffman_encoded_amplitude_indices(
+            byte_string, method_of_compression
+        )
     elif method_of_compression == "n":
         # Data is compressed using neural spike detection.
         rate, data = process_spike_detection_huffman_encoded_data(byte_string)
     else:
-        raise ValueError("Method of compression is not 'h', 'u', or 'n'.")
+        raise ValueError("Method of compression is not 'h', 'u', 'w' or 'n'.")
 
     return rate, data
 
@@ -421,10 +439,12 @@ def main(args):
     if method_of_compression == "h":
         # Data is huffman encoded exclusively.
         rate, data = process_huffman_encoded_file(huffman_encoded_data)
-    elif method_of_compression == "u":
+    elif method_of_compression == "u" or method_of_compression == "w":
         # Data is contains a dictionary of unique amplitudes
         # and is huffman encoded.
-        rate, data = process_huffman_encoded_amplitude_indices(huffman_encoded_data)
+        rate, data = process_huffman_encoded_amplitude_indices(
+            huffman_encoded_data, method_of_compression
+        )
     elif method_of_compression == "n":
         # Data is compressed using neural spike detection.
         rate, data = process_spike_detection_huffman_encoded_data(huffman_encoded_data)
