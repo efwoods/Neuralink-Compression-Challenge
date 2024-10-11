@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-rm -rf data
-unzip data.zip
+# rm -rf data
+# unzip data.zip
 
 get_file_size() {
   gfind "$1" -printf "%s\n"
@@ -21,6 +21,7 @@ do
   python ./encode "$file" "$compressed_file_path"
   python ./decode "$compressed_file_path" "$decompressed_file_path"
 
+
   file_size=$(get_file_size "$file")
   compressed_size=$(get_file_size "$compressed_file_path")
 
@@ -28,7 +29,7 @@ do
       echo "${file} losslessly compressed from ${file_size} bytes to ${compressed_size} bytes"
   else
       echo "ERROR: ${file} and ${decompressed_file_path} are different."
-    #  exit 1
+      exit 1
   fi
 
   total_size_raw=$((total_size_raw + file_size))
