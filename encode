@@ -234,13 +234,13 @@ def create_byte_string(
         byte_string=node_mapping_dict_values_byte_string
     )
 
-    byte_string.join([rle_compressed_node_mapping_dictionary_values_bytes])
+    byte_string += rle_compressed_node_mapping_dictionary_values_bytes
 
     # Node Mapping Dictionary Values (rle_compressed): indices[1]
     indices.append(len(byte_string))
 
     # Node Mapping Dictionary Values RLE Compressed Indices (rle_compressed): indices[2]
-    byte_string.join([rle_locations_compressed_byte_string])
+    byte_string += rle_locations_compressed_byte_string
     indices.append(len(byte_string))
 
     # Run-Length-Encoding the node mapping dictionary value lengths
@@ -265,7 +265,9 @@ def create_byte_string(
 
     # for byte in node_mapping_dict_values_indices_length_compressed_byte_string_l:
     #     byte_string += byte
-    byte_string.join(node_mapping_dict_values_indices_length_compressed_byte_string_l)
+    byte_string += b"".join(
+        node_mapping_dict_values_indices_length_compressed_byte_string_l
+    )
 
     # Node Mapping Dictionary Values Indices
     #   (rle_compressed via encode_rle): indices[3]
@@ -294,7 +296,7 @@ def create_byte_string(
     indices.append(end_zero_padding)
 
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
-    byte_string.join(bytes_indices_list)
+    byte_string += b"".join(bytes_indices_list)
     # for byte in bytes_indices_list:
     #     byte_string += byte
     bytes_indices_size = 4 * len(bytes_indices_list)
