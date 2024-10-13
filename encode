@@ -214,30 +214,18 @@ def create_byte_string(
     byteorder = "big"
     indices = []
     byte_string = b""
-    node_mapping_dict_keys_list = list(node_mapping_dict.keys())
     node_mapping_dict_values_list = list(node_mapping_dict.values())
 
     # Node Mapping Dictionary Keys appended to byte_string:
-    node_mapping_dict_keys_list_byte_string_l = [
-        bytes(node_mapping_dict_keys_list[index], encoding="utf-8")
-        for index in range(len(node_mapping_dict_keys_list))
-    ]
-
-    for key_value in node_mapping_dict_keys_list_byte_string_l:
-        byte_string += key_value
+    byte_string = bytes("".join(node_mapping_dict.keys()), encoding="utf-8")
 
     # Node Mapping Dictionary Keys: indices[0]
     indices.append(len(byte_string))
 
     # Node Mapping Dictionary Values appended to byte_string:
-    node_mapping_dict_values_list_byte_string_l = [
-        bytes(node_mapping_dict_values_list[index], encoding="utf-8")
-        for index in range(len(node_mapping_dict_values_list))
-    ]
-
-    node_mapping_dict_values_byte_string = b""
-    for value_bytes in node_mapping_dict_values_list_byte_string_l:
-        node_mapping_dict_values_byte_string += value_bytes
+    node_mapping_dict_values_byte_string = bytes(
+        "".join(node_mapping_dict.values()), encoding="utf-8"
+    )
 
     (
         rle_compressed_node_mapping_dictionary_values_bytes,
@@ -275,8 +263,11 @@ def create_byte_string(
         for index in range(len(node_mapping_dict_values_indices_length_list_compresed))
     ]
 
-    for byte in node_mapping_dict_values_indices_length_compressed_byte_string_l:
-        byte_string += byte
+    # for byte in node_mapping_dict_values_indices_length_compressed_byte_string_l:
+    #     byte_string += byte
+    byte_string += b"".join(
+        node_mapping_dict_values_indices_length_compressed_byte_string_l
+    )
 
     # Node Mapping Dictionary Values Indices
     #   (rle_compressed via encode_rle): indices[3]
@@ -305,8 +296,9 @@ def create_byte_string(
     indices.append(end_zero_padding)
 
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
-    for byte in bytes_indices_list:
-        byte_string += byte
+    byte_string += b"".join(bytes_indices_list)
+    # for byte in bytes_indices_list:
+    #     byte_string += byte
     bytes_indices_size = 4 * len(bytes_indices_list)
 
     # The line of code below is presuming the
@@ -646,7 +638,10 @@ def initialize_argument_parser():
             + "to interpret the each sample amplitude as an one of these "
             + "indices. In this method, there are expected to be less than "
             + "256 unique amplitudes such that each interpreted amplitude "
-            + "can be expressed as a single byte of information. After "
+            + "can be expressed as a single byte of information. If "
+            + "there are more than 256 bytes, the method of "
+            + "compression will be indicated by a 'w' and the indices "
+            + "will be stored using unsigned 16-bit integers. After "
             + "this process, huffman encoding is implemented to increase "
             + "the compression ratio. 'h' will exclusively use huffman "
             + "encoding as a means of compression. 'n' "
