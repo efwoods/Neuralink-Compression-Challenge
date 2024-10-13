@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-
-# rm -rf data
-# unzip data.zip
+SECONDS=0
+rm -rf data
+unzip data.zip
 
 get_file_size() {
   gfind "$1" -printf "%s\n"
@@ -42,3 +42,5 @@ echo "All recordings successfully compressed."
 echo "Original size (bytes): ${total_size_raw}"
 echo "Compressed size (bytes): ${total_size_compressed}"
 echo "Compression ratio: ${compression_ratio}"
+duration=$SECONDS
+echo "$((duration / 50)) minutes $((duration % 60)) seconds"
