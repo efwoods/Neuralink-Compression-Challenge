@@ -670,7 +670,7 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(sample_rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
-    def test14_test_decompress_main_method_of_compression_n_for_equivalency(self):
+    def test15_test_decompress_main_method_of_compression_n_for_equivalency(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -684,25 +684,31 @@ class TestDecode(unittest.TestCase):
             + "original data will not match the filtered data "
             + "identically.\n"
         )
+        # Encoding The Data
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args)
 
+        # Decoding The Data
         parser = decode.initialize_argument_parser()
         args = parser.parse_args(
             [self.compressed_file_path, self.decompressed_file_path]
         )
-
         decode.main(args)
+
         sample_rate, data = wavfile.read(self.decompressed_file_path)
 
+        # Verifying the decoded data
         self.assertEqual(type(sample_rate), int)
         self.assertEqual(sample_rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
         original_sample_rate, original_data = wavfile.read(self.file)
 
-        # Verifying the amplitudes are equivalent.
+        # Verifying the amplitudes are not equivalent.
+        self.assertFalse(original_data.all() == data.all())
+
+        # Explicitly defining where the amplitudes are not equivalent.
         all_values_equal = True
         for index, value in enumerate(original_data):
             if value != data[index]:
@@ -715,11 +721,12 @@ class TestDecode(unittest.TestCase):
         # When the method of compression == 'n', the
         # original data will not match the filtered data identically.
         self.assertFalse(all_values_equal)
+
         if all_values_equal:
             print("All values between original amplitudes and ", end="")
             print("decompressed amplitudes are equivalent.")
 
-    def test15_test_decompress_method_of_compression_u(self):
+    def test16_test_decompress_method_of_compression_u(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
@@ -735,7 +742,7 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
-    def test16_test_decompress_method_of_compression_h(self):
+    def test17_test_decompress_method_of_compression_h(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
@@ -751,7 +758,7 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
-    def test17_test_decompress_method_of_compression_n(self):
+    def test18_test_decompress_method_of_compression_n(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
