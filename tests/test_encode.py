@@ -16,6 +16,11 @@ spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
 encode = module_from_spec(spec)
 spec.loader.exec_module(encode)
 
+# Custom import of local file "decode"
+spec = spec_from_loader("decode", SourceFileLoader("decode", "./decode"))
+decode = module_from_spec(spec)
+spec.loader.exec_module(decode)
+
 # Log all messages from all logging levels
 logging.basicConfig(level=logging.DEBUG)
 
@@ -692,6 +697,32 @@ class TestEncode(unittest.TestCase):
             [self.debug_file, self.debug_compressed_file_path, "-m=u"]
         )
         encode.main(args)
+
+    def test27_test_main_method_of_compression_u_unique_greater_than_256_quick_is_set(
+        self,
+    ):
+        logging.info(
+            "This is a test to compress the data using the "
+            + " 'main' method where the method of compression "
+            + "is 'n' which indicates implementing the "
+            + "neural spike detection module. "
+            + "The 'quick' parameter is set. This should effect the "
+            + "output size of the resultant data nor the method of "
+            + "compression. "
+        )
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args(
+            [self.debug_file, self.debug_compressed_file_path, "-m=n", "-q"]
+        )
+        encode.main(args)
+
+        with open(self.debug_compressed_file_path, "rb+") as fp:
+            debug_compressed_file_data = fp.read()
+            fp.close()
+        method_of_compression, huffman_encoded_data = (
+            decode.extract_method_of_compression(debug_compressed_file_data)
+        )
+        self.assertEqual(method_of_compression, "n")
 
 
 if __name__ == "__main__":
