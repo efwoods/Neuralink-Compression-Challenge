@@ -724,6 +724,18 @@ class TestEncode(unittest.TestCase):
         )
         self.assertEqual(method_of_compression, "n")
 
+    def test28_print_differences_in_array(self):
+        logging.info(
+            "test28: This test ensures the helper function "
+            + "'print_differences_in_array is operational."
+        )
+        test_df = np.arange(0, 100, step=1)
+
+        count, duplicate_list = print_differences_in_array(test_df, verbose=True)
+
+        self.assertTrue(type(count), int)
+        self.assertTrue(type(duplicate_list), list)
+
 
 if __name__ == "__main__":
     unittest.main()
