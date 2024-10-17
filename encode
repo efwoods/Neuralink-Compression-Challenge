@@ -529,9 +529,9 @@ def compress(
         data (list): This is the list of amplitudes to compress.
         quick (bool): This is the enabler variable that will allow the
                         data to be either compressed strictly using
-                        huffman encoding (the fastest method) or to
-                        compress with the maximum level of compression.
-                        Defaults to None.
+                        huffman encoding (the fastest method) or to be
+                        compressed with the maximum level of
+                        compression. Defaults to None.
     """
 
     if file:
