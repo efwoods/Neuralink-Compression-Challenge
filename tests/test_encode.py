@@ -78,7 +78,19 @@ class TestEncode(unittest.TestCase):
         print("test set up")
         logging.info("The logger works")
 
-    def test02_read_input_wav_is_type_bytes(self):
+    def test02_print_differences_in_array(self):
+        logging.info(
+            "test28: This test ensures the helper function "
+            + "'print_differences_in_array is operational."
+        )
+        test_df = np.arange(0, 100, step=1)
+
+        count, duplicate_list = print_differences_in_array(test_df, verbose=True)
+
+        self.assertTrue(type(count), int)
+        self.assertTrue(type(duplicate_list), list)
+
+    def test03_read_input_wav_is_type_bytes(self):
         """Used to test the read_file method in the encode
         module.
         """
@@ -89,7 +101,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(input_wav), np.ndarray)
         self.assertEqual(type(sample_rate), int)
 
-    def test03_huffman_encoding_pickling(self):
+    def test04_huffman_encoding_pickling(self):
         """Testing Reading Data, Filtering the Data, Detecting Neural
         Spikes, & Creating Encoded Data"""
 
@@ -109,7 +121,7 @@ class TestEncode(unittest.TestCase):
             neural_data=filtered_data_bandpass,
         )
 
-    def test04_read_wave_information(self):
+    def test05_read_wave_information(self):
         """This is a test that the information of the wave file is read."""
 
         input_wav = wave.open(self.file, "rb")
@@ -132,7 +144,7 @@ class TestEncode(unittest.TestCase):
         logging.info(f"pred_num_bytes: {pred_num_bytes}")
         logging.info(f"len(sample_bytes): {len(sample_bytes)}")
 
-    def test05_filter_modification_of_signal(self):
+    def test06_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
         sample_rate, raw_signal_array = wavfile.read(filename=self.file)
@@ -145,7 +157,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(type(filtered_fft), np.ndarray)
         self.assertIsNotNone(filtered_fft)
 
-    def test06_huffman_encoding_of_input_wav_file(self):
+    def test07_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
         logging.info("Testing input of wavfile into huffman_encode function.")
@@ -170,7 +182,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    def test07_huffman_encoding_of_decoded_encoded_data(self):
+    def test08_huffman_encoding_of_decoded_encoded_data(self):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
 
@@ -205,7 +217,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path, data_bytes=byte_string
         )
 
-    def test08_writing_encoded_spikes_only(self):
+    def test09_writing_encoded_spikes_only(self):
         logging.info(
             "Testing File Size and Algorithmic Speed using "
             + "the encoded information only"
@@ -232,7 +244,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path
         )
 
-    def test09_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
+    def test10_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
             "This is the Main Function: Testing Using Huffman "
             + "Encoding on the String of Bytes that Contain Only "
@@ -339,7 +351,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.compressed_file_path
         )
 
-    def test10_detect_single_neural_spikes(self):
+    def test11_detect_single_neural_spikes(self):
         logging.info("This function tests the ability to detect single neural spikes.")
         total_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(filename=self.file)
@@ -385,7 +397,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    def test11_writing_encoded_data_byte_string_(self):
+    def test12_writing_encoded_data_byte_string_(self):
         logging.info(
             "Testing Efficiency of Writing String of Bytes that "
             + "Contain Only Detected Spike Information."
@@ -419,7 +431,7 @@ class TestEncode(unittest.TestCase):
             compressed_file_path=self.compressed_file_path,
         )
 
-    def test12_testing_writing_input_wav(self):
+    def test13_testing_writing_input_wav(self):
         logging.info(
             "This is a test to ensure the input wav is written to "
             + "the output file and is functional."
@@ -433,7 +445,7 @@ class TestEncode(unittest.TestCase):
             filename=self.debug_compressed_file_path, rate=sample_rate, data=input_wav
         )
 
-    def test13_writing_encoded_data_byte_string_using_huffman_encoding(self):
+    def test14_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
             "Testing Using Huffman Encoding on the String of Bytes "
             + "that Contain Only Detected Spike Information."
@@ -480,7 +492,7 @@ class TestEncode(unittest.TestCase):
             start_time=total_start_time, stop_time=total_stop_time
         )
 
-    def test14_test_that_duplicates_do_not_exist_in_the_spike_train_time_index_list(
+    def test15_test_that_duplicates_do_not_exist_in_the_spike_train_time_index_list(
         self,
     ):
         logging.info(
@@ -509,7 +521,7 @@ class TestEncode(unittest.TestCase):
         # If duplicate_list.shape[1] is 0, there are no duplicates:
         self.assertEqual(duplicate_list.shape[1], 0)
 
-    def test15_test_of_arg_parser(self):
+    def test16_test_of_arg_parser(self):
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
 
@@ -524,7 +536,7 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(args.file_path, self.file)
         self.assertEqual(args.compressed_file_path, self.compressed_file_path)
 
-    def test16_test_compress_file_name(self):
+    def test17_test_compress_file_name(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method and the file name."
@@ -532,7 +544,7 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(file=self.file)
         self.assertEqual(type(byte_string), bytes)
 
-    def test17_test_compress_file_name_quick(self):
+    def test18_test_compress_file_name_quick(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method and the file name where "
@@ -541,7 +553,7 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(file=self.file, quick=True)
         self.assertEqual(type(byte_string), bytes)
 
-    def test18_test_compress_sample_rate_input_wav(self):
+    def test19_test_compress_sample_rate_input_wav(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the inputs are "
@@ -551,7 +563,7 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(sample_rate=sample_rate, input_wav=input_wav)
         self.assertEqual(type(byte_string), bytes)
 
-    def test19_test_compress_sample_rate_input_wav_quick(self):
+    def test20_test_compress_sample_rate_input_wav_quick(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the inputs are "
@@ -564,7 +576,7 @@ class TestEncode(unittest.TestCase):
         )
         self.assertEqual(type(byte_string), bytes)
 
-    def test20_test_main_method_of_compression_h(self):
+    def test21_test_main_method_of_compression_h(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -575,7 +587,7 @@ class TestEncode(unittest.TestCase):
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=h"])
         encode.main(args)
 
-    def test21_test_main_method_of_compression_u(self):
+    def test22_test_main_method_of_compression_u(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -596,7 +608,7 @@ class TestEncode(unittest.TestCase):
             file_path=self.file, compressed_file_path=self.compressed_file_path
         )
 
-    def test22_test_main_method_of_compression_n(self):
+    def test23_test_main_method_of_compression_n(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -607,7 +619,7 @@ class TestEncode(unittest.TestCase):
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args)
 
-    def test23_test_compress_method_of_compression_u(self):
+    def test24_test_compress_method_of_compression_u(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
@@ -633,7 +645,7 @@ class TestEncode(unittest.TestCase):
             method="encode.compress(file=self.file",
         )
 
-    def test24_test_compress_method_of_compression_h(self):
+    def test25_test_compress_method_of_compression_h(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
@@ -658,7 +670,7 @@ class TestEncode(unittest.TestCase):
             method="encode.compress(file=self.debug_file, quick=True)",
         )
 
-    def test25_test_compress_method_of_compression_n(self):
+    def test26_test_compress_method_of_compression_n(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'compress' method where the method of compression "
@@ -684,7 +696,7 @@ class TestEncode(unittest.TestCase):
             method="encode.compress(file=self.debug_file)",
         )
 
-    def test26_test_main_method_of_compression_u_unique_greater_than_256(self):
+    def test27_test_main_method_of_compression_u_unique_greater_than_256(self):
         logging.info(
             "This is a test to compress the data using the "
             + "'main' method where the method of compression "
@@ -698,7 +710,7 @@ class TestEncode(unittest.TestCase):
         )
         encode.main(args)
 
-    def test27_test_main_method_of_compression_u_unique_greater_than_256_quick_is_set(
+    def test28_test_main_method_of_compression_n_unique_greater_than_256_quick_is_set(
         self,
     ):
         logging.info(
@@ -706,7 +718,7 @@ class TestEncode(unittest.TestCase):
             + " 'main' method where the method of compression "
             + "is 'n' which indicates implementing the "
             + "neural spike detection module. "
-            + "The 'quick' parameter is set. This should effect the "
+            + "The 'quick' parameter is set. This should not effect the "
             + "output size of the resultant data nor the method of "
             + "compression. "
         )
@@ -724,17 +736,87 @@ class TestEncode(unittest.TestCase):
         )
         self.assertEqual(method_of_compression, "n")
 
-    def test28_print_differences_in_array(self):
+    def test29_test_main_method_of_compression_h_unique_greater_than_256_quick_is_set(
+        self,
+    ):
         logging.info(
-            "test28: This test ensures the helper function "
-            + "'print_differences_in_array is operational."
+            "This is a test to compress the data using the "
+            + " 'main' method where the method of compression "
+            + "is 'h' which indicates implementing the "
+            + "huffman encoding algorithm. "
+            + "The 'quick' parameter is set. This should not effect the "
+            + "output size of the resultant data nor the method of "
+            + "compression. "
         )
-        test_df = np.arange(0, 100, step=1)
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args(
+            [self.debug_file, self.debug_compressed_file_path, "-m=h", "-q"]
+        )
+        encode.main(args)
 
-        count, duplicate_list = print_differences_in_array(test_df, verbose=True)
+        with open(self.debug_compressed_file_path, "rb+") as fp:
+            debug_compressed_file_data = fp.read()
+            fp.close()
+        method_of_compression, huffman_encoded_data = (
+            decode.extract_method_of_compression(debug_compressed_file_data)
+        )
+        self.assertEqual(method_of_compression, "h")
 
-        self.assertTrue(type(count), int)
-        self.assertTrue(type(duplicate_list), list)
+    def test30_test_main_method_of_compression_w_unique_greater_than_256_quick_is_set(
+        self,
+    ):
+        logging.info(
+            "This is a test to compress the data using the "
+            + " 'main' method where the method of compression "
+            + "is 'u' which indicates implementing the "
+            + "huffman encoding algorithm with a unique amplitudes list. "
+            + "The 'quick' parameter is set. This should not effect the "
+            + "output size of the resultant data nor the method of "
+            + "compression. The method of compression should be 'w' "
+            + "because the there are more than 256 unique amplitudes in "
+            + "the wav file titled 'debug_file' which contains "
+            + "raw neural data amplitudes. "
+        )
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args(
+            [self.debug_file, self.debug_compressed_file_path, "-m=u", "-q"]
+        )
+        encode.main(args)
+
+        with open(self.debug_compressed_file_path, "rb+") as fp:
+            debug_compressed_file_data = fp.read()
+            fp.close()
+        method_of_compression, huffman_encoded_data = (
+            decode.extract_method_of_compression(debug_compressed_file_data)
+        )
+        self.assertEqual(method_of_compression, "w")
+
+    def test31_test_main_method_of_compression_w_unique_greater_than_256_quick_is_set(
+        self,
+    ):
+        logging.info(
+            "This is a test to compress the data using the "
+            + " 'main' method where the method of compression "
+            + "is 'u' which indicates implementing the "
+            + "huffman encoding algorithm with a unique amplitudes list. "
+            + "The 'quick' parameter is set. This should not effect the "
+            + "output size of the resultant data nor the method of "
+            + "compression. The method of compression should be 'u' "
+            + "because the there are less than 256 unique amplitudes in "
+            + "the wav file titled 'file' which contains raw neural "
+            + "data amplitudes. "
+        )
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=u", "-q"])
+        encode.main(args)
+
+        with open(self.compressed_file_path, "rb+") as fp:
+            compressed_file_data = fp.read()
+            fp.close()
+        method_of_compression, huffman_encoded_data = (
+            decode.extract_method_of_compression(compressed_file_data)
+        )
+        self.assertEqual(method_of_compression, "u")
 
 
 if __name__ == "__main__":
