@@ -226,6 +226,52 @@ def create_byte_string(
     node_mapping_dict_values_byte_string = bytes(
         "".join(node_mapping_dict.values()), encoding="utf-8"
     )
+    # Converting the node_mapping_dictionary_values_byte_string
+    # From a string of bytes to a string of bits
+    # node_mapping_dict_values_byte_string_byte_padding_length = 8 - (
+    #     len(node_mapping_dict_values_byte_string) % 8
+    # )
+    # node_mapping_dict_values_byte_string_byte_padding = b"".join(
+    #     [
+    #         b"0"
+    #         for bit in range(node_mapping_dict_values_byte_string_byte_padding_length)
+    #     ]
+    # )
+    # node_mapping_dict_values_byte_string_rounded_bytes = (
+    #     node_mapping_dict_values_byte_string
+    #     + node_mapping_dict_values_byte_string_byte_padding
+    # )
+    # temp_byte_string = b""
+    # for index in range(0, len(node_mapping_dict_values_byte_string_rounded_bytes), 8):
+    #     byte_to_write = node_mapping_dict_values_byte_string_rounded_bytes[
+    #         index : index + 8
+    #     ]
+    #     int_of_byte_to_write = int(byte_to_write, base=2)
+    #     temp_byte_string += int_of_byte_to_write.to_bytes(num_bytes, byteorder)
+
+    # temp_byte_string += (
+    #     node_mapping_dict_values_byte_string_byte_padding_length.to_bytes()
+    # )
+    # return temp_byte_string; the last index is the length of the padding
+
+    # Decoding
+    # import bitstring
+
+    # node_mapping_dict_values_byte_string_byte_padding_length = temp_byte_string[-1]
+    # temp_byte_string = temp_byte_string[:-1]
+
+    # reconstructed_node_mapping_dict_values_l = [
+    #     bitstring.BitArray(temp_byte_string[byte_index : byte_index + 1]).bin
+    #     for byte_index in range(0, len(temp_byte_string))
+    # ]
+
+    # reconstructed_node_mapping_dict_values = "".join(
+    #     reconstructed_node_mapping_dict_values_l
+    # )
+
+    # reconstructed_node_mapping_dict_values = reconstructed_node_mapping_dict_values[
+    #     :-(node_mapping_dict_values_byte_string_byte_padding_length)
+    # ]
 
     (
         rle_compressed_node_mapping_dictionary_values_bytes,
