@@ -7,3 +7,4 @@ IPython
 pandas
 signal-processing-utilities>=0.1.22
 brainwire
+bitstring
