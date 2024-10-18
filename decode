@@ -4,6 +4,7 @@ from scipy.io import wavfile
 import numpy as np
 from signal_processing_utilities import process_signal
 import argparse
+import bitstring
 
 
 def convert_bytes_to_bit_string(data_to_decode, end_zero_padding):
@@ -113,7 +114,7 @@ def huffman_decoding(
     # Capture unique_amplitudes_l
     if unique_amplitude_l_exists:
         unique_amplitude_l_bytes = huffman_encoded_data[
-            reconstructed_indices[4] : reconstructed_indices[5]
+            reconstructed_indices[3] : reconstructed_indices[4]
         ]
         unique_amplitude_l = np.frombuffer(unique_amplitude_l_bytes, dtype=np.int16)
     else:
@@ -135,24 +136,13 @@ def huffman_decoding(
     # Node Mapping Dictionary Values Expansion:
 
     # Node Mapping Dictionary Values (rle_compressed):
-    rle_compressed_bytes = huffman_encoded_data[
+    node_mapping_dict_values_byte_string_bits_to_bytes = huffman_encoded_data[
         reconstructed_indices[0] : reconstructed_indices[1]
     ]
 
-    # Node Mapping Dictionary Values RLE Compressed Indices (rle_compressed):
-    rle_locations_compressed_byte_string = huffman_encoded_data[
-        reconstructed_indices[1] : reconstructed_indices[2]
-    ]
-
-    node_mapping_dictionary_values_byte_string, _ = process_signal.rle_bit_compression(
-        byte_string=rle_compressed_bytes,
-        rle_locations=rle_locations_compressed_byte_string,
-        compress=False,
-    )
-
     # Node Mapping Dictionary Values Indices:
     node_mapping_dict_values_indices_length_compressed_byte_string = (
-        huffman_encoded_data[reconstructed_indices[2] : reconstructed_indices[3]]
+        huffman_encoded_data[reconstructed_indices[1] : reconstructed_indices[2]]
     )
     reconstructed_node_mapping_dict_values_indices_length_l = process_signal.decode_rle(
         node_mapping_dict_values_indices_length_compressed_byte_string
@@ -160,30 +150,60 @@ def huffman_decoding(
 
     # Capturing the bit_string:
     bit_string_bytes = huffman_encoded_data[
-        reconstructed_indices[3] : reconstructed_indices[4]
+        reconstructed_indices[2] : reconstructed_indices[3]
     ]
 
     bit_string = convert_bytes_to_bit_string(bit_string_bytes, end_zero_padding)
 
-    # Parsing the Node Mapping Dictionary
-    byte_string_index = 0
+    # Reconstructing the node_value_dictionary_values_list:
+    node_mapping_dict_values_byte_string_byte_padding_length = (
+        node_mapping_dict_values_byte_string_bits_to_bytes[-1]
+    )
+    node_mapping_dict_values_byte_string_bits_to_bytes = (
+        node_mapping_dict_values_byte_string_bits_to_bytes[:-1]
+    )
 
+    reconstructed_node_mapping_dict_values_l = [
+        bitstring.BitArray(
+            node_mapping_dict_values_byte_string_bits_to_bytes[
+                byte_index : byte_index + 1
+            ]
+        ).bin
+        for byte_index in range(
+            0, len(node_mapping_dict_values_byte_string_bits_to_bytes)
+        )
+    ]
+
+    reconstructed_node_mapping_dict_values = "".join(
+        reconstructed_node_mapping_dict_values_l
+    )
+
+    reconstructed_node_mapping_dict_values = reconstructed_node_mapping_dict_values[
+        :-(node_mapping_dict_values_byte_string_byte_padding_length)
+    ]
+
+    node_mapping_dict_values_reconstructed_l = []
+    start_index = 0
+    for index in range(0, len(reconstructed_node_mapping_dict_values_indices_length_l)):
+        stop_index = reconstructed_node_mapping_dict_values_indices_length_l[index]
+        node_mapping_dict_values_reconstructed_l.append(
+            reconstructed_node_mapping_dict_values[
+                start_index : start_index + stop_index
+            ]
+        )
+        start_index += stop_index
+
+    # Parsing the Node Mapping Dictionary
     reconstructed_node_mapping_dictionary = {}
 
     for index in range(0, len(reconstructed_node_mapping_dictionary_keys_l)):
         # Key
         key_str = reconstructed_node_mapping_dictionary_keys_l[index]
 
-        # Value original dictionary is bytes
-        value_byte = node_mapping_dictionary_values_byte_string[
-            byte_string_index : byte_string_index
-            + reconstructed_node_mapping_dict_values_indices_length_l[index]
-        ]
-        value_str = str(value_byte).lstrip("b'").rstrip("'")
+        # Value
+        value_str = node_mapping_dict_values_reconstructed_l[index]
+
         reconstructed_node_mapping_dictionary[key_str] = value_str
-        byte_string_index += reconstructed_node_mapping_dict_values_indices_length_l[
-            index
-        ]
 
     reconstructed_node_mapping_dictionary_sorted = dict(
         sorted(
