@@ -226,21 +226,37 @@ def create_byte_string(
     node_mapping_dict_values_byte_string = bytes(
         "".join(node_mapping_dict.values()), encoding="utf-8"
     )
+    # Converting the node_mapping_dictionary_values_byte_string
+    # From a string of bytes to a string of bits
+    node_mapping_dict_values_byte_string_byte_padding_length = 8 - (
+        len(node_mapping_dict_values_byte_string) % 8
+    )
+    node_mapping_dict_values_byte_string_byte_padding = b"".join(
+        [
+            b"0"
+            for bit in range(node_mapping_dict_values_byte_string_byte_padding_length)
+        ]
+    )
+    node_mapping_dict_values_byte_string_rounded_bytes = (
+        node_mapping_dict_values_byte_string
+        + node_mapping_dict_values_byte_string_byte_padding
+    )
+    node_mapping_dict_values_byte_string_bits_to_bytes = b""
+    for index in range(0, len(node_mapping_dict_values_byte_string_rounded_bytes), 8):
+        byte_to_write = node_mapping_dict_values_byte_string_rounded_bytes[
+            index : index + 8
+        ]
+        int_of_byte_to_write = int(byte_to_write, base=2)
+        node_mapping_dict_values_byte_string_bits_to_bytes += (
+            int_of_byte_to_write.to_bytes(num_bytes, byteorder)
+        )
 
-    (
-        rle_compressed_node_mapping_dictionary_values_bytes,
-        rle_locations_compressed_byte_string,
-    ) = process_signal.rle_bit_compression(
-        byte_string=node_mapping_dict_values_byte_string
+    node_mapping_dict_values_byte_string_bits_to_bytes += (
+        node_mapping_dict_values_byte_string_byte_padding_length.to_bytes()
     )
 
-    byte_string += rle_compressed_node_mapping_dictionary_values_bytes
-
-    # Node Mapping Dictionary Values (rle_compressed): indices[1]
-    indices.append(len(byte_string))
-
-    # Node Mapping Dictionary Values RLE Compressed Indices (rle_compressed): indices[2]
-    byte_string += rle_locations_compressed_byte_string
+    byte_string += node_mapping_dict_values_byte_string_bits_to_bytes
+    # node_mapping_dict_values_byte_string_bits_to_bytes: indices[1]
     indices.append(len(byte_string))
 
     # Run-Length-Encoding the node mapping dictionary value lengths
@@ -270,7 +286,7 @@ def create_byte_string(
     )
 
     # Node Mapping Dictionary Values Indices
-    #   (rle_compressed via encode_rle): indices[3]
+    #   (rle_compressed via encode_rle): indices[2]
     indices.append(len(byte_string))
 
     for index in range(0, len(bit_string), 8):
@@ -279,20 +295,20 @@ def create_byte_string(
         byte_string += int_of_byte_to_write.to_bytes(num_bytes, byteorder)
 
     # This is the length of the huffman encoded string of bits stored as
-    # rle bytes: indices[4]
+    # rle bytes: indices[3]
     indices.append(len(byte_string))
 
     if method_of_compression == "u" or method_of_compression == "w":
         # This is the length of the unique_amplitudes_l
         # This only exists when the methods_of_compression are set to 'u'.
-        # unique_amplitudes_l: indices[5]
+        # unique_amplitudes_l: indices[4]
         byte_string += unique_amplitudes_l.tobytes()
         indices.append(len(byte_string))
 
     # This is the number of zeros that have been padded to the
     # penultimate byte_string index in order to make it equal to a byte.
-    # end_zero_padding: indices[5] (ultimate location: always the last index)
-    # (indices[6] when methods_of_compression is set to 'u')
+    # end_zero_padding: indices[4] (ultimate location: always the last index)
+    # (indices[5] when methods_of_compression is set to 'u')
     indices.append(end_zero_padding)
 
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
@@ -529,9 +545,9 @@ def compress(
         data (list): This is the list of amplitudes to compress.
         quick (bool): This is the enabler variable that will allow the
                         data to be either compressed strictly using
-                        huffman encoding (the fastest method) or to
-                        compress with the maximum level of compression.
-                        Defaults to None.
+                        huffman encoding (the fastest method) or to be
+                        compressed with the maximum level of
+                        compression. Defaults to None.
     """
 
     if file:
