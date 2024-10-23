@@ -57,7 +57,6 @@ def create_node_mapping_dictionary(node, val="", node_mapping_dict={}):
         create_node_mapping_dictionary(node.right, newVal, node_mapping_dict)
     if not node.left and not node.right:
         node_mapping_dict[node.data] = newVal
-        # print(f"{node.data} -> {newVal}")
     return node_mapping_dict
 
 
@@ -279,8 +278,6 @@ def create_byte_string(
         for index in range(len(node_mapping_dict_values_indices_length_list_compresed))
     ]
 
-    # for byte in node_mapping_dict_values_indices_length_compressed_byte_string_l:
-    #     byte_string += byte
     byte_string += b"".join(
         node_mapping_dict_values_indices_length_compressed_byte_string_l
     )
@@ -313,8 +310,6 @@ def create_byte_string(
 
     bytes_indices_list = [index.to_bytes(4, "big") for index in indices]
     byte_string += b"".join(bytes_indices_list)
-    # for byte in bytes_indices_list:
-    #     byte_string += byte
     bytes_indices_size = 4 * len(bytes_indices_list)
 
     # The line of code below is presuming the

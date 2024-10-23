@@ -457,16 +457,16 @@ def main(args):
     )
 
     if method_of_compression == "h":
-        # Data is huffman encoded exclusively.
+        # The data is huffman encoded exclusively.
         rate, data = process_huffman_encoded_file(huffman_encoded_data)
     elif method_of_compression == "u" or method_of_compression == "w":
-        # Data is contains a dictionary of unique amplitudes
+        # The data contains a dictionary of unique amplitudes
         # and is huffman encoded.
         rate, data = process_huffman_encoded_amplitude_indices(
             huffman_encoded_data, method_of_compression
         )
     elif method_of_compression == "n":
-        # Data is compressed using neural spike detection.
+        # The data is compressed using neural spike detection.
         rate, data = process_spike_detection_huffman_encoded_data(huffman_encoded_data)
     else:
         raise ValueError("Method of compression is not 'h', 'u', or 'n'.")
