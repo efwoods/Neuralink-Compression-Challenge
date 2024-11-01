@@ -54,7 +54,10 @@ class TestDecode(unittest.TestCase):
         pass
 
     def test01_huffman_decoding(self):
-        logging.info("This is a test of decoding a huffman encoded file exclusively")
+        logging.info(
+            "\n\ntest01: This is a test of decoding a huffman"
+            + "encoded file exclusively. \n\n"
+        )
 
         # Creating Test Data
         parser = encode.initialize_argument_parser()
@@ -76,9 +79,9 @@ class TestDecode(unittest.TestCase):
 
     def test02_huffman_decoding_to_encoded_format(self):
         logging.info(
-            "This is a test to decode the huffman encoded byte string,"
+            "\n\ntest02: This is a test to decode the huffman encoded byte string,"
             + " convert the byte string into the encoded format, and"
-            + " reconstruct the amplitude array."
+            + " reconstruct the amplitude array.\n\n"
         )
         # Creating Test Data
         parser = encode.initialize_argument_parser()
@@ -121,7 +124,8 @@ class TestDecode(unittest.TestCase):
 
     def test03_decoding_encoded_byte_string(self):
         logging.info(
-            "This test encodes a file using huffman encoding and decodes using huffman encoding."
+            "\n\ntest03: This test encodes a file using huffman "
+            + "encoding and decodes using huffman encoding.\n\n"
         )
         # Test 06 from test_encode.py of Huffman Encoding
         encoding_start_time = time.time_ns()
@@ -178,7 +182,7 @@ class TestDecode(unittest.TestCase):
         )
 
     def test04_huffman_decode_operates(self):
-        logging.info("Testing Huffman Decoding exclusively.")
+        logging.info("\n\ntest04: Testing Huffman Decoding exclusively.\n\n")
         huffman_encoded_string = decode.read_encoded_file(
             compressed_file_path=self.compressed_file_path
         )
@@ -198,8 +202,8 @@ class TestDecode(unittest.TestCase):
 
     def test05_encode_data_implement_huffman_encoding_and_decode(self):
         logging.info(
-            "This is an end-to-end test of the huffman encode & decode "
-            + "algorithm with signal processing included."
+            "\n\ntest05: This is an end-to-end test of the huffman encode & decode "
+            + "algorithm with signal processing included.\n\n"
         )
 
         logging.info(
@@ -283,17 +287,18 @@ class TestDecode(unittest.TestCase):
         )
 
     def test06_encode_data_implement_huffman_encoding_and_decode(self):
+        logging.info(
+            "\n\ntest06: This is a test to encode the huffman encoded byte string,"
+            + " convert the byte string into the encoded format, and"
+            + " reconstruct the amplitude array.\n\n"
+        )
+
         logging.info("Debugging Key:Value Pair not found in bit string.")
         logging.info("Debugging: decode.find_key_by_value_in_node_mapping_dictionary(")
 
         logging.info(
-            "This is a test to encode the huffman encoded byte string,"
-            + " convert the byte string into the encoded format, and"
-            + " reconstruct the amplitude array."
-        )
-
-        logging.info(
-            "ValueError: setting an array element with a"
+            "Debugging the following error: \n"
+            + "ValueError: setting an array element with a"
             + "sequence. The requested array has an "
             + "inhomogeneous shape after 1 dimensions. The "
             + "detected shape was (3850,) + inhomogeneous "
@@ -374,6 +379,11 @@ class TestDecode(unittest.TestCase):
         )
 
     def test07_test_of_arg_parser(self):
+        logging.info(
+            "\n\ntest07: This is a test hat the parser is "
+            + "appropriately initialized and the arguments "
+            + "are successfully parsed.\n\n"
+        )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
 
@@ -390,9 +400,9 @@ class TestDecode(unittest.TestCase):
 
     def test08_test_decompressing_compress_file_name(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest08: This is a test to compress the data using the "
             + "'compress' method and the file name. "
-            + "The data is then decompressed."
+            + "The data is then decompressed.\n\n"
         )
         logging.info("Method of compression == 'u'")
         byte_string = encode.compress(file=self.file)
@@ -433,10 +443,10 @@ class TestDecode(unittest.TestCase):
 
     def test09_test_decompress_compress_file_name_quick(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest09: This is a test to compress the data using the "
             + "'compress' method and the file name where "
             + "the quick argument is passed into the function. "
-            + "The data is then decompressed."
+            + "The data is then decompressed.\n\n"
         )
         byte_string = encode.compress(file=self.file, quick=True)
         self.assertEqual(type(byte_string), bytes)
@@ -475,11 +485,11 @@ class TestDecode(unittest.TestCase):
 
     def test10_test_compress_sample_rate_input_wav(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest10: This is a test to compress the data using the "
             + "'compress' method where the inputs are "
             + "sample_rate and the input_wav. "
             + "The data is then decompressed. "
-            + "Method of compression == 'u'."
+            + "Method of compression == 'u'.\n\n"
         )
 
         sample_rate, input_wav = wavfile.read(filename=self.file)
@@ -520,11 +530,11 @@ class TestDecode(unittest.TestCase):
 
     def test11_test_decompress_compress_sample_rate_input_wav_quick(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest11: This is a test to compress the data using the "
             + "'compress' method where the inputs are "
             + "sample_rate and the input_wav. "
             + "The data is then decompressed. "
-            + "Method of compression is quick."
+            + "Method of compression is quick.\n\n"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         byte_string = encode.compress(
@@ -566,12 +576,12 @@ class TestDecode(unittest.TestCase):
 
     def test12_test_decompress_main_method_of_compression_h(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest12: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'h' which indicates a huffman encoding "
             + "format exclusively. "
             + "The data is then decompressed. "
-            + "The method of compression is 'h'. "
+            + "The method of compression is 'h'. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=h"])
@@ -607,12 +617,12 @@ class TestDecode(unittest.TestCase):
 
     def test13_test_decompress_main_method_of_compression_u(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest13: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'h' which indicates a huffman encoding "
             + "format exclusively. "
             + "The data is then decompressed. "
-            + "The method of compression is 'u'. "
+            + "The method of compression is 'u'. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=u"])
@@ -648,12 +658,12 @@ class TestDecode(unittest.TestCase):
 
     def test14_test_decompress_main_method_of_compression_n_for_functionality(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest14: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'n' which indicates implementing neural spike "
             + "detection. "
             + "The data is then decompressed. "
-            + "The method of compression is 'n'. "
+            + "The method of compression is 'n'. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
@@ -673,12 +683,12 @@ class TestDecode(unittest.TestCase):
 
     def test15_test_decompress_main_method_of_compression_n_for_equivalency(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest15: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'n' which indicates implementing neural spike "
             + "detection. "
             + "The data is then decompressed. "
-            + "The method of compression is 'n'. "
+            + "The method of compression is 'n'. \n\n"
         )
         logging.warning(
             "\nWhen the method of compression == 'n', the "
@@ -729,12 +739,12 @@ class TestDecode(unittest.TestCase):
 
     def test16_test_decompress_method_of_compression_u(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest16: This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'u' because the length of the "
             + "unique indices of the input amplitudes will be less "
             + "than 256 and the 'quick' option is set to 'False' "
-            + "by default. "
+            + "by default. \n\n"
         )
 
         byte_string = encode.compress(file=self.file)
@@ -745,12 +755,12 @@ class TestDecode(unittest.TestCase):
 
     def test17_test_decompress_method_of_compression_h(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest17: This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'h' because the length of the "
             + "unique indices of the input amplitudes will be more "
             + "than 256 and the 'quick' option is set to 'True' "
-            + "by default. "
+            + "by default. \n\n"
         )
 
         byte_string = encode.compress(file=self.debug_file, quick=True)
@@ -761,12 +771,12 @@ class TestDecode(unittest.TestCase):
 
     def test18_test_decompress_method_of_compression_n(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest18: This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'n' because the length of the "
             + "unique indices of the input amplitudes will be more "
             + "than 256 and the 'quick' option is set to 'False' "
-            + "by default. "
+            + "by default. \n\n"
         )
 
         byte_string = encode.compress(file=self.debug_file)
