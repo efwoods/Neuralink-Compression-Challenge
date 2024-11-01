@@ -74,14 +74,14 @@ class TestEncode(unittest.TestCase):
         functionality.
         """
 
-        logging.info("test_logging_and_test_methods")
+        logging.info("\n\ntest01: test_logging_and_test_methods\n\n")
         print("test set up")
         logging.info("The logger works")
 
     def test02_print_differences_in_array(self):
         logging.info(
-            "test28: This test ensures the helper function "
-            + "'print_differences_in_array is operational."
+            "\n\ntest02: This test ensures the helper function "
+            + "'print_differences_in_array is operational.\n\n"
         )
         test_df = np.arange(0, 100, step=1)
 
@@ -96,7 +96,7 @@ class TestEncode(unittest.TestCase):
         """
 
         sample_rate, input_wav = wavfile.read(filename=self.file)
-        logging.info("test_read_input_wav_is_type_bytes")
+        logging.info("\n\ntest03: test_read_input_wav_is_type_bytes\n\n")
 
         self.assertEqual(type(input_wav), np.ndarray)
         self.assertEqual(type(sample_rate), int)
@@ -105,7 +105,9 @@ class TestEncode(unittest.TestCase):
         """Testing Reading Data, Filtering the Data, Detecting Neural
         Spikes, & Creating Encoded Data"""
 
-        logging.info("Testing huffman encoding of pickled object format")
+        logging.info(
+            "\n\ntest04: Testing huffman encoding of pickled object format\n\n"
+        )
         sample_rate, input_wav = wavfile.read(filename=self.file)
 
         filtered_data_bandpass = process_signal.preprocess_signal(
@@ -124,6 +126,9 @@ class TestEncode(unittest.TestCase):
     def test05_read_wave_information(self):
         """This is a test that the information of the wave file is read."""
 
+        logging.info(
+            "\n\ntest05: This is a test that the information of the wave file is read. \n\n"
+        )
         input_wav = wave.open(self.file, "rb")
         logging.info("input_wav type: {}".format(type(input_wav)))
         logging.info("Channels: {}".format(input_wav.getnchannels()))
@@ -147,6 +152,9 @@ class TestEncode(unittest.TestCase):
     def test06_filter_modification_of_signal(self):
         """This is a test that the filters of the signal can be modified."""
 
+        logging.info(
+            "\n\nThis is a test that the filters of the signal can be modified.\n\n"
+        )
         sample_rate, raw_signal_array = wavfile.read(filename=self.file)
         fft, freq_bins = process_signal.preprocess_to_frequency_domain(
             raw_signal_array, sample_rate
@@ -160,7 +168,9 @@ class TestEncode(unittest.TestCase):
     def test07_huffman_encoding_of_input_wav_file(self):
         """This is a test that the huffman encoding properly functions independently."""
 
-        logging.info("Testing input of wavfile into huffman_encode function.")
+        logging.info(
+            "\n\ntest07: Testing input of wavfile into huffman_encode function.\n\n"
+        )
         logging.info(
             "The sample rate is implied using this method to be a known value of 19531."
         )
@@ -186,7 +196,7 @@ class TestEncode(unittest.TestCase):
         """This is a test to huffman encode data that contains only spike
         information where the noise has been zero-valued everywhere else."""
 
-        logging.info("Testing using spike detection.")
+        logging.info("\n\ntest08: Testing using spike detection.\n\n")
         sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
             raw_neural_signal=input_wav, sample_rate=sample_rate
@@ -219,8 +229,8 @@ class TestEncode(unittest.TestCase):
 
     def test09_writing_encoded_spikes_only(self):
         logging.info(
-            "Testing File Size and Algorithmic Speed using "
-            + "the encoded information only"
+            "\n\ntest09: Testing File Size and Algorithmic Speed using "
+            + "the encoded information only. \n\n"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
@@ -246,9 +256,9 @@ class TestEncode(unittest.TestCase):
 
     def test10_writing_encoded_data_byte_string_using_huffman_encoding_main(self):
         logging.info(
-            "This is the Main Function: Testing Using Huffman "
+            "\n\n test10: This is the Main Function: Testing Using Huffman "
             + "Encoding on the String of Bytes that Contain Only "
-            + "Detected Spike Information."
+            + "Detected Spike Information.\n\n"
         )
         total_start_time = time.time_ns()
         start_time = time.time_ns()
@@ -352,7 +362,9 @@ class TestEncode(unittest.TestCase):
         )
 
     def test11_detect_single_neural_spikes(self):
-        logging.info("This function tests the ability to detect single neural spikes.")
+        logging.info(
+            "\n\ntest11: This function tests the ability to detect single neural spikes.\n\n"
+        )
         total_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(filename=self.file)
         filtered_data_bandpass = process_signal.preprocess_signal(
@@ -399,8 +411,8 @@ class TestEncode(unittest.TestCase):
 
     def test12_writing_encoded_data_byte_string_(self):
         logging.info(
-            "Testing Efficiency of Writing String of Bytes that "
-            + "Contain Only Detected Spike Information."
+            "\n\n test12: Testing Efficiency of Writing String of Bytes that "
+            + "Contain Only Detected Spike Information.\n\n"
         )
         total_start_time = time.time_ns()
         sample_rate, input_wav = wavfile.read(filename=self.file)
@@ -433,8 +445,8 @@ class TestEncode(unittest.TestCase):
 
     def test13_testing_writing_input_wav(self):
         logging.info(
-            "This is a test to ensure the input wav is written to "
-            + "the output file and is functional."
+            "\n\n test13: This is a test to ensure the input wav is written to "
+            + "the output file and is functional.\n\n"
         )
 
         sample_rate, input_wav = wavfile.read(
@@ -447,8 +459,8 @@ class TestEncode(unittest.TestCase):
 
     def test14_writing_encoded_data_byte_string_using_huffman_encoding(self):
         logging.info(
-            "Testing Using Huffman Encoding on the String of Bytes "
-            + "that Contain Only Detected Spike Information."
+            "\n\ntest14: Testing Using Huffman Encoding on the String of Bytes "
+            + "that Contain Only Detected Spike Information.\n\n"
         )
 
         total_start_time = time.time_ns()
@@ -496,8 +508,8 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "Testing that there are no duplicates in the "
-            + "spike_train_time_index_list"
+            "\n\ntest15: Testing that there are no duplicates in the "
+            + "spike_train_time_index_list. \n\n"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
 
@@ -522,6 +534,10 @@ class TestEncode(unittest.TestCase):
         self.assertEqual(duplicate_list.shape[1], 0)
 
     def test16_test_of_arg_parser(self):
+        logging.info(
+            "\n\ntest16: This is a test to ensure the argument parser "
+            + "successfully parses the arguments.\n\n"
+        )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-q"])
 
@@ -538,26 +554,26 @@ class TestEncode(unittest.TestCase):
 
     def test17_test_compress_file_name(self):
         logging.info(
-            "This is a test to compress the data using the "
-            + "'compress' method and the file name."
+            "\n\ntest17: This is a test to compress the data using the "
+            + "'compress' method and the file name.\n\n"
         )
         byte_string = encode.compress(file=self.file)
         self.assertEqual(type(byte_string), bytes)
 
     def test18_test_compress_file_name_quick(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest18: This is a test to compress the data using the "
             + "'compress' method and the file name where "
-            + "the quick argument is passed into the function."
+            + "the quick argument is passed into the function.\n\n"
         )
         byte_string = encode.compress(file=self.file, quick=True)
         self.assertEqual(type(byte_string), bytes)
 
     def test19_test_compress_sample_rate_input_wav(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest19: This is a test to compress the data using the "
             + "'compress' method where the inputs are "
-            + "sample_rate and the input_wav."
+            + "sample_rate and the input_wav.\n\n"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         byte_string = encode.compress(sample_rate=sample_rate, input_wav=input_wav)
@@ -565,10 +581,10 @@ class TestEncode(unittest.TestCase):
 
     def test20_test_compress_sample_rate_input_wav_quick(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest20: This is a test to compress the data using the "
             + "'compress' method where the inputs are "
             + "sample_rate and input_wav while implementing the "
-            + "'quick' option. "
+            + "'quick' option. \n\n"
         )
         sample_rate, input_wav = wavfile.read(filename=self.file)
         byte_string = encode.compress(
@@ -578,10 +594,10 @@ class TestEncode(unittest.TestCase):
 
     def test21_test_main_method_of_compression_h(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest21: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'h' which indicates a huffman encoding "
-            + "format exclusively."
+            + "format exclusively.\n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=h"])
@@ -589,10 +605,10 @@ class TestEncode(unittest.TestCase):
 
     def test22_test_main_method_of_compression_u(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest22: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'u' which indicates implementing huffman encoding "
-            + "and a unique amplitudes list."
+            + "and a unique amplitudes list.\n\n"
         )
         start_time = time.time_ns()
         parser = encode.initialize_argument_parser()
@@ -610,10 +626,10 @@ class TestEncode(unittest.TestCase):
 
     def test23_test_main_method_of_compression_n(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest23: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'n' which indicates implementing neural spike "
-            + "detection."
+            + "detection.\n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
@@ -621,12 +637,12 @@ class TestEncode(unittest.TestCase):
 
     def test24_test_compress_method_of_compression_u(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest24 This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'u' because the length of the "
             + "unique indices of the input amplitudes will be less "
             + "than 256 and the 'quick' option is set to 'False' "
-            + "by default. "
+            + "by default. \n\n"
         )
 
         start_time = time.time_ns()
@@ -647,11 +663,11 @@ class TestEncode(unittest.TestCase):
 
     def test25_test_compress_method_of_compression_h(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest25: This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'h' because the length of the "
             + "unique indices of the input amplitudes will be more "
-            + "than 256 and the 'quick' option is set to 'True'. "
+            + "than 256 and the 'quick' option is set to 'True'. \n\n"
         )
 
         start_time = time.time_ns()
@@ -672,12 +688,12 @@ class TestEncode(unittest.TestCase):
 
     def test26_test_compress_method_of_compression_n(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest26: This is a test to compress the data using the "
             + "'compress' method where the method of compression "
             + "will be interpreted to 'n' because the length of the "
             + "unique indices of the input amplitudes will be more "
             + "than 256 and the 'quick' option is set to 'False' "
-            + "by default. "
+            + "by default. \n\n"
         )
 
         start_time = time.time_ns()
@@ -698,11 +714,11 @@ class TestEncode(unittest.TestCase):
 
     def test27_test_main_method_of_compression_u_unique_greater_than_256(self):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest27: This is a test to compress the data using the "
             + "'main' method where the method of compression "
             + "is 'u' which indicates implementing huffman encoding "
             + "and a unique amplitudes list. There are more than 256 "
-            + "unique amplitudes in this list. "
+            + "unique amplitudes in this list. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args(
@@ -714,13 +730,13 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest28: This is a test to compress the data using the "
             + " 'main' method where the method of compression "
             + "is 'n' which indicates implementing the "
             + "neural spike detection module. "
             + "The 'quick' parameter is set. This should not effect the "
             + "output size of the resultant data nor the method of "
-            + "compression. "
+            + "compression. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args(
@@ -740,13 +756,13 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest29: This is a test to compress the data using the "
             + " 'main' method where the method of compression "
             + "is 'h' which indicates implementing the "
             + "huffman encoding algorithm. "
             + "The 'quick' parameter is set. This should not effect the "
             + "output size of the resultant data nor the method of "
-            + "compression. "
+            + "compression. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args(
@@ -766,7 +782,7 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest30: This is a test to compress the data using the "
             + " 'main' method where the method of compression "
             + "is 'u' which indicates implementing the "
             + "huffman encoding algorithm with a unique amplitudes list. "
@@ -775,7 +791,7 @@ class TestEncode(unittest.TestCase):
             + "compression. The method of compression should be 'w' "
             + "because the there are more than 256 unique amplitudes in "
             + "the wav file titled 'debug_file' which contains "
-            + "raw neural data amplitudes. "
+            + "raw neural data amplitudes. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args(
@@ -795,7 +811,7 @@ class TestEncode(unittest.TestCase):
         self,
     ):
         logging.info(
-            "This is a test to compress the data using the "
+            "\n\ntest31: This is a test to compress the data using the "
             + " 'main' method where the method of compression "
             + "is 'u' which indicates implementing the "
             + "huffman encoding algorithm with a unique amplitudes list. "
@@ -804,7 +820,7 @@ class TestEncode(unittest.TestCase):
             + "compression. The method of compression should be 'u' "
             + "because the there are less than 256 unique amplitudes in "
             + "the wav file titled 'file' which contains raw neural "
-            + "data amplitudes. "
+            + "data amplitudes. \n\n"
         )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path, "-m=u", "-q"])
