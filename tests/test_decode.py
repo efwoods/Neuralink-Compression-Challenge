@@ -54,7 +54,7 @@ class TestDecode(unittest.TestCase):
 
     def test01_huffman_decoding(self):
         logging.info(
-            "\n\ntest01: This is a test of decoding a huffman"
+            "\n\ntest01: This is a test of decoding a huffman "
             + "encoded file exclusively. \n\n"
         )
 
