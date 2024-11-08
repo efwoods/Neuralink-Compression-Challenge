@@ -28,7 +28,7 @@ class Node:
 
 def create_node_mapping_dictionary(node, val="", node_mapping_dict={}):
     """Creates a mapping of unique binary strings to unique bytes of
-           pairs of hexidecimal values found within the input wave file.
+           pairs of hexadecimal values found within the input wave file.
 
     Args:
         node (Node): This is a node of class Node. It is used to build
@@ -90,7 +90,7 @@ def determine_hex_freq(input_wav):
     return sorted_hex_freq_dictionary
 
 
-def convertHexToBit(input_wav, node_mapping_dict):
+def convert_hex_to_bit(input_wav, node_mapping_dict):
     """This function uses a dictionary of node mappings to convert
             the hexadecimal representation of the of the input wave file
             to a string of bits. This representation is a compressed form
@@ -371,7 +371,7 @@ def huffman_encoding(
 
     # The hexadecimal representation of the bytes of the input wave file
     # is converted to a string of bits to write
-    bit_string, end_zero_padding = convertHexToBit(
+    bit_string, end_zero_padding = convert_hex_to_bit(
         input_data if type(input_data) == bytes else input_data.tobytes(),
         node_mapping_dict,
     )

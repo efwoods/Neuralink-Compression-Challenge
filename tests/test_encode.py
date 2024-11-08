@@ -10,6 +10,7 @@ import time
 from signal_processing_utilities import process_signal
 from importlib.util import spec_from_loader, module_from_spec
 from importlib.machinery import SourceFileLoader
+import heapq
 
 # Importing local version of "encode" file
 spec = spec_from_loader("encode", SourceFileLoader("encode", "./encode"))
@@ -834,6 +835,81 @@ class TestEncode(unittest.TestCase):
         )
         self.assertEqual(method_of_compression, "u")
 
+    def test32_test_create_node_mapping_dictionary(self):
+        logging.info(
+            "This is a unittest of the function 'create_node_mapping_dictionary'. "
+        )
+
+        # Read Data for testing:
+        sr, input_data = wavfile.read(self.file)
+
+        """Establish input data for the create_node_mapping_dictionary
+            function:
+        """
+        sorted_hex_freq_dict = encode.determine_hex_freq(
+            input_data if type(input_data) == bytes else input_data.tobytes()
+        )
+
+        hex_freq_values = list(sorted_hex_freq_dict.values())
+        hex_freq_keys = list(sorted_hex_freq_dict.keys())
+
+        # Create a list of nodes
+        nodes = []
+        for item in range(len(hex_freq_keys)):
+            heapq.heappush(
+                nodes, encode.Node(hex_freq_values[item], hex_freq_keys[item])
+            )
+
+        # Build the node tree
+        while len(nodes) > 1:
+            left = heapq.heappop(nodes)
+            right = heapq.heappop(nodes)
+            left.code = 0
+            right.code = 1
+            newNode = encode.Node(
+                left.freq + right.freq, left.data + right.data, left=left, right=right
+            )
+        heapq.heappush(nodes, newNode)
+
+        """Begin unit testing of function:
+        """
+        node_mapping_dict = encode.create_node_mapping_dictionary(
+            nodes[0], val="", node_mapping_dict={}
+        )
+        self.assertTrue(node_mapping_dict)
+
+    def test33_huffman_encoding(self):
+        logging.info(
+            "This is a test that the function "
+            + "'huffman_encoding' properly functions."
+        )
+        sr, data = wavfile.read(self.file)
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
+            input_data=data
+        )
+        self.assertTrue(node_mapping_dict)
+        self.assertGreater(len(node_mapping_dict), 1)
+        self.assertTrue(bit_string)
+        self.assertTrue(end_zero_padding)
+
+    def test34_encode_using_amplitude_indices_less_than_256(self):
+        logging.info("This is a test that the function " +
+                     "'encode_using_amplitude_indices' "
+                     + "properly functions when the number of unique "
+                     + "amplitudes is less than 256.")
+        
+        sr, data_less_than_256_unique_amplitudes = wavfile.read(self.file)
+        byte_string = encode.encode_using_amplitude_indices(data_less_than_256_unique_amplitudes)
+        self.assertEqual(type(byte_string), bytes)
+        
+    def test35_encode_using_amplitude_indices_greater_than_256(self):
+        logging.info("This is a test that the function " + 
+                     "'encode_using_amplitude_indices' "
+                     + "properly functions when the number of unique "
+                     + "amplitudes is greater than 256.")
+        sr, data_greater_than_256_unique_amplitudes = wavfile.read(self.debug_file)
+        byte_string = encode.encode_using_amplitude_indices(data_greater_than_256_unique_amplitudes)
+        self.assertEqual(type(byte_string), bytes)
 
 if __name__ == "__main__":
     unittest.main()
