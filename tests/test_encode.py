@@ -892,6 +892,24 @@ class TestEncode(unittest.TestCase):
         self.assertTrue(bit_string)
         self.assertTrue(end_zero_padding)
 
+    def test34_encode_using_amplitude_indices_less_than_256(self):
+        logging.info("This is a test that the function " +
+                     "'encode_using_amplitude_indices' "
+                     + "properly functions when the number of unique "
+                     + "amplitudes is less than 256.")
+        
+        sr, data_less_than_256_unique_amplitudes = wavfile.read(self.file)
+        byte_string = encode.encode_using_amplitude_indices(data_less_than_256_unique_amplitudes)
+        self.assertEqual(type(byte_string), bytes)
+        
+    def test35_encode_using_amplitude_indices_greater_than_256(self):
+        logging.info("This is a test that the function " + 
+                     "'encode_using_amplitude_indices' "
+                     + "properly functions when the number of unique "
+                     + "amplitudes is greater than 256.")
+        sr, data_greater_than_256_unique_amplitudes = wavfile.read(self.debug_file)
+        byte_string = encode.encode_using_amplitude_indices(data_greater_than_256_unique_amplitudes)
+        self.assertEqual(type(byte_string), bytes)
 
 if __name__ == "__main__":
     unittest.main()
