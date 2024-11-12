@@ -23,3 +23,14 @@ dependencies = ["numpy>=1.0", "scipy", "numpy", "signal_processing_utilities>=0.
 [project.urls]
 Homepage = "https://github.com/efwoods/Neuralink-Compression-Challenge"
 Issues = "https://github.com/efwoods/Neuralink-Compression-Challenge/issues"
+
+[tool.coverage.run]
+command_line = true
+
+[tool.coverage.report]
+exclude_also = [
+  'if __name__ == "__main__":'
+  ]
+
+[tool.coverage.html]
+directory = "coverage_html_report"
