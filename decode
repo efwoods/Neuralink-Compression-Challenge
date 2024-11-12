@@ -428,24 +428,6 @@ def initialize_argument_parser():
     return parser
 
 
-def parse_arguments():
-    """This function will parse arguments and print the file paths of
-    the parsed arguments.
-
-    Args:
-        parser (ArgumentParser): This is the initialized argument parser.
-
-    Returns:
-        args (str): This is the sequence of the string of arguments.
-    """
-    parser = initialize_argument_parser()
-    args = parser.parse_args()
-
-    print("compressed_file_path: {}".format(args.compressed_file_path))
-    print("decompressed_file_path: {}".format(args.decompressed_file_path))
-    return args
-
-
 def main(args):
     """This is the main driver logic of the decode function."""
     huffman_encoded_data = read_encoded_file(
@@ -479,5 +461,10 @@ def main(args):
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
+    parser = initialize_argument_parser()
+    args = parser.parse_args()
+
+    print("compressed_file_path: {}".format(args.compressed_file_path))
+    print("decompressed_file_path: {}".format(args.decompressed_file_path))
+
     main(args)

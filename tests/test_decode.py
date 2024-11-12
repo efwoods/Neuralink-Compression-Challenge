@@ -784,61 +784,124 @@ class TestDecode(unittest.TestCase):
         self.assertEqual(rate, 19531)
         self.assertEqual(type(data), np.ndarray)
 
-    def test19_test_process_huffman_encoded_file_return_value_from_decompress_method(self):
-        logging.info("This method tests that the function "
-                     + "'process_huffman_encoded_file' will "
-                     + "properly return a value within the " 
-                     + "decompress method. This is black box testing "
-                     + "of the decompress function within decode.py.")
-        # Encode using huffman encoding 
+    def test19_test_process_huffman_encoded_file_return_value_from_decompress_method(
+        self,
+    ):
+        logging.info(
+            "\n\ntest19: This method tests that the function "
+            + "'process_huffman_encoded_file' will "
+            + "properly return a value within the "
+            + "decompress method. This is black box testing "
+            + "of the decompress function within decode.py.\n\n"
+        )
+        # Encode using huffman encoding
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, '-m=h'])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=h"])
         encode.main(args=args)
         byte_string = process_signal.read_file_bytes(self.compressed_file_path)
         # Assert that the method of compression is huffman encoding:
-        self.assertEqual(byte_string[-1:].decode(encoding='utf-8'), 'h')
-        
+        self.assertEqual(byte_string[-1:].decode(encoding="utf-8"), "h")
+
         # Decompress the data
         rate, data = decode.decompress(byte_string)
         self.assertEqual(rate, 19531)
-        self.assertEqual(data.dtype, 'int16')
+        self.assertEqual(data.dtype, "int16")
         self.assertEqual(type(data), np.ndarray)
 
     def test20_test_process_neural_spike_detection_compression_of_decompress(self):
-        logging.info("This is a test of the "
-                     + "'process_spike_detection_huffman_encoded_data' "
-                     + "function in the decompress function of "
-                     + "decode.py.")
+        logging.info(
+            "\n\ntest20: This is a test of the "
+            + "'process_spike_detection_huffman_encoded_data' "
+            + "function in the decompress function of "
+            + "decode.py.\n\n"
+        )
         # Encode using the neural spike detection module
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, '-m=n'])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args=args)
         byte_string = process_signal.read_file_bytes(self.compressed_file_path)
         # Assert the method of compression is type 'n':
-        self.assertEqual(byte_string[-1:].decode(encoding='utf-8'), 'n')
-        
+        self.assertEqual(byte_string[-1:].decode(encoding="utf-8"), "n")
+
         # Decode the data
         rate, data = decode.decompress(byte_string)
         self.assertEqual(rate, 19531)
-        self.assertEqual(data.dtype, 'int16')
+        self.assertEqual(data.dtype, "int16")
         self.assertEqual(type(data), np.ndarray)
-    
+
     def test21_test_error_of_method_of_compression_within_decompress(self):
-        logging.info("This is a test to ensure that the "
-                     + "decompress method will raise an error if " 
-                     + "the method of compression is not 'h', 'u', "
-                     +"'w', or 'n'.")
+        logging.info(
+            "\n\ntest21: This is a test to ensure that the "
+            + "decompress method will raise an error if "
+            + "the method of compression is not 'h', 'u', "
+            + "'w', or 'n'.\n\n"
+        )
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.file, self.compressed_file_path, '-m=n'])
+        args = parser.parse_args([self.file, self.compressed_file_path, "-m=n"])
         encode.main(args=args)
         byte_string = process_signal.read_file_bytes(self.compressed_file_path)
-        byte_string[-1:].decode(encoding = 'utf-8')
+
+        # Modifying byte_string to contain an error for the method of compression
         byte_string = byte_string[:-1]
-        byte_string += b'x'
-        
-        
-        
-        
+        byte_string += b"x"
+        self.assertEqual(byte_string[-1:].decode(encoding="utf-8"), "x")
+
+        # Verify this condition raises a Value Error
+        with self.assertRaises(ValueError) as cm:
+            rate, data = decode.decompress(byte_string)
+        identified_exception = cm.exception
+
+        # Verify the ValueError is because of the method of compression.
+        self.assertEqual(
+            identified_exception.args[0],
+            "Method of compression is not 'h', 'u', 'w' or 'n'.",
+        )
+
+    def test22_test_main_will_raise_value_error_with_improper_method_of_compression_in_byte_string(
+        self,
+    ):
+        logging.info(
+            "\n\ntest22: This test will create an incorrect method of "
+            + "compression that is not accepted before running the "
+            + "main function to detect if a ValueError detects this "
+            + "error.\n\n"
+        )
+        # Initialize encoded data
+        encode_parser = encode.initialize_argument_parser()
+        encode_args = encode_parser.parse_args(
+            [self.file, self.compressed_file_path, "-m=n"]
+        )
+        encode.main(args=encode_args)
+        byte_string = process_signal.read_file_bytes(self.compressed_file_path)
+
+        # Modifying byte_string to contain an error for the
+        #   method of compression:
+        byte_string = byte_string[:-1]
+        byte_string += b"x"
+        self.assertEqual(byte_string[-1:].decode(encoding="utf-8"), "x")
+
+        # Overwrite the compressed_file_path with the erroneous data
+        with open(self.compressed_file_path, "wb") as cfp:
+            cfp.write(byte_string)
+            cfp.close()
+
+        # Verify that the erroneous data has been overwritten:
+        modified_byte_string = process_signal.read_file_bytes(self.compressed_file_path)
+        self.assertEqual(modified_byte_string[-1:].decode(encoding="utf-8"), "x")
+
+        # Verify this condition will raise an error in main:
+        decode_parser = decode.initialize_argument_parser()
+        decode_args = decode_parser.parse_args(
+            [self.compressed_file_path, self.decompressed_file_path]
+        )
+        with self.assertRaises(ValueError) as cm:
+            decode.main(args=decode_args)
+        identified_exception = cm.exception
+        self.assertEqual(
+            identified_exception.args[0],
+            "Method of compression is not 'h', 'u', or 'n'.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
