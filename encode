@@ -523,7 +523,6 @@ def compress(
     sample_rate: int = None,
     input_wav: list = None,
     method: str = None,
-    quick: bool = None,
 ):
     """This function accepts a file path to compress. It will read data,
     preprocess the data, detect neural spikes, create an object
@@ -554,14 +553,6 @@ def compress(
                         a means of compression. 'n' indicates the
                         neural compression module will be used as a
                         means of compression.
-        quick (bool): This is the option that will determine if
-                        the file will be compressed using huffman
-                        encoding or the neural spike detection module
-                        in the case that the number of unique
-                        amplitudes are greater than 65536 and the
-                        method of compression (method) has not been
-                        explicityly defined.
-
     """
 
     if file:
@@ -642,9 +633,9 @@ def compress(
                 + "than 65536. Therefore, the data type must be "
                 + "greater than a 16-bit integer, and the amplitudes "
                 + "are out of range of the acceptable parameters for a "
-                + "neural signal. This data"
+                + "neural signal. "
             )
-            ValueError(error_string)
+            raise ValueError(error_string)
 
     if method == "h" or method == "n":
         node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(

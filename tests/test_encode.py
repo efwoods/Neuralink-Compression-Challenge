@@ -68,10 +68,9 @@ class TestEncode(unittest.TestCase):
         )
         self.test_sample_rate = test_sample_rate = 19531
         self.test_data = test_data = np.arange(0, 100000, step=1, dtype=np.int32)
-        
-        self.test_file_path = 'test_file.wav'
-        self.test_compressed_file_path = 'test_file.wav.brainwire'
-        
+
+        self.test_file_path = "test_file.wav"
+        self.test_compressed_file_path = "test_file.wav.brainwire"
 
     def tearDown(self):
         pass
@@ -1090,114 +1089,165 @@ class TestEncode(unittest.TestCase):
         identified_exception = cm.exception
         self.assertEqual(identified_exception.args[0], error_string_to_be_identified)
 
-    def test41_test_compress_method_is_u_and_unique_amplitude_indices_is_less_than_257(self):
-        logging.info("\n\ntest41: This tests the case that the method "
-                     + "of compression is 'u' and the number of unique "
-                     + "amplitude indices is less than 257 when the "
-                     + "'compress' function is implemented. \n\n")
-        byte_string = encode.compress(file=self.file, method='u')
+    def test41_test_compress_method_is_u_and_unique_amplitude_indices_is_less_than_257(
+        self,
+    ):
+        logging.info(
+            "\n\ntest41: This tests the case that the method "
+            + "of compression is 'u' and the number of unique "
+            + "amplitude indices is less than 257 when the "
+            + "'compress' function is implemented. \n\n"
+        )
+        byte_string = encode.compress(file=self.file, method="u")
         self.assertEqual(type(byte_string), bytes)
 
-    def test42_test_compress_method_is_u_and_unique_amplitude_indices_is_greater_than_256_and_less_than_65537(self):
-        logging.info("\n\ntest42: This tests the case that the method "
-                     + "of compression is 'u' and the unique amplitude "
-                     + "indices are between 257 and 65536 (inclusively "
-                     + "at both extremes) during the 'compress' "
-                     + "function execution.\n\n")
-        byte_string = encode.compress(file = self.debug_file, method='u')
+    def test42_test_compress_method_is_u_and_unique_amplitude_indices_is_greater_than_256_and_less_than_65537(
+        self,
+    ):
+        logging.info(
+            "\n\ntest42: This tests the case that the method "
+            + "of compression is 'u' and the unique amplitude "
+            + "indices are between 257 and 65536 (inclusively "
+            + "at both extremes) during the 'compress' "
+            + "function execution.\n\n"
+        )
+        byte_string = encode.compress(file=self.debug_file, method="u")
         self.assertEqual(type(byte_string), bytes)
-        
+
     def test43_test_compress_method_is_n(self):
-        logging.info("\n\ntest43: This tests the case during the "
-                    + "'compress' function that the method of "
-                    + "compression is 'n'.")
-        byte_string = encode.compress(file = self.file, method='n')
+        logging.info(
+            "\n\ntest43: This tests the case during the "
+            + "'compress' function that the method of "
+            + "compression is 'n'."
+        )
+        byte_string = encode.compress(file=self.file, method="n")
         self.assertEqual(type(byte_string), bytes)
 
     def test44_test_compress_method_value_error(self):
-        logging.info("\n\ntest44: This tests the case that the method "
-                    + "of compression is not of value 'h', 'u', or "
-                    + "'n'.")
-        expected_error_string = ( 
-                "Error: the method of compression (method) " 
-                + "must be of value 'u', 'h', or 'n'. " 
-                + "Please select a new value for the method of " 
-                + "compression.") 
+        logging.info(
+            "\n\ntest44: This tests the case that the method "
+            + "of compression is not of value 'h', 'u', or "
+            + "'n'."
+        )
+        expected_error_string = (
+            "Error: the method of compression (method) "
+            + "must be of value 'u', 'h', or 'n'. "
+            + "Please select a new value for the method of "
+            + "compression."
+        )
         with self.assertRaises(ValueError) as cm:
-            byte_string = encode.compress(file = self.file, method = 'x')
+            byte_string = encode.compress(file=self.file, method="x")
         identified_exception = cm.exception
         self.assertEqual(identified_exception.args[0], expected_error_string)
 
-    def test45_test_method_of_compression_is_quick_during_compess(self):
-        logging.info("\n\ntest45: This tests the case during the "
-                     + "'compress' method that the 'quick' option is "
-                     + "sent and the number of unique amplitudes is " 
-                     + "greater than 65536.\n\n")
-        byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data, quick=True)
-        self.assertEqual(type(byte_string), bytes)
-        
+    # def test45_test_method_of_compression_is_quick_during_compess(self):
+    #     logging.info("\n\ntest45: This tests the case during the "
+    #                  + "'compress' method that the 'quick' option is "
+    #                  + "sent and the number of unique amplitudes is "
+    #                  + "greater than 65536.\n\n")
+    #     byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data, quick=True)
+    #     self.assertEqual(type(byte_string), bytes)
+
     def test46_test_method_of_compression_is_not_quick_during_compress(self):
-        logging.info("\n\ntest46: This tests the case during the "
-                     + "'compress' method that the 'quick' option is "
-                     + "not set and the number of unique amplitudes is "
-                     + "greater than 65536. This will enable "
-                     + "the method of compression to implement the "
-                     + "neural spike detection module.\n\n")
-        
-        byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data)
+        logging.info(
+            "\n\ntest46: This tests the case during the "
+            + "'compress' method that the 'quick' option is "
+            + "not set and the number of unique amplitudes is "
+            + "greater than 65536. This will enable "
+            + "the method of compression to implement the "
+            + "neural spike detection module.\n\n"
+        )
+        error_to_identify = (
+            "Error: The number of unique amplitudes are greater "
+            + "than 65536. Therefore, the data type must be "
+            + "greater than a 16-bit integer, and the amplitudes "
+            + "are out of range of the acceptable parameters for a "
+            + "neural signal. "
+        )
+
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.compress(
+                sample_rate=self.test_sample_rate, input_wav=self.test_data
+            )
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_to_identify)
 
     def test47_test_main_length_of_unique_amplitudes_is_less_than_65537(self):
-        logging.info("\n\ntest47: This tests the 'main' function in "
-                    + "the case that the number of unique amplitudes "
-                    + "is less than 65537 and the quick argument is "
-                    + "not defined.\n\n")
+        logging.info(
+            "\n\ntest47: This tests the 'main' function in "
+            + "the case that the number of unique amplitudes "
+            + "is less than 65537 and the quick argument is "
+            + "not defined.\n\n"
+        )
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.file, self.compressed_file_path])
         encode.main(args=args)
-        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        byte_string = process_signal.read_file_bytes(
+            file_path=self.compressed_file_path
+        )
         self.assertEqual(type(byte_string), bytes)
-        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
-        self.assertEqual(encoded_method_of_compression, 'n')
+        encoded_method_of_compression = byte_string[-1:].decode(encoding="utf-8")
+        self.assertEqual(encoded_method_of_compression, "u")
 
     def test48_test_main_length_of_unique_amplitudes_is_greater_than_65536_quick(self):
-        logging.info("\n\ntest48: This tests the 'main' function in "
-                     + "the case that the number of unique amplitudes "
-                     + "is greater than 65536 and the quick argument "
-                     + "is set to 'True'. \n\n")
+        logging.info(
+            "\n\ntest48: This tests the 'main' function in "
+            + "the case that the number of unique amplitudes "
+            + "is greater than 65536 and the quick argument "
+            + "is set to 'True'. \n\n"
+        )
         # Create Sample Test File
-        wavfile.write(filename=self.test_file_path, rate = self.test_sample_rate, data = self.test_data)
-        
+        wavfile.write(
+            filename=self.test_file_path,
+            rate=self.test_sample_rate,
+            data=self.test_data,
+        )
+
         # Encode the Sample Test File
         parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.test_file_path, self.test_compressed_file_path, '-q'])
+        args = parser.parse_args(
+            [self.test_file_path, self.test_compressed_file_path, "-q"]
+        )
         encode.main(args=args)
-        
+
         # Assert the Encoding Properly Functioned
-        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        byte_string = process_signal.read_file_bytes(
+            file_path=self.test_compressed_file_path
+        )
         self.assertEqual(type(byte_string), bytes)
 
-        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
-        self.assertEqual(encoded_method_of_compression, 'h')
+        encoded_method_of_compression = byte_string[-1:].decode(encoding="utf-8")
+        self.assertEqual(encoded_method_of_compression, "h")
 
-    def test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented(self):
-        logging.info("\n\ntest49: This tests the 'main' function in "
-                     + "the case that the number of unique amplitudes "
-                     + "is greater than 65536 and the quick argument "
-                     + "is set to 'False'. \n\n")
+    def test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented(
+        self,
+    ):
+        logging.info(
+            "\n\ntest49: This tests the 'main' function in "
+            + "the case that the number of unique amplitudes "
+            + "is greater than 65536 and the quick argument "
+            + "is set to 'False'. \n\n"
+        )
         # Create Sample Test File
-        wavfile.write(filename=self.test_file_path, rate = self.test_sample_rate, data = self.test_data)
-        
+        wavfile.write(
+            filename=self.test_file_path,
+            rate=self.test_sample_rate,
+            data=self.test_data,
+        )
+
         # Encode the Sample Test File
         parser = encode.initialize_argument_parser()
         args = parser.parse_args([self.test_file_path, self.test_compressed_file_path])
         encode.main(args=args)
-        
+
         # Assert the Encoding Properly Functioned
-        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        byte_string = process_signal.read_file_bytes(
+            file_path=self.compressed_file_path
+        )
         self.assertEqual(type(byte_string), bytes)
 
-        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
-        self.assertEqual(encoded_method_of_compression, 'n')
+        encoded_method_of_compression = byte_string[:-1].decode(encoding="utf-8")
+        self.assertEqual(encoded_method_of_compression, "n")
 
 
 if __name__ == "__main__":
