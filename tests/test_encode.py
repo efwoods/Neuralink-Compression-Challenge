@@ -66,6 +66,12 @@ class TestEncode(unittest.TestCase):
         self.debug_compressed_file_path = (
             "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
         )
+        self.test_sample_rate = test_sample_rate = 19531
+        self.test_data = test_data = np.arange(0, 100000, step=1, dtype=np.int32)
+        
+        self.test_file_path = 'test_file.wav'
+        self.test_compressed_file_path = 'test_file.wav.brainwire'
+        
 
     def tearDown(self):
         pass
@@ -893,23 +899,306 @@ class TestEncode(unittest.TestCase):
         self.assertTrue(end_zero_padding)
 
     def test34_encode_using_amplitude_indices_less_than_256(self):
-        logging.info("This is a test that the function " +
-                     "'encode_using_amplitude_indices' "
-                     + "properly functions when the number of unique "
-                     + "amplitudes is less than 256.")
-        
+        logging.info(
+            "This is a test that the function "
+            + "'encode_using_amplitude_indices' "
+            + "properly functions when the number of unique "
+            + "amplitudes is less than 256."
+        )
+
         sr, data_less_than_256_unique_amplitudes = wavfile.read(self.file)
-        byte_string = encode.encode_using_amplitude_indices(data_less_than_256_unique_amplitudes)
+        byte_string = encode.encode_using_amplitude_indices(
+            data_less_than_256_unique_amplitudes
+        )
+        self.assertEqual(type(byte_string), bytes)
+
+    def test35_encode_using_amplitude_indices_greater_than_256(self):
+        logging.info(
+            "This is a test that the function "
+            + "'encode_using_amplitude_indices' "
+            + "properly functions when the number of unique "
+            + "amplitudes is greater than 256."
+        )
+        sr, data_greater_than_256_unique_amplitudes = wavfile.read(self.debug_file)
+        byte_string = encode.encode_using_amplitude_indices(
+            data_greater_than_256_unique_amplitudes
+        )
+        self.assertEqual(type(byte_string), bytes)
+
+    def test36_test_unique_amplitudes_l_does_not_exist_and_method_of_compression_is_u_during_create_byte_string(
+        self,
+    ):
+        logging.info(
+            "\n\ntest36: This test for the case when the unique "
+            + "amplitudes list ('unique_amplitudes_l') does not "
+            + "exist and the method of compression is set to the "
+            + "value of 'u' during the 'create_byte_string' "
+            + "function.\n\n"
+        )
+
+        # Establishing data for the test:
+        error_string_to_identify = (
+            "Error unique_amplitudes_l does "
+            + "not exist and method_of_compression_is_set to u. : "
+            + "'NoneType' object has no attribute 'any'"
+        )
+
+        rate, data = wavfile.read(self.file)
+        data_l = data.tolist()
+
+        """There are less than or equal to 256 unique amplitudes.
+            This indicates that an unsigned 8-bit ingeger will be used.
+        """
+        unique_amplitudes = np.unique(data_l).tolist()
+        self.assertLess(len(unique_amplitudes), 256)
+        indices = np.array(
+            [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
+        )
+
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
+            input_data=indices
+        )
+
+        """The unique_amplitudes_l (unique amplitudes list) is 
+            erroneously not calculated nor sent in the function call
+            below.
+        """
+        with self.assertRaises(Exception) as cm:
+            byte_string = encode.create_byte_string(
+                node_mapping_dict,
+                bit_string,
+                end_zero_padding,
+                method_of_compression="u",
+            )
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_identify)
+
+    def test37_test_unique_amplitudes_l_does_not_exist_and_method_of_compression_is_w_during_create_byte_string(
+        self,
+    ):
+        logging.info(
+            "\n\ntest37: This test for the case when the unique "
+            + "amplitudes list ('unique_amplitudes_l') does not "
+            + "exist and the method of compression is set to the "
+            + "value of 'w' during the 'create_byte_string' "
+            + "function.\n\n"
+        )
+
+        # Establishing data for the test:
+        error_string_to_identify = (
+            "Error unique_amplitudes_l does "
+            + "not exist and method_of_compression_is_set to w. : "
+            + "'NoneType' object has no attribute 'any'"
+        )
+
+        rate, data = wavfile.read(self.debug_file)
+        data_l = data.tolist()
+
+        """There are more than 256 unique amplitudes.
+            This indicates that an unsigned 16-bit integer will be used.
+        """
+        unique_amplitudes = np.unique(data_l).tolist()
+        self.assertGreater(len(unique_amplitudes), 256)
+
+        indices = np.array(
+            [unique_amplitudes.index(value) for value in data_l], dtype=np.uint16
+        )
+
+        node_mapping_dict, bit_string, end_zero_padding = encode.huffman_encoding(
+            input_data=indices
+        )
+
+        """The unique_amplitudes_l (unique amplitudes list) is 
+            erroneously not calculated nor sent in the function call
+            below.
+        """
+        with self.assertRaises(Exception) as cm:
+            byte_string = encode.create_byte_string(
+                node_mapping_dict,
+                bit_string,
+                end_zero_padding,
+                method_of_compression="w",
+            )
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_identify)
+
+    def test38_test_unique_amplitudes_l_is_greater_than_65536_in_function_encode_using_amplitude_indices(
+        self,
+    ):
+        logging.info(
+            "\n\ntest38: This is a test for when the unique "
+            + "amplitudes list is equal to or greater than 65536. "
+            + "This case should raise a ValueError.\n\n"
+        )
+
+        # Creating Sample Data
+        error_string_to_be_identified = (
+            "The number of "
+            + "unique_amplitudes is greater than 65536. The "
+            + "indices will not be properly expressed by "
+            + "unsigned 16-bit integers. Please select another "
+            + "method of compression for this data."
+        )
+        # Values range from [0 to 65536] with list length of 65537.
+        test_data = np.arange(0, 65537, step=1, dtype=np.int32)
+
+        # Verifying a ValueError is raised:
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.encode_using_amplitude_indices(data=test_data)
+
+        # Verifying the ValueError message:
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_be_identified)
+
+    def test39_test_file_not_defined_and_sample_rate_not_defined_in_compress_function(
+        self,
+    ):
+        logging.info(
+            "\n\ntest39: This test covers the case when the "
+            + "file is not defined and the sample_rate is "
+            + "not defined. "
+        )
+        error_string_to_be_identified = (
+            "Error: compress requires either file "
+            + "to be defined or sample_rate and "
+            + "input_wav to be defined."
+        )
+        sample_rate, data = wavfile.read(self.file)
+
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.compress(input_wav=data)
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_be_identified)
+
+    def test40_test_file_not_defined_and_input_wav_not_defined_in_compress_function(
+        self,
+    ):
+        logging.info(
+            "\n\ntest40: This test covers the case when the "
+            + "file is not defined and the input_wav (data) is "
+            + "not defined. "
+        )
+        error_string_to_be_identified = (
+            "Error: compress requires either file "
+            + "to be defined or sample_rate and "
+            + "input_wav to be defined."
+        )
+        sample_rate, data = wavfile.read(self.file)
+
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.compress(sample_rate=sample_rate)
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_be_identified)
+
+    def test41_test_compress_method_is_u_and_unique_amplitude_indices_is_less_than_257(self):
+        logging.info("\n\ntest41: This tests the case that the method "
+                     + "of compression is 'u' and the number of unique "
+                     + "amplitude indices is less than 257 when the "
+                     + "'compress' function is implemented. \n\n")
+        byte_string = encode.compress(file=self.file, method='u')
+        self.assertEqual(type(byte_string), bytes)
+
+    def test42_test_compress_method_is_u_and_unique_amplitude_indices_is_greater_than_256_and_less_than_65537(self):
+        logging.info("\n\ntest42: This tests the case that the method "
+                     + "of compression is 'u' and the unique amplitude "
+                     + "indices are between 257 and 65536 (inclusively "
+                     + "at both extremes) during the 'compress' "
+                     + "function execution.\n\n")
+        byte_string = encode.compress(file = self.debug_file, method='u')
         self.assertEqual(type(byte_string), bytes)
         
-    def test35_encode_using_amplitude_indices_greater_than_256(self):
-        logging.info("This is a test that the function " + 
-                     "'encode_using_amplitude_indices' "
-                     + "properly functions when the number of unique "
-                     + "amplitudes is greater than 256.")
-        sr, data_greater_than_256_unique_amplitudes = wavfile.read(self.debug_file)
-        byte_string = encode.encode_using_amplitude_indices(data_greater_than_256_unique_amplitudes)
+    def test43_test_compress_method_is_n(self):
+        logging.info("\n\ntest43: This tests the case during the "
+                    + "'compress' function that the method of "
+                    + "compression is 'n'.")
+        byte_string = encode.compress(file = self.file, method='n')
         self.assertEqual(type(byte_string), bytes)
+
+    def test44_test_compress_method_value_error(self):
+        logging.info("\n\ntest44: This tests the case that the method "
+                    + "of compression is not of value 'h', 'u', or "
+                    + "'n'.")
+        expected_error_string = ( 
+                "Error: the method of compression (method) " 
+                + "must be of value 'u', 'h', or 'n'. " 
+                + "Please select a new value for the method of " 
+                + "compression.") 
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.compress(file = self.file, method = 'x')
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], expected_error_string)
+
+    def test45_test_method_of_compression_is_quick_during_compess(self):
+        logging.info("\n\ntest45: This tests the case during the "
+                     + "'compress' method that the 'quick' option is "
+                     + "sent and the number of unique amplitudes is " 
+                     + "greater than 65536.\n\n")
+        byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data, quick=True)
+        self.assertEqual(type(byte_string), bytes)
+        
+    def test46_test_method_of_compression_is_not_quick_during_compress(self):
+        logging.info("\n\ntest46: This tests the case during the "
+                     + "'compress' method that the 'quick' option is "
+                     + "not set and the number of unique amplitudes is "
+                     + "greater than 65536. This will enable "
+                     + "the method of compression to implement the "
+                     + "neural spike detection module.\n\n")
+        
+        byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data)
+
+    def test47_test_main_length_of_unique_amplitudes_is_less_than_65537(self):
+        logging.info("\n\ntest47: This tests the 'main' function in "
+                    + "the case that the number of unique amplitudes "
+                    + "is less than 65537 and the quick argument is "
+                    + "not defined.\n\n")
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.file, self.compressed_file_path])
+        encode.main(args=args)
+        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        self.assertEqual(type(byte_string), bytes)
+        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
+        self.assertEqual(encoded_method_of_compression, 'n')
+
+    def test48_test_main_length_of_unique_amplitudes_is_greater_than_65536_quick(self):
+        logging.info("\n\ntest48: This tests the 'main' function in "
+                     + "the case that the number of unique amplitudes "
+                     + "is greater than 65536 and the quick argument "
+                     + "is set to 'True'. \n\n")
+        # Create Sample Test File
+        wavfile.write(filename=self.test_file_path, rate = self.test_sample_rate, data = self.test_data)
+        
+        # Encode the Sample Test File
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.test_file_path, self.test_compressed_file_path, '-q'])
+        encode.main(args=args)
+        
+        # Assert the Encoding Properly Functioned
+        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        self.assertEqual(type(byte_string), bytes)
+
+        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
+        self.assertEqual(encoded_method_of_compression, 'h')
+
+    def test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented(self):
+        logging.info("\n\ntest49: This tests the 'main' function in "
+                     + "the case that the number of unique amplitudes "
+                     + "is greater than 65536 and the quick argument "
+                     + "is set to 'False'. \n\n")
+        # Create Sample Test File
+        wavfile.write(filename=self.test_file_path, rate = self.test_sample_rate, data = self.test_data)
+        
+        # Encode the Sample Test File
+        parser = encode.initialize_argument_parser()
+        args = parser.parse_args([self.test_file_path, self.test_compressed_file_path])
+        encode.main(args=args)
+        
+        # Assert the Encoding Properly Functioned
+        byte_string = process_signal.read_file_bytes(file_path=self.compressed_file_path)
+        self.assertEqual(type(byte_string), bytes)
+
+        encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
+        self.assertEqual(encoded_method_of_compression, 'n')
+
 
 if __name__ == "__main__":
     unittest.main()

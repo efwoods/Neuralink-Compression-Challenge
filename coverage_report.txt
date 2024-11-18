@@ -1,0 +1,725 @@
+INFO:root:
+
+test01: This is a test of decoding a huffman encoded file exclusively. 
+
+
+.INFO:root:
+
+test02: This is a test to decode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array.
+
+
+.INFO:root:
+
+test03: This test encodes a file using huffman encoding and decodes using huffman encoding.
+
+
+.INFO:root:
+
+test04: Testing Huffman Decoding exclusively.
+
+
+.INFO:root:
+
+test05: This is an end-to-end test of the huffman encode & decode algorithm with signal processing included.
+
+
+INFO:root:This is a test to encode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array.
+.INFO:root:
+
+test06: This is a test to encode the huffman encoded byte string, convert the byte string into the encoded format, and reconstruct the amplitude array.
+
+
+INFO:root:Debugging Key:Value Pair not found in bit string.
+INFO:root:Debugging: decode.find_key_by_value_in_node_mapping_dictionary(
+INFO:root:Debugging the following error: 
+ValueError: setting an array element with asequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (3850,) + inhomogeneous part. Traceback (most recent call last)
+.INFO:root:
+
+test07: This is a test hat the parser is appropriately initialized and the arguments are successfully parsed.
+
+
+.INFO:root:
+
+test08: This is a test to compress the data using the 'compress' method and the file name. The data is then decompressed.
+
+
+INFO:root:Method of compression == 'u'
+.INFO:root:
+
+test09: This is a test to compress the data using the 'compress' method and the file name where the quick argument is passed into the function. The data is then decompressed.
+
+
+.INFO:root:
+
+test10: This is a test to compress the data using the 'compress' method where the inputs are sample_rate and the input_wav. The data is then decompressed. Method of compression == 'u'.
+
+
+.INFO:root:
+
+test11: This is a test to compress the data using the 'compress' method where the inputs are sample_rate and the input_wav. The data is then decompressed. Method of compression is quick.
+
+
+.INFO:root:
+
+test12: This is a test to compress the data using the 'main' method where the method of compression is 'h' which indicates a huffman encoding format exclusively. The data is then decompressed. The method of compression is 'h'. 
+
+
+.INFO:root:
+
+test13: This is a test to compress the data using the 'main' method where the method of compression is 'h' which indicates a huffman encoding format exclusively. The data is then decompressed. The method of compression is 'u'. 
+
+
+.INFO:root:
+
+test14: This is a test to compress the data using the 'main' method where the method of compression is 'n' which indicates implementing neural spike detection. The data is then decompressed. The method of compression is 'n'. 
+
+
+.INFO:root:
+
+test15: This is a test to compress the data using the 'main' method where the method of compression is 'n' which indicates implementing neural spike detection. The data is then decompressed. The method of compression is 'n'. 
+
+
+WARNING:root:
+When the method of compression == 'n', the original data will not match the filtered data identically.
+
+.INFO:root:
+
+test16: This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'u' because the length of the unique indices of the input amplitudes will be less than 256 and the 'quick' option is set to 'False' by default. 
+
+
+.INFO:root:
+
+test17: This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'h' because the length of the unique indices of the input amplitudes will be more than 256 and the 'quick' option is set to 'True' by default. 
+
+
+.INFO:root:
+
+test18: This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'n' because the length of the unique indices of the input amplitudes will be more than 256 and the 'quick' option is set to 'False' by default. 
+
+
+.INFO:root:
+
+test19: This method tests that the function 'process_huffman_encoded_file' will properly return a value within the decompress method. This is black box testing of the decompress function within decode.py.
+
+
+.INFO:root:
+
+test20: This is a test of the 'process_spike_detection_huffman_encoded_data' function in the decompress function of decode.py.
+
+
+.INFO:root:
+
+test21: This is a test to ensure that the decompress method will raise an error if the method of compression is not 'h', 'u', 'w', or 'n'.
+
+
+.INFO:root:
+
+test22: This test will create an incorrect method of compression that is not accepted before running the main function to detect if a ValueError detects this error.
+
+
+.INFO:root:
+
+test01: test_logging_and_test_methods
+
+
+INFO:root:The logger works
+.INFO:root:
+
+test02: This test ensures the helper function 'print_differences_in_array is operational.
+
+
+.INFO:root:
+
+test03: test_read_input_wav_is_type_bytes
+
+
+.INFO:root:
+
+test04: Testing huffman encoding of pickled object format
+
+
+.INFO:root:
+
+test05: This is a test that the information of the wave file is read. 
+
+
+INFO:root:input_wav type: <class 'wave.Wave_read'>
+INFO:root:Channels: 1
+INFO:root:Sample width 2 Bytes
+INFO:root:Frequency: 19531
+INFO:root:Number of frames: 98741
+INFO:root:Audio length: 5.06 seconds
+INFO:root:pred_num_bytes: 197482
+INFO:root:len(sample_bytes): 197482
+.INFO:root:
+
+This is a test that the filters of the signal can be modified.
+
+
+.INFO:root:
+
+test07: Testing input of wavfile into huffman_encode function.
+
+
+INFO:root:The sample rate is implied using this method to be a known value of 19531.
+.INFO:root:
+
+test08: Testing using spike detection.
+
+
+.INFO:root:
+
+test09: Testing File Size and Algorithmic Speed using the encoded information only. 
+
+
+.INFO:root:
+
+ test10: This is the Main Function: Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information.
+
+
+.INFO:root:
+
+test11: This function tests the ability to detect single neural spikes.
+
+
+.INFO:root:
+
+ test12: Testing Efficiency of Writing String of Bytes that Contain Only Detected Spike Information.
+
+
+.INFO:root:
+
+ test13: This is a test to ensure the input wav is written to the output file and is functional.
+
+
+.INFO:root:
+
+test14: Testing Using Huffman Encoding on the String of Bytes that Contain Only Detected Spike Information.
+
+
+.INFO:root:
+
+test15: Testing that there are no duplicates in the spike_train_time_index_list. 
+
+
+.INFO:root:
+
+test16: This is a test to ensure the argument parser successfully parses the arguments.
+
+
+.INFO:root:
+
+test17: This is a test to compress the data using the 'compress' method and the file name.
+
+
+.INFO:root:
+
+test18: This is a test to compress the data using the 'compress' method and the file name where the quick argument is passed into the function.
+
+
+.INFO:root:
+
+test19: This is a test to compress the data using the 'compress' method where the inputs are sample_rate and the input_wav.
+
+
+.INFO:root:
+
+test20: This is a test to compress the data using the 'compress' method where the inputs are sample_rate and input_wav while implementing the 'quick' option. 
+
+
+.INFO:root:
+
+test21: This is a test to compress the data using the 'main' method where the method of compression is 'h' which indicates a huffman encoding format exclusively.
+
+
+.INFO:root:
+
+test22: This is a test to compress the data using the 'main' method where the method of compression is 'u' which indicates implementing huffman encoding and a unique amplitudes list.
+
+
+.INFO:root:
+
+test23: This is a test to compress the data using the 'main' method where the method of compression is 'n' which indicates implementing neural spike detection.
+
+
+.INFO:root:
+
+test24 This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'u' because the length of the unique indices of the input amplitudes will be less than 256 and the 'quick' option is set to 'False' by default. 
+
+
+.INFO:root:
+
+test25: This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'h' because the length of the unique indices of the input amplitudes will be more than 256 and the 'quick' option is set to 'True'. 
+
+
+Encoding Time: 
+
+
+Time Δ Nanoseconds: 512887000
+Time Δ Microseconds: 512887.0
+Time Δ Milliseconds: 512.887
+Time Δ Seconds: 0.512887
+
+
+Total Time: 
+
+
+Time Δ Nanoseconds: 5836689000
+Time Δ Microseconds: 5836689.0
+Time Δ Milliseconds: 5836.689
+Time Δ Seconds: 5.836689
+
+
+Original File Size: 197526
+Compressed File Size: 118967
+Reduction in File Size: 78559 bytes.
+Percent of Compressed File Size Relative to Required File Size: 12053.394%
+Percent of Reduction: 39.77%
+The file was reduced in size by 39.771% of the original file size.
+Percent of Compression: 60.23%
+The compressed file size is 60.23% the size of the original file. 
+The compression ratio is: 1.66.
+Encoding Time: 
+
+
+Time Δ Nanoseconds: 5688743000
+Time Δ Microseconds: 5688743.0
+Time Δ Milliseconds: 5688.743
+Time Δ Seconds: 5.688743
+
+
+Decoding Time: 
+
+
+Time Δ Nanoseconds: 4878653000
+Time Δ Microseconds: 4878653.0
+Time Δ Milliseconds: 4878.653
+Time Δ Seconds: 4.878653
+
+
+Total Time: 
+
+
+Time Δ Nanoseconds: 10567411000
+Time Δ Microseconds: 10567411.0
+Time Δ Milliseconds: 10567.411
+Time Δ Seconds: 10.567411
+
+
+Original File Size: 197526
+Compressed File Size: 90317
+Reduction in File Size: 107209 bytes.
+Percent of Compressed File Size Relative to Required File Size: 9150.659%
+Percent of Reduction: 54.28%
+The file was reduced in size by 54.276% of the original file size.
+Percent of Compression: 45.72%
+The compressed file size is 45.72% the size of the original file. 
+The compression ratio is: 2.19.
+Encoding Time:
+
+
+Time Δ Nanoseconds: 5479102000
+Time Δ Microseconds: 5479102.0
+Time Δ Milliseconds: 5479.102
+Time Δ Seconds: 5.479102
+
+
+Decoding Time:
+
+
+Time Δ Nanoseconds: 4943093000
+Time Δ Microseconds: 4943093.0
+Time Δ Milliseconds: 4943.093
+Time Δ Seconds: 4.943093
+
+
+Total Time:
+
+
+Time Δ Nanoseconds: 10594458000
+Time Δ Microseconds: 10594458.0
+Time Δ Milliseconds: 10594.458
+Time Δ Seconds: 10.594458
+
+
+Original File Size: 197526
+Compressed File Size: 90317
+Reduction in File Size: 107209 bytes.
+Percent of Compressed File Size Relative to Required File Size: 9150.659%
+Percent of Reduction: 54.28%
+The file was reduced in size by 54.276% of the original file size.
+Percent of Compression: 45.72%
+The compressed file size is 45.72% the size of the original file. 
+The compression ratio is: 2.19.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+All values between original amplitudes and decompressed amplitudes are equivalent.
+test set up
+Original File Size: 197526
+Compressed File Size: 118967
+Reduction in File Size: 78559 bytes.
+Percent of Compressed File Size Relative to Required File Size: 12053.394%
+Percent of Reduction: 39.77%
+The file was reduced in size by 39.771% of the original file size.
+Percent of Compression: 60.23%
+The compressed file size is 60.23% the size of the original file. 
+The compression ratio is: 1.66.
+File Name: "0ab237b7-fb12-4687-afed-8d1e2070d621.wav.brainwire".
+Size: 313348 Bytes.
+
+Executed Line: wavfile.read(...
+Time Δ Nanoseconds: 115000
+Time Δ Microseconds: 115.0
+Time Δ Milliseconds: 0.115
+Time Δ Seconds: 0.000115
+
+
+
+Executed Line: process_signal.preprocess_signal(...
+Time Δ Nanoseconds: 3090000
+Time Δ Microseconds: 3090.0
+Time Δ Milliseconds: 3.09
+Time Δ Seconds: 0.00309
+
+
+
+Executed Line: process_signal.detect_neural_spikes(...
+Time Δ Nanoseconds: 5336719000
+Time Δ Microseconds: 5336719.0
+Time Δ Milliseconds: 5336.719
+Time Δ Seconds: 5.336719
+
+
+
+Executed Line: process_signal.create_encoded_data(...
+Time Δ Nanoseconds: 3963000
+Time Δ Microseconds: 3963.0
+Time Δ Milliseconds: 3.963
+Time Δ Seconds: 0.003963
+
+
+
+Executed Line: process_signal.convert_encoded_data_to_byte_string(...
+Time Δ Nanoseconds: 41749000
+Time Δ Microseconds: 41749.0
+Time Δ Milliseconds: 41.749
+Time Δ Seconds: 0.041749
+
+
+
+Executed Line: encode.huffman_encoding(...
+Time Δ Nanoseconds: 267990000
+Time Δ Microseconds: 267990.0
+Time Δ Milliseconds: 267.99
+Time Δ Seconds: 0.26799
+
+
+
+Executed Line: process_signal.write_file_bytes(...
+Time Δ Nanoseconds: 1000000
+Time Δ Microseconds: 1000.0
+Time Δ Milliseconds: 1.0
+Time Δ Seconds: 0.001
+
+
+Original File Size: 197526
+Compressed File Size: 90317
+Reduction in File Size: 107209 bytes.
+Percent of Compressed File Size Relative to Required File Size: 9150.659%
+Percent of Reduction: 54.28%
+The file was reduced in size by 54.276% of the original file size.
+Percent of Compression: 45.72%
+The compressed file size is 45.72% the size of the original file. 
+The compression ratio is: 2.19.
+
+Executed Line: Total Compression Time...
+Time Δ Nanoseconds: 5654679000
+Time Δ Microseconds: 5654679.0
+Time Δ Milliseconds: 5654.679
+Time Δ Seconds: 5.654679
+
+
+File Name: "0ab237b7-fb12-4687-afed-8d1e2070d621.wav.brainwire".
+Size: 90317 Bytes.
+
+
+Time Δ Nanoseconds: 6392000
+Time Δ Microseconds: 6392.0
+Time Δ Milliseconds: 6.392
+Time Δ Seconds: 0.006392
+
+
+Original File Size: 197526
+Compressed File Size: 119
+Reduction in File Size: 197407 bytes.
+Percent of Compressed File Size Relative to Required File Size: 12.057%
+Percent of Reduction: 99.94%
+The file was reduced in size by 99.940% of the original file size.
+Percent of Compression: 0.06%
+The compressed file size is 0.06% the size of the original file. 
+The compression ratio is: 1659.88.
+
+
+Time Δ Nanoseconds: 5404653000
+Time Δ Microseconds: 5404653.0
+Time Δ Milliseconds: 5404.653
+Time Δ Seconds: 5.404653
+
+
+Original File Size: 197526
+Compressed File Size: 120338
+Reduction in File Size: 77188 bytes.
+Percent of Compressed File Size Relative to Required File Size: 12192.300%
+Percent of Reduction: 39.08%
+The file was reduced in size by 39.077% of the original file size.
+Percent of Compression: 60.92%
+The compressed file size is 60.92% the size of the original file. 
+The compression ratio is: 1.64.
+Original File Size: 197526
+Compressed File Size: 86602
+Reduction in File Size: 110924 bytes.
+Percent of Compressed File Size Relative to Required File Size: 8774.265%
+Percent of Reduction: 56.16%
+The file was reduced in size by 56.157% of the original file size.
+Percent of Compression: 43.84%
+The compressed file size is 43.84% the size of the original file. 
+The compression ratio is: 2.28.
+
+
+Time Δ Nanoseconds: 5640260000
+Time Δ Microseconds: 5640260.0
+Time Δ Milliseconds: 5640.26
+Time Δ Seconds: 5.64026
+
+
+
+Executed Line: encode_using_amplitude_indices_less_than_256...
+Time Δ Nanoseconds: 206313000
+Time Δ Microseconds: 206313.0
+Time Δ Milliseconds: 206.313
+Time Δ Seconds: 0.206313
+
+
+Original File Size: 197526
+Compressed File Size: 73031
+Reduction in File Size: 124495 bytes.
+Percent of Compressed File Size Relative to Required File Size: 7399.291%
+Percent of Reduction: 63.03%
+The file was reduced in size by 63.027% of the original file size.
+Percent of Compression: 36.97%
+The compressed file size is 36.97% the size of the original file. 
+The compression ratio is: 2.70.
+
+Method of Compression: encode.compress(file=self.file
+Initial File Size: 197482 bytes.
+Compressed File Size: 73031 bytes.
+Reduction in File Size: 124451 bytes.
+Percent of Reduction: 63.02%
+The file was reduced in size by 63.02% of the original size of the file. 
+Percent of Compression: 36.98%
+The compressed file size is 36.98% of the original file size.
+Compression Ratio: 2.70
+
+
+
+Executed Line: encode.compress(file=self.file...
+Time Δ Nanoseconds: 195250000
+Time Δ Microseconds: 195250.0
+Time Δ Milliseconds: 195.25
+Time Δ Seconds: 0.19525
+
+
+
+Method of Compression: encode.compress(file=self.debug_file, quick=True)
+Initial File Size: 197378 bytes.
+Compressed File Size: 111756 bytes.
+Reduction in File Size: 85622 bytes.
+Percent of Reduction: 43.38%
+The file was reduced in size by 43.38% of the original size of the file. 
+Percent of Compression: 56.62%
+The compressed file size is 56.62% of the original file size.
+Compression Ratio: 1.77
+
+
+.INFO:root:
+
+test26: This is a test to compress the data using the 'compress' method where the method of compression will be interpreted to 'n' because the length of the unique indices of the input amplitudes will be more than 256 and the 'quick' option is set to 'False' by default. 
+
+
+.INFO:root:
+
+test27: This is a test to compress the data using the 'main' method where the method of compression is 'u' which indicates implementing huffman encoding and a unique amplitudes list. There are more than 256 unique amplitudes in this list. 
+
+
+.INFO:root:
+
+test28: This is a test to compress the data using the  'main' method where the method of compression is 'n' which indicates implementing the neural spike detection module. The 'quick' parameter is set. This should not effect the output size of the resultant data nor the method of compression. 
+
+
+.INFO:root:
+
+test29: This is a test to compress the data using the  'main' method where the method of compression is 'h' which indicates implementing the huffman encoding algorithm. The 'quick' parameter is set. This should not effect the output size of the resultant data nor the method of compression. 
+
+
+.INFO:root:
+
+test30: This is a test to compress the data using the  'main' method where the method of compression is 'u' which indicates implementing the huffman encoding algorithm with a unique amplitudes list. The 'quick' parameter is set. This should not effect the output size of the resultant data nor the method of compression. The method of compression should be 'w' because the there are more than 256 unique amplitudes in the wav file titled 'debug_file' which contains raw neural data amplitudes. 
+
+
+.INFO:root:
+
+test31: This is a test to compress the data using the  'main' method where the method of compression is 'u' which indicates implementing the huffman encoding algorithm with a unique amplitudes list. The 'quick' parameter is set. This should not effect the output size of the resultant data nor the method of compression. The method of compression should be 'u' because the there are less than 256 unique amplitudes in the wav file titled 'file' which contains raw neural data amplitudes. 
+
+
+.INFO:root:This is a unittest of the function 'create_node_mapping_dictionary'. 
+.INFO:root:This is a test that the function 'huffman_encoding' properly functions.
+.INFO:root:This is a test that the function 'encode_using_amplitude_indices' properly functions when the number of unique amplitudes is less than 256.
+.INFO:root:This is a test that the function 'encode_using_amplitude_indices' properly functions when the number of unique amplitudes is greater than 256.
+.INFO:root:
+
+test36: This test for the case when the unique amplitudes list ('unique_amplitudes_l') does not exist and the method of compression is set to the value of 'u' during the 'create_byte_string' function.
+
+
+.INFO:root:
+
+test37: This test for the case when the unique amplitudes list ('unique_amplitudes_l') does not exist and the method of compression is set to the value of 'w' during the 'create_byte_string' function.
+
+
+.INFO:root:
+
+test38: This is a test for when the unique amplitudes list is equal to or greater than 65536. This case should raise a ValueError.
+
+
+.INFO:root:
+
+test39: This test covers the case when the file is not defined and the sample_rate is not defined. 
+.INFO:root:
+
+test40: This test covers the case when the file is not defined and the input_wav (data) is not defined. 
+.INFO:root:
+
+test41: This tests the case that the method of compression is 'u' and the number of unique amplitude indices is less than 257 when the 'compress' function is implemented. 
+
+
+.INFO:root:
+
+test42: This tests the case that the method of compression is 'u' and the unique amplitude indices are between 257 and 65536 (inclusively at both extremes) during the 'compress' function execution.
+
+
+.INFO:root:
+
+test43: This tests the case during the 'compress' function that the method of compression is 'n'.
+.INFO:root:
+
+test44: This tests the case that the method of compression is not of value 'h', 'u', or 'n'.
+.INFO:root:
+
+test45: This tests the case during the 'compress' method that the 'quick' option is sent and the number of unique amplitudes is greater than 65536.
+
+
+.INFO:root:
+
+test46: This tests the case during the 'compress' method that the 'quick' option is not set and the number of unique amplitudes is greater than 65536. This will enable the method of compression to implement the neural spike detection module.
+
+
+EINFO:root:
+
+test47: This tests the 'main' function in the case that the number of unique amplitudes is less than 65537 and the quick argument is not defined.
+
+
+EINFO:root:
+
+test48: This tests the 'main' function in the case that the number of unique amplitudes is greater than 65536 and the quick argument is set to 'True'. 
+
+
+EINFO:root:
+
+test49: This tests the 'main' function in the case that the number of unique amplitudes is greater than 65536 and the quick argument is set to 'False'. 
+
+
+E
+======================================================================
+ERROR: test46_test_method_of_compression_is_not_quick_during_compress (tests.test_encode.TestEncode.test46_test_method_of_compression_is_not_quick_during_compress)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/tests/test_encode.py", line 1147, in test46_test_method_of_compression_is_not_quick_during_compress
+    byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "./encode", line 655, in compress
+    spike_train_time_index_list = process_signal.detect_neural_spikes(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/py_encoding_env/lib/python3.11/site-packages/signal_processing_utilities/process_signal.py", line 377, in detect_neural_spikes
+    if len(spike_time_index_list) > 0:
+           ^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'spike_time_index_list' where it is not associated with a value
+
+======================================================================
+ERROR: test47_test_main_length_of_unique_amplitudes_is_less_than_65537 (tests.test_encode.TestEncode.test47_test_main_length_of_unique_amplitudes_is_less_than_65537)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/tests/test_encode.py", line 1159, in test47_test_main_length_of_unique_amplitudes_is_less_than_65537
+    encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8e in position 258: invalid start byte
+
+======================================================================
+ERROR: test48_test_main_length_of_unique_amplitudes_is_greater_than_65536_quick (tests.test_encode.TestEncode.test48_test_main_length_of_unique_amplitudes_is_greater_than_65536_quick)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/tests/test_encode.py", line 1179, in test48_test_main_length_of_unique_amplitudes_is_greater_than_65536_quick
+    encoded_method_of_compression = byte_string[:-1].decode(encoding='utf-8')
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x8e in position 258: invalid start byte
+
+======================================================================
+ERROR: test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented (tests.test_encode.TestEncode.test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/tests/test_encode.py", line 1193, in test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented
+    encode.main(args=args)
+  File "./encode", line 776, in main
+    byte_string = implement_spike_detection_module_and_huffman_encode_file(
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "./encode", line 426, in implement_spike_detection_module_and_huffman_encode_file
+    spike_train_time_index_list = process_signal.detect_neural_spikes(
+                                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Volumes/T7/Github/Neuralink-Compression-Challenge/py_encoding_env/lib/python3.11/site-packages/signal_processing_utilities/process_signal.py", line 377, in detect_neural_spikes
+    if len(spike_time_index_list) > 0:
+           ^^^^^^^^^^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'spike_time_index_list' where it is not associated with a value
+
+----------------------------------------------------------------------
+Ran 71 tests in 214.372s
+
+FAILED (errors=4)
+
+Executed Line: encode.compress(file=self.debug_file, quick=True)...
+Time Δ Nanoseconds: 571200000
+Time Δ Microseconds: 571200.0
+Time Δ Milliseconds: 571.2
+Time Δ Seconds: 0.5712
+
+
+
+Method of Compression: encode.compress(file=self.debug_file)
+Initial File Size: 197378 bytes.
+Compressed File Size: 111756 bytes.
+Reduction in File Size: 85622 bytes.
+Percent of Reduction: 43.38%
+The file was reduced in size by 43.38% of the original size of the file. 
+Percent of Compression: 56.62%
+The compressed file size is 56.62% of the original file size.
+Compression Ratio: 1.77
+
+
+
+Executed Line: encode.compress(file=self.debug_file)...
+Time Δ Nanoseconds: 556014000
+Time Δ Microseconds: 556014.0
+Time Δ Milliseconds: 556.014
+Time Δ Seconds: 0.556014
+
+
