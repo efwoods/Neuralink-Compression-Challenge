@@ -566,14 +566,14 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(file=self.file)
         self.assertEqual(type(byte_string), bytes)
 
-    def test18_test_compress_file_name_quick(self):
-        logging.info(
-            "\n\ntest18: This is a test to compress the data using the "
-            + "'compress' method and the file name where "
-            + "the quick argument is passed into the function.\n\n"
-        )
-        byte_string = encode.compress(file=self.file, quick=True)
-        self.assertEqual(type(byte_string), bytes)
+    # def test18_test_compress_file_name_quick(self):
+    #     logging.info(
+    #         "\n\ntest18: This is a test to compress the data using the "
+    #         + "'compress' method and the file name where "
+    #         + "the quick argument is passed into the function.\n\n"
+    #     )
+    #     byte_string = encode.compress(file=self.file, quick=True)
+    #     self.assertEqual(type(byte_string), bytes)
 
     def test19_test_compress_sample_rate_input_wav(self):
         logging.info(
@@ -585,18 +585,18 @@ class TestEncode(unittest.TestCase):
         byte_string = encode.compress(sample_rate=sample_rate, input_wav=input_wav)
         self.assertEqual(type(byte_string), bytes)
 
-    def test20_test_compress_sample_rate_input_wav_quick(self):
-        logging.info(
-            "\n\ntest20: This is a test to compress the data using the "
-            + "'compress' method where the inputs are "
-            + "sample_rate and input_wav while implementing the "
-            + "'quick' option. \n\n"
-        )
-        sample_rate, input_wav = wavfile.read(filename=self.file)
-        byte_string = encode.compress(
-            sample_rate=sample_rate, input_wav=input_wav, quick=True
-        )
-        self.assertEqual(type(byte_string), bytes)
+    # def test20_test_compress_sample_rate_input_wav_quick(self):
+    #     logging.info(
+    #         "\n\ntest20: This is a test to compress the data using the "
+    #         + "'compress' method where the inputs are "
+    #         + "sample_rate and input_wav while implementing the "
+    #         + "'quick' option. \n\n"
+    #     )
+    #     sample_rate, input_wav = wavfile.read(filename=self.file)
+    #     byte_string = encode.compress(
+    #         sample_rate=sample_rate, input_wav=input_wav, quick=True
+    #     )
+    #     self.assertEqual(type(byte_string), bytes)
 
     def test21_test_main_method_of_compression_h(self):
         logging.info(
@@ -667,30 +667,30 @@ class TestEncode(unittest.TestCase):
             method="encode.compress(file=self.file",
         )
 
-    def test25_test_compress_method_of_compression_h(self):
-        logging.info(
-            "\n\ntest25: This is a test to compress the data using the "
-            + "'compress' method where the method of compression "
-            + "will be interpreted to 'h' because the length of the "
-            + "unique indices of the input amplitudes will be more "
-            + "than 256 and the 'quick' option is set to 'True'. \n\n"
-        )
+    # def test25_test_compress_method_of_compression_h(self):
+    #     logging.info(
+    #         "\n\ntest25: This is a test to compress the data using the "
+    #         + "'compress' method where the method of compression "
+    #         + "will be interpreted to 'h' because the length of the "
+    #         + "unique indices of the input amplitudes will be more "
+    #         + "than 256 and the 'quick' option is set to 'True'. \n\n"
+    #     )
 
-        start_time = time.time_ns()
-        byte_string = encode.compress(file=self.debug_file, quick=True)
-        stop_time = time.time_ns()
+    #     start_time = time.time_ns()
+    #     byte_string = encode.compress(file=self.debug_file, quick=True)
+    #     stop_time = time.time_ns()
 
-        self.assertEqual(type(byte_string), bytes)
+    #     self.assertEqual(type(byte_string), bytes)
 
-        rate, data = wavfile.read(self.debug_file)
+    #     rate, data = wavfile.read(self.debug_file)
 
-        process_signal.print_compression_efficiency_metrics_wrapper(
-            original_data=data,
-            compressed_data=byte_string,
-            start_time=start_time,
-            stop_time=stop_time,
-            method="encode.compress(file=self.debug_file, quick=True)",
-        )
+    #     process_signal.print_compression_efficiency_metrics_wrapper(
+    #         original_data=data,
+    #         compressed_data=byte_string,
+    #         start_time=start_time,
+    #         stop_time=stop_time,
+    #         method="encode.compress(file=self.debug_file, quick=True)",
+    #     )
 
     def test26_test_compress_method_of_compression_n(self):
         logging.info(
@@ -1148,7 +1148,7 @@ class TestEncode(unittest.TestCase):
     #     byte_string = encode.compress(sample_rate = self.test_sample_rate, input_wav = self.test_data, quick=True)
     #     self.assertEqual(type(byte_string), bytes)
 
-    def test46_test_method_of_compression_is_not_quick_during_compress(self):
+    def test46_test_method_of_compression_is_not_defined_during_compress(self):
         logging.info(
             "\n\ntest46: This tests the case during the "
             + "'compress' method that the 'quick' option is "
@@ -1219,35 +1219,41 @@ class TestEncode(unittest.TestCase):
         encoded_method_of_compression = byte_string[-1:].decode(encoding="utf-8")
         self.assertEqual(encoded_method_of_compression, "h")
 
-    def test49_test_main_length_of_unique_amplitudes_is_greater_than_65536_neural_spike_detection_implemented(
-        self,
-    ):
+    def test49_test_compress_method_u_length_is_greater_than_65536_Value_Error(self):
         logging.info(
-            "\n\ntest49: This tests the 'main' function in "
-            + "the case that the number of unique amplitudes "
-            + "is greater than 65536 and the quick argument "
-            + "is set to 'False'. \n\n"
+            "\n\ntest49: This tests the case when the 'compress' "
+            + "function is used, the method is defined as 'u', and "
+            + "the length of the unique amplitdue indices is greater "
+            + "than 65536. This will raise a ValueError because the "
+            + "data type will be larger than a 16-bit integer and thus "
+            + "the amplitudes are beyond the physical parameters that "
+            + "are consistent with neural data in this body of work."
         )
-        # Create Sample Test File
-        wavfile.write(
-            filename=self.test_file_path,
-            rate=self.test_sample_rate,
-            data=self.test_data,
+        error_string_to_be_identified = (
+            "Error: The length of the unique amplitudes is "
+            + "greater than 65536. The data would be "
+            + "compressed with a ratio that is greater than "
+            + "1 using this means of compression. Please "
+            + "select another compression method. "
         )
+        with self.assertRaises(ValueError) as cm:
+            byte_string = encode.compress(
+                sample_rate=self.test_sample_rate, input_wav=self.test_data, method="u"
+            )
+        identified_exception = cm.exception
+        self.assertEqual(identified_exception.args[0], error_string_to_be_identified)
 
-        # Encode the Sample Test File
-        parser = encode.initialize_argument_parser()
-        args = parser.parse_args([self.test_file_path, self.test_compressed_file_path])
-        encode.main(args=args)
-
-        # Assert the Encoding Properly Functioned
-        byte_string = process_signal.read_file_bytes(
-            file_path=self.compressed_file_path
+    def test50_test_compress_method_h(self):
+        logging.info(
+            "\n\ntest50: This tests the case when the "
+            + "'compress' function is called and the method "
+            + "is explicitly defined as 'h'."
         )
-        self.assertEqual(type(byte_string), bytes)
-
-        encoded_method_of_compression = byte_string[:-1].decode(encoding="utf-8")
-        self.assertEqual(encoded_method_of_compression, "n")
+        # Create Test Data
+        sr, data = wavfile.read(self.file)
+        byte_string = encode.compress(sample_rate=sr, input_wav=data, method="h")
+        detected_method_of_compression = byte_string[-1:].decode(encoding="utf-8")
+        self.assertEqual(detected_method_of_compression, "h")
 
 
 if __name__ == "__main__":

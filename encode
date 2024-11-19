@@ -581,11 +581,10 @@ def compress(
             else:
                 error_string = (
                     "Error: The length of the unique amplitudes is "
-                    + "greater than 65536. The data compressed with a "
-                    + "ratio that is greater than 1 using this means "
-                    + "of compression. Please select another "
-                    + "compression method or implement the 'quick' "
-                    + "option."
+                    + "greater than 65536. The data would be "
+                    + "compressed with a ratio that is greater than "
+                    + "1 using this means of compression. Please "
+                    + "select another compression method. "
                 )
                 raise ValueError(error_string)
         elif method == "h":
@@ -739,15 +738,9 @@ def main(args):
             """
 
             byte_string = encode_using_amplitude_indices(data=input_wav)
-        elif args.quick:
+        else:
             # method of compression = h
             byte_string = create_huffman_encoded_file(input_wav)
-        else:
-            # method of compression = n
-            byte_string = implement_spike_detection_module_and_huffman_encode_file(
-                sample_rate, input_wav
-            )
-
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
     )
