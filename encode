@@ -456,7 +456,7 @@ def encode_using_amplitude_indices(data):
     written as a single unsigned byte rather than a 16-bit signed
     integer. This approximately reduces the file size by half in less
     time than the neural spike detection module. This algorithm is only
-    useful when the number of unique amplitudes is less than 256.
+    useful when the number of unique amplitudes is less than 257.
     Otherwise, the number of bits needed to represent the indices is
     greater than the number of bits needed to represent the original
     amplitudes.
@@ -475,18 +475,18 @@ def encode_using_amplitude_indices(data):
     """
     data_l = data.tolist()
     unique_amplitudes = np.unique(data_l).tolist()
-    if len(unique_amplitudes) < 256:
+    if len(unique_amplitudes) <= 256:
         indices = np.array(
             [unique_amplitudes.index(value) for value in data_l], dtype=np.uint8
         )
-    elif len(unique_amplitudes) < 65536:
+    elif len(unique_amplitudes) <= 65536:
         indices = np.array(
             [unique_amplitudes.index(value) for value in data_l], dtype=np.uint16
         )
     else:
         error_string = (
             "The number of unique_amplitudes is greater "
-            + "than 65535. The indices will not be properly expressed "
+            + "than 65536. The indices will not be properly expressed "
             + "by unsigned 16-bit integers. Please select another "
             + "method of compression for this data."
         )
@@ -498,7 +498,7 @@ def encode_using_amplitude_indices(data):
         input_data=indices
     )
 
-    if len(unique_amplitudes) < 256:
+    if len(unique_amplitudes) <= 256:
         byte_string = create_byte_string(
             node_mapping_dict,
             bit_string,
@@ -522,14 +522,16 @@ def compress(
     file: str = None,
     sample_rate: int = None,
     input_wav: list = None,
-    quick: bool = None,
+    method: str = None,
 ):
     """This function accepts a file path to compress. It will read data,
     preprocess the data, detect neural spikes, create an object
     containing only the detected spikes, convert this object to a string
     of bytes, huffman encode those bytes, and return a bytes object
-    containing the compressed data. Using the file name & the quick
-    option are acceptable input parameters.
+    containing the compressed data. Implementing the method of
+    compression (method) option will take priority as a means of
+    compression. Otherwise, the file will be compressed using the
+    fastest means available.
 
     Args:
         file (str): This is the path to the file to be compressed.
@@ -537,59 +539,104 @@ def compress(
                     and quick are present. Defaults to None.
         sample_rate (int): This is the rate at which the data was
                             sampled. Defaults to None.
-        data (list): This is the list of amplitudes to compress.
-        quick (bool): This is the enabler variable that will allow the
-                        data to be either compressed strictly using
-                        huffman encoding (the fastest method) or to be
-                        compressed with the maximum level of
-                        compression. Defaults to None.
+        input_wav (list): This is the list of amplitudes to compress.
+        method (str): This is the method of compression to be
+                        implemented. Acceptable values are 'u', 'h', or
+                        'n'. 'u' indicates the unique amplitudes list
+                        will be used as a means of compression. In the
+                        case that the number of unique amplitudes are
+                        greater than 256 and less than 65537 then the
+                        method of compression (method) will be assigend
+                        to 'w' to indicate the bit-size of the integer
+                        used to represent the encoded data. 'h'
+                        indicates the huffman encoding will be used as
+                        a means of compression. 'n' indicates the
+                        neural compression module will be used as a
+                        means of compression.
     """
 
     if file:
         sample_rate, input_wav = wavfile.read(file)
     else:
-        try:
-            if sample_rate is not None and input_wav is not None:
-                # Verify that sample_rate & data are present if
-                # file is not.
-                pass
-        except Exception as e:
-            print("Error: compress requires either file to be ", end="")
-            print("defined or sample_rate and data ", end="")
-            print("to be defined.")
-            print(f"\n{e}")
-    if len(np.unique(input_wav)) < 256:
-        # implement unique dictionary and huffman encode for maximum
-        # compression in the shortest period of time.
-        method_of_compression = "u"
-        byte_string = encode_using_amplitude_indices(data=input_wav)
-    elif len(np.unique(input_wav)) < 65536:
-        method_of_compression = "w"
-        byte_string = encode_using_amplitude_indices(data=input_wav)
-    elif quick:
-        method_of_compression = "h"
-        input_data = input_wav
+        if sample_rate is not None and input_wav is not None:
+            # Verify that sample_rate & data are present if
+            # file is not.
+            pass
+        else:
+            error_string = (
+                "Error: compress requires either file "
+                + "to be defined or sample_rate and "
+                + "input_wav to be defined."
+            )
+            raise ValueError(error_string)
+    if method:
+        if method == "u":
+            if len(np.unique(input_wav)) <= 256:
+                # implement unique dictionary and huffman encode for maximum
+                # compression in the shortest period of time.
+                byte_string = encode_using_amplitude_indices(data=input_wav)
+            elif len(np.unique(input_wav)) <= 65536:
+                method = "w"
+                byte_string = encode_using_amplitude_indices(data=input_wav)
+            else:
+                error_string = (
+                    "Error: The length of the unique amplitudes is "
+                    + "greater than 65536. The data would be "
+                    + "compressed with a ratio that is greater than "
+                    + "1 using this means of compression. Please "
+                    + "select another compression method. "
+                )
+                raise ValueError(error_string)
+        elif method == "h":
+            input_data = input_wav
+        elif method == "n":
+            filtered_data_bandpass = process_signal.preprocess_signal(
+                raw_neural_signal=input_wav, sample_rate=sample_rate
+            )
+            spike_train_time_index_list = process_signal.detect_neural_spikes(
+                filtered_data_bandpass
+            )
+            encoded_data = process_signal.create_encoded_data(
+                sample_rate=sample_rate,
+                number_of_samples=len(filtered_data_bandpass),
+                spike_train_time_index_list=spike_train_time_index_list,
+                neural_data=filtered_data_bandpass,
+            )
+            encoded_data_byte_string = (
+                process_signal.convert_encoded_data_to_byte_string(encoded_data)
+            )
+            input_data = encoded_data_byte_string
+        else:
+            error_string = (
+                "Error: the method of compression (method) "
+                + "must be of value 'u', 'h', or 'n'. "
+                + "Please select a new value for the method of "
+                + "compression."
+            )
+            raise ValueError(error_string)
     else:
-        # perform neural spike detection as a means of compression.
-        method_of_compression = "n"
-        filtered_data_bandpass = process_signal.preprocess_signal(
-            raw_neural_signal=input_wav, sample_rate=sample_rate
-        )
-        spike_train_time_index_list = process_signal.detect_neural_spikes(
-            filtered_data_bandpass
-        )
-        encoded_data = process_signal.create_encoded_data(
-            sample_rate=sample_rate,
-            number_of_samples=len(filtered_data_bandpass),
-            spike_train_time_index_list=spike_train_time_index_list,
-            neural_data=filtered_data_bandpass,
-        )
-        encoded_data_byte_string = process_signal.convert_encoded_data_to_byte_string(
-            encoded_data
-        )
-        input_data = encoded_data_byte_string
+        """If the method of compression is not defined, the quickest
+        method of compression will be prioritized.
+        """
+        if len(np.unique(input_wav)) <= 256:
+            # implement unique dictionary and huffman encode for maximum
+            # compression in the shortest period of time.
+            method = "u"
+            byte_string = encode_using_amplitude_indices(data=input_wav)
+        elif len(np.unique(input_wav)) <= 65536:
+            method = "w"
+            byte_string = encode_using_amplitude_indices(data=input_wav)
+        else:
+            error_string = (
+                "Error: The number of unique amplitudes are greater "
+                + "than 65536. Therefore, the data type must be "
+                + "greater than a 16-bit integer, and the amplitudes "
+                + "are out of range of the acceptable parameters for a "
+                + "neural signal. "
+            )
+            raise ValueError(error_string)
 
-    if method_of_compression == "h" or method_of_compression == "n":
+    if method == "h" or method == "n":
         node_mapping_dict, bit_string, end_zero_padding = huffman_encoding(
             input_data=input_data
         )
@@ -598,7 +645,7 @@ def compress(
             node_mapping_dict,
             bit_string,
             end_zero_padding,
-            method_of_compression=method_of_compression,
+            method_of_compression=method,
         )
 
     return byte_string
@@ -664,24 +711,6 @@ def initialize_argument_parser():
     return parser
 
 
-def parse_arguments():
-    """This function will parse arguments and print the file paths of
-    the parsed arguments.
-
-    Args:
-        parser (ArgumentParser): This is the initialized argument parser.
-
-    Returns:
-        args (str): This is the sequence of the string of arguments.
-    """
-    parser = initialize_argument_parser()
-    args = parser.parse_args()
-
-    print("file: {}".format(args.file_path))
-    print("compressed_file_path: {}".format(args.compressed_file_path))
-    return args
-
-
 def main(args):
     """This is the main driver of the code."""
     # Read Data
@@ -700,23 +729,28 @@ def main(args):
                 sample_rate, input_wav
             )
     else:
-        if len(np.unique(input_wav)) < 65536:
-            # method of compression = u
+        if len(np.unique(input_wav)) <= 65536:
+            """
+            method of compression = 'u' if the length of unique
+                amplitudes is <= 256.
+            method of compression = 'w' if the length of unique
+                amplitudes is > 256 and <= 65537.
+            """
+
             byte_string = encode_using_amplitude_indices(data=input_wav)
-        elif args.quick:
+        else:
             # method of compression = h
             byte_string = create_huffman_encoded_file(input_wav)
-        else:
-            # method of compression = n
-            byte_string = implement_spike_detection_module_and_huffman_encode_file(
-                sample_rate, input_wav
-            )
-
     process_signal.write_file_bytes(
         file_path=args.compressed_file_path, data_bytes=byte_string
     )
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
+    parser = initialize_argument_parser()
+    args = parser.parse_args()
+
+    print("file: {}".format(args.file_path))
+    print("compressed_file_path: {}".format(args.compressed_file_path))
+
     main(args)
