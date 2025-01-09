@@ -66,8 +66,8 @@ class TestEncode(unittest.TestCase):
         self.debug_compressed_file_path = (
             "data/0052503c-2849-4f41-ab51-db382103690c.wav.brainwire"
         )
-        self.test_sample_rate = test_sample_rate = 19531
-        self.test_data = test_data = np.arange(0, 100000, step=1, dtype=np.int32)
+        self.test_sample_rate = 19531
+        self.test_data = np.arange(0, 100000, step=1, dtype=np.int32)
 
         self.test_file_path = "test_file.wav"
         self.test_compressed_file_path = "test_file.wav.brainwire"
